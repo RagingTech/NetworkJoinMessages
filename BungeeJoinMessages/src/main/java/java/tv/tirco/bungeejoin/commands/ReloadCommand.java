@@ -15,6 +15,7 @@ public class ReloadCommand extends Command {
     public void execute(CommandSender sender, String[] args) {
         if(sender.hasPermission("bungeejoinmessages.reload")) {
             Main.getInstance().reloadConfig();
+            Main.getInstance().getDiscordWebhookIntegration().loadConfig();
 			String msg = Main.getInstance().getConfig().getString("Messages.Commands.Reload.ConfigReloaded", 
 					"Config Reloaded!");
             sender.sendMessage( new TextComponent(HexChat.translateHexCodes(msg)));

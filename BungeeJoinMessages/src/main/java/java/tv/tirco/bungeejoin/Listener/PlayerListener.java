@@ -16,6 +16,9 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
 import tv.tirco.bungeejoin.BungeeJoinMessages.Storage;
+import tv.tirco.bungeejoin.events.NetworkJoinEvent;
+import tv.tirco.bungeejoin.events.NetworkQuitEvent;
+import tv.tirco.bungeejoin.events.SwapServerEvent;
 import tv.tirco.bungeejoin.util.HexChat;
 import tv.tirco.bungeejoin.util.MessageHandler;
 
@@ -93,6 +96,10 @@ public class PlayerListener implements Listener{
 	    		//This one is special as there are certain settings in place.
 	    		MessageHandler.getInstance().broadcastMessage(HexChat.translateHexCodes( message),"switch", from, to);
 	    	}
+
+			// Call the custom ServerSwapEvent
+			SwapServerEvent swapServerEvent = new SwapServerEvent(player, MessageHandler.getInstance().getServerName(from), MessageHandler.getInstance().getServerName(to), Storage.getInstance().getAdminMessageState(player), message);
+			Main.getInstance().getProxy().getPluginManager().callEvent(swapServerEvent);
 		}
 
 	}
@@ -156,7 +163,11 @@ public class PlayerListener implements Listener{
 			    		MessageHandler.getInstance().broadcastMessage(HexChat.translateHexCodes( message), "join", player);
 
 			    	}
-			    	
+
+					// All checks have passed to reach this point
+				 	// Call the custom NetworkJoinEvent
+				 	NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(player, MessageHandler.getInstance().getServerName(player.getServer().getInfo().getName()), Storage.getInstance().getAdminMessageState(player), message);
+				 	Main.getInstance().getProxy().getPluginManager().callEvent(networkJoinEvent);
 			 }
 
 
@@ -212,5 +223,9 @@ public class PlayerListener implements Listener{
     	
     	//Set them as not connected, as they have left the server.
     	Storage.getInstance().setConnected(player, false);
+
+		// Call the custom NetworkQuitEvent
+		NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(player, MessageHandler.getInstance().getServerName(player.getServer().getInfo().getName()), Storage.getInstance().getAdminMessageState(player), message);
+		Main.getInstance().getProxy().getPluginManager().callEvent(networkQuitEvent);
     }
 }

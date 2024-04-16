@@ -15,6 +15,7 @@ import tv.tirco.bungeejoin.Listener.VanishListener;
 import tv.tirco.bungeejoin.commands.FakeCommand;
 import tv.tirco.bungeejoin.commands.ReloadCommand;
 import tv.tirco.bungeejoin.commands.ToggleJoinCommand;
+import tv.tirco.bungeejoin.modules.DiscordWebhookIntegration;
 import tv.tirco.bungeejoin.util.HexChat;
 import tv.tirco.bungeejoin.util.MessageHandler;
 
@@ -26,6 +27,7 @@ public class Main extends Plugin {
     
     private Plugin mainPlugin;
     public boolean VanishAPI = false;
+	private DiscordWebhookIntegration discordWebhookIntegration;
 
 	@Override
     public void onEnable() {
@@ -35,6 +37,7 @@ public class Main extends Plugin {
         // Don't log enabling, Spigot does that for you automatically!
 
 		loadConfig();
+		discordWebhookIntegration = new DiscordWebhookIntegration();
         // Commands enabled with following method must have entries in plugin.yml
         //getCommand("example").setExecutor(new ExampleCommand(this));
 		MessageHandler.getInstance().setupConfigMessages();
@@ -93,6 +96,10 @@ public class Main extends Plugin {
 
 	public Plugin getPlugin() {
 		return mainPlugin;
+	}
+
+	public DiscordWebhookIntegration getDiscordWebhookIntegration() {
+		return discordWebhookIntegration;
 	}
 
 	/**
