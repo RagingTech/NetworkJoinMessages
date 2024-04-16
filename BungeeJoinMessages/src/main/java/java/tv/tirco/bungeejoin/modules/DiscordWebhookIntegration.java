@@ -157,8 +157,8 @@ public class DiscordWebhookIntegration implements Listener {
     }
 
     private String replacePlaceholdersSwap(String txt, ProxiedPlayer player, String toServer, String fromServer) {
-        String displayTo = MessageHandler.getInstance().getServerName(toServer);
-        String displayFrom = MessageHandler.getInstance().getServerName(fromServer);
+        String displayTo = ChatColor.translateAlternateColorCodes('&', MessageHandler.getInstance().getServerName(toServer));
+        String displayFrom = ChatColor.translateAlternateColorCodes('&', MessageHandler.getInstance().getServerName(fromServer));
         return txt
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                 .replace("%player%", player.getName())
@@ -177,7 +177,7 @@ public class DiscordWebhookIntegration implements Listener {
     }
 
     private String replacePlaceholdersJoinLeave(String txt, ProxiedPlayer player, boolean leaving) {
-        String displayServer = MessageHandler.getInstance().getServerName(player.getServer().getInfo().getName());
+        String displayServer = ChatColor.translateAlternateColorCodes('&', MessageHandler.getInstance().getServerName(player.getServer().getInfo().getName()));
         return txt
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                 .replace("%player%", player.getName())

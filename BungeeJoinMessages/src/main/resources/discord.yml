@@ -53,7 +53,7 @@ Messages:
       Color: "#444444"
       Author:
         ImageUrl: "%embedavatarurl%"
-        Name: "%player% [%from%] (%playercount_from%) -> [%to%] (%playercount_to%)"
+        Name: "%player% swapped servers"
         Url: ""
       ThumbnailUrl: ""
       Title:
@@ -61,7 +61,9 @@ Messages:
         Url: ""
       Description: ""
       # Format is "title;value;inline" (eg. "Who joined?;%displayname%;true") or "blank" to add a blank field
-      Fields: []
+      Fields:
+        - "From;%from_clean%;true"
+        - "To;%to_clean%;true"
       ImageUrl: ""
       Footer:
         Text: ""
