@@ -15,6 +15,7 @@ EmbedAvatarUrl: "https://mc-heads.net/avatar/%uuid%"
 
 # ALl rules/settings in config.yml are honored here as well
 # Configuration for swap-server, join, and leave messages is below
+# Anything that is supposed to be a url MUST be either blank or a valid url!!!
 
 # Available placeholders for swap are:
 # %embedavatarurl%      - Defined above
@@ -40,7 +41,7 @@ Messages:
   SwapServer:
     # Whether to enable the message
     Enabled: true
-    # Lets you define a custom name or pfp url just for this message type
+    # Lets you define a custom name and/or pfp url just for this message type
     CustomWebhook:
       Enabled: false
       Name: ""
@@ -69,7 +70,7 @@ Messages:
   JoinNetwork:
     # Whether to enable the message
     Enabled: true
-    # Lets you define a custom name or pfp url just for this message type
+    # Lets you define a custom name and/or pfp url just for this message type
     CustomWebhook:
       Enabled: false
       Name: ""
@@ -81,7 +82,7 @@ Messages:
       Color: "#3d8c40"
       Author:
         ImageUrl: "%embedavatarurl%"
-        Name: "%player% joined the server"
+        Name: "%player% joined the network"
         Url: ""
       ThumbnailUrl: ""
       Title:
@@ -98,7 +99,7 @@ Messages:
   LeaveNetwork:
     # Whether to enable the message
     Enabled: true
-    # Lets you define a custom name or pfp url just for this message type
+    # Lets you define a custom name and/or pfp url just for this message type
     CustomWebhook:
       Enabled: false
       Name: ""
@@ -110,7 +111,7 @@ Messages:
       Color: "#ff0000"
       Author:
         ImageUrl: "%embedavatarurl%"
-        Name: "%player% left the server"
+        Name: "%player% left the network"
         Url: ""
       ThumbnailUrl: ""
       Title:
