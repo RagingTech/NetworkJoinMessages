@@ -172,7 +172,7 @@ public class PlayerListener implements Listener{
 
 
 		 }
-	 }, 3, TimeUnit.SECONDS);
+	 }, Main.getInstance().getConfig().getInt("Messages.Misc.JoinMessageDelaySeconds", 3), TimeUnit.SECONDS);
 
 //        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 //        	

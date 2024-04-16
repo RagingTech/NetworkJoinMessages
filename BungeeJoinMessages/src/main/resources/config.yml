@@ -51,6 +51,8 @@ Messages:
         ConsoleSilentMoveEvent: "&1Move Event was silenced. <player> <from> -> <to>"
         ConsoleSilentJoinEvent: "&6Join Event was silenced. <player> joined the network."
         ConsoleSilentQuitEvent: "&cQuit Event was silenced. <player> left the network."
+        ##Don't lower this delay too much or you may get false join messages from banned/failed logins
+        JoinMessageDelaySeconds: 3
 Settings:
     ##Should players with the bungeejoinmessages.silent permission be silenced by default?
     ##It will be set to this for all players after a reboot. They can toggle it for themselves with the /fakemessage toggle command

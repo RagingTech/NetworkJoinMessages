@@ -28,6 +28,7 @@ public class Main extends Plugin {
     private Plugin mainPlugin;
     public boolean VanishAPI = false;
 	private DiscordWebhookIntegration discordWebhookIntegration;
+    public boolean LuckPermsAPI = false;
 
 	@Override
     public void onEnable() {
@@ -53,6 +54,10 @@ public class Main extends Plugin {
 			getLogger().info("Detected PremiumVanish! - Using API.");
 			this.VanishAPI = true;
 			getProxy().getPluginManager().registerListener(this, new VanishListener());
+		}
+		if(ProxyServer.getInstance().getPluginManager().getPlugin("LuckPerms") != null) {
+			getLogger().info("Detected Luckperms! - Using API.");
+			this.LuckPermsAPI = true;
 		}
 		getLogger().info("has loaded!");
     }
