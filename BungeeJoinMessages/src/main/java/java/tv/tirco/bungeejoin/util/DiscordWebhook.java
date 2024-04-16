@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Set;
 /**
  * Class used to execute Discord Webhooks with low effort
  *
- * @author k3kdude
+ * @author k3kdude & EarthCow
  */
 public class DiscordWebhook {
 
@@ -77,6 +78,7 @@ public class DiscordWebhook {
                 jsonEmbed.put("title", embed.getTitle());
                 jsonEmbed.put("description", embed.getDescription());
                 jsonEmbed.put("url", embed.getUrl());
+                jsonEmbed.put("timestamp", embed.getTimestamp());
 
                 if (embed.getColor() != null) {
                     Color color = embed.getColor();
@@ -150,7 +152,6 @@ public class DiscordWebhook {
         connection.setRequestMethod("POST");
 
         OutputStream stream = connection.getOutputStream();
-        System.out.print(json);
         stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
         stream.flush();
         stream.close();
@@ -166,6 +167,7 @@ public class DiscordWebhook {
         private Color color;
 
         private Footer footer;
+        private String timestamp;
         private Thumbnail thumbnail;
         private Image image;
         private Author author;
@@ -189,6 +191,10 @@ public class DiscordWebhook {
 
         public Footer getFooter() {
             return footer;
+        }
+
+        public String getTimestamp() {
+            return timestamp;
         }
 
         public Thumbnail getThumbnail() {
@@ -229,6 +235,11 @@ public class DiscordWebhook {
 
         public EmbedObject setFooter(String text, String icon) {
             this.footer = new Footer(text, icon);
+            return this;
+        }
+
+        public EmbedObject setTimestamp(TemporalAccessor temporalAccessor) {
+            this.timestamp = temporalAccessor.toString();
             return this;
         }
 

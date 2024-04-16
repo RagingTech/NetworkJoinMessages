@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Date;
 import java.util.List;
 
 public class DiscordWebhookIntegration implements Listener {
@@ -279,6 +280,11 @@ public class DiscordWebhookIntegration implements Listener {
             }
         }
 
+        // Set the timestamp
+        if (discordConfig.getBoolean(key + ".Timestamp")) {
+            embed.setTimestamp((new Date()).toInstant());
+        }
+
         return embed;
 
     }
@@ -365,6 +371,11 @@ public class DiscordWebhookIntegration implements Listener {
             if (!discordConfig.getString(key + ".Footer.Text").isEmpty()) {
                 embed.setFooter(getJoinLeaveConfigValue(key + ".Footer.Text", player, leaving), getJoinLeaveConfigValue(key + ".Footer.Icon", player, leaving));
             }
+        }
+
+        // Set the timestamp
+        if (discordConfig.getBoolean(key + ".Timestamp")) {
+            embed.setTimestamp((new Date()).toInstant());
         }
 
         return embed;
