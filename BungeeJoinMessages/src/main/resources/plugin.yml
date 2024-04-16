@@ -3,7 +3,7 @@ version: ${version}
 description: ${description}
 author: ${author}
 website: ${url}
-softdepend: [SuperVanish, PremiumVanish]
+softdepend: [SuperVanish, PremiumVanish, LuckPerms]
 api-version: 1.16
 
 main: ${mainClass}
