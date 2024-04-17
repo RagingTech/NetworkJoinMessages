@@ -1,5 +1,6 @@
 # This is the configuration for an optional discord webhook integration
 # Here you can provide a discord webhook url for notifications :)
+# This feature is new in 2.0.0
 
 # Whether to enable the integration
 Enabled: false
@@ -13,7 +14,7 @@ WebhookUrl: "https://discord.com/api/webhooks/00000000000000000000/example-repla
 # Available placeholders are %uuid% & %player%
 EmbedAvatarUrl: "https://mc-heads.net/avatar/%uuid%"
 
-# ALl rules/settings in config.yml are honored here as well
+# All rules/settings in config.yml are honored here as well
 # Configuration for swap-server, join, and leave messages is below
 # Anything that is supposed to be a url MUST be either blank or a valid url!!!
 
