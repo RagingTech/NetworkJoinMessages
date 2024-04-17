@@ -35,17 +35,35 @@ Messages:
     NoMoreArgumentsNeeded: "No more arguments needed."
     NoPermission: "&cYou do not have the permission to use this command."
     Fakemessage:
-      NoArgument: "&6Arguments:\n- &cfakejoin\n- &cfakequit\n- &cfakeswitch&6 (to) (from)\n"
-      FakeSwitchNoArgument: "&6Arguments:\n- &cfakejoin\n- &cfakequit\n- &cfakeswitch&6 (to) (from)\n&4Error: Please specify &cTO&4 and &cFROM\n"
+      NoArgument: |
+        &6Arguments:
+        - &cfakejoin
+        - &cfakequit
+        - &cfakeswitch&6 (to) (from)
+      FakeSwitchNoArgument: |
+        &6Arguments:
+        - &cfakejoin
+        - &cfakequit
+        - &cfakeswitch&6 (to) (from)
+        &4Error: Please specify &cTO&4 and &cFROM
       ToggleSilentNoPerm: "&cYou do not have the permission to join the server silently."
       ToggleSilent: "&eYour SilentMode has now been set to &6<state>"
-      JoinNotification: "&7[BungeeJoin] You joined the server while silenced.\n&7To have messages automatically enabled for you until\n&7next reboot, use the command &f/fm toggle&7."
-    ToggleJoin:
-      MissingFirstArgument: "&6Please specify which messages you would like to disable/enable.\n&6Valid arguments are:&f join, leave, switch, all"
-      MissingState: "&6Please specify which state you would like to set the message to.\n&6Valid arguments are: &aon &7/ &coff &6or &atrue &7/ &cfalse&f."
-      Confirmation: "&6Receive messages for &f<mode>&6 has been set to &f<state>\n&6This will last until the network reboots."
-    Reload:
-      ConfigReloaded: "Config Reloaded!"
+      JoinNotification: |-
+        &7[BungeeJoin] You joined the server while silenced.
+        &7To have messages automatically enabled for you until
+        &7next reboot, use the command &f/fm toggle&7.
+      ToggleJoin:
+        MissingFirstArgument: |-
+          &6Please specify which messages you would like to disable/enable.
+          &6Valid arguments are:&f join, leave, switch, all
+        MissingState: |-
+          &6Please specify which state you would like to set the message to.
+          &6Valid arguments are: &aon &7/ &coff &6or &atrue &7/ &cfalse&f.
+        Confirmation: |-
+          &6Receive messages for &f<mode>&6 has been set to &f<state>
+          &6This will last until the network reboots.
+      Reload:
+        ConfigReloaded: Config Reloaded!
   Misc:
     SilentPrefix: "&7[Silent] "
     ConsoleSilentMoveEvent: "&1Move Event was silenced. <player> <from> -> <to>"

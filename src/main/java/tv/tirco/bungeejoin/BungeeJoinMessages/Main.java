@@ -73,8 +73,7 @@ public class Main extends Plugin {
                       e.printStackTrace();
                   }
               }
-              configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
-              ConfigurationProvider.getProvider(YamlConfiguration.class).save(configuration, file);
+              configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(getDataFolder(), "config.yml"));
           } catch (IOException e) {
               e.printStackTrace();
           }
