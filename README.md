@@ -1,16 +1,16 @@
-## Note
-- The code above might not be the latest update, and it currently is in a transfer-state as I'm doing work to implement a bridge plugin.
+## About
 
-## Credits
+This is a continuation of Tirco's project [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages) as it appears it is no longer being maintained.
 
-* Kudos to Oracle for the Eclipse IDE and Apache for Maven.
-* Thank you to the Bukkit and Spigot communities for providing a better Minecraft server wrapper
+**Added Features** (so far)
+- Adds the option to configure the join message delay (advanced users only)
+- Adds a Discord webhook integration to allow sending the messages to Discord
 
 ## License
 
 Zlib was chosen as the basis for this project (BukkitPlugin) as it is highly permissive and easy for people to understand. The license has only been modified for this project to reflect authorship and creation year.
 
-Copyright (c) 2021 Tirco
+Copyright (c) 2021 Tirco and EarthCow
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
