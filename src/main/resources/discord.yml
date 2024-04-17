@@ -1,0 +1,129 @@
+# This is the configuration for an optional discord webhook integration
+# Here you can provide a discord webhook url for notifications :)
+
+# Whether to enable the integration
+Enabled: false
+
+# The webhook url - if you need help check out these resources
+# https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks
+# https://youtu.be/fKksxz2Gdnc?si=jxY0gr1tiPXiPsgf
+WebhookUrl: "https://discord.com/api/webhooks/00000000000000000000/example-replace-this"
+
+# The picture that will replace %embedavatarurl% throughout this config
+# Available placeholders are %uuid% & %player%
+EmbedAvatarUrl: "https://mc-heads.net/avatar/%uuid%"
+
+# ALl rules/settings in config.yml are honored here as well
+# Configuration for swap-server, join, and leave messages is below
+# Anything that is supposed to be a url MUST be either blank or a valid url!!!
+
+# Available placeholders for swap are:
+# %embedavatarurl%      - Defined above
+# %player%              - The player's username
+# %displayname%         - The custom name the player has according to bungee
+# %to%                  - The server they are heading to
+# %to_clean%            - The server they are heading to without color codes
+# %from%                - The server they are coming from
+# %from_clean%          - The server they are coming from without color codes
+# %playercount_from%    - The amount of players where they are coming from
+# %playercount_to%      - The amount of players where they are heading to
+# %playercount_network% - The amount of players on the network
+
+# Available placeholders for join/leave are:
+# %embedavatarurl%      - Defined above
+# %player%              - The player's username
+# %displayname%         - The custom name the player has according to bungee
+# %server_name%         - The name of the server they connected to
+# %server_name_clean%   - The name of the server they connected to without color codes
+# %playercount_server%  - The playercount of the server they are on
+# %playercount_network% - The amount of players on the network
+Messages:
+  SwapServer:
+    # Whether to enable the message
+    Enabled: true
+    # Lets you define a custom name and/or pfp url just for this message type
+    CustomWebhook:
+      Enabled: false
+      Name: ""
+      AvatarUrl: ""
+    # The message content
+    Content: ""
+    Embed:
+      Enabled: true
+      Color: "#444444"
+      Author:
+        ImageUrl: "%embedavatarurl%"
+        Name: "%player% swapped servers"
+        Url: ""
+      ThumbnailUrl: ""
+      Title:
+        Text: ""
+        Url: ""
+      Description: ""
+      # Format is "title;value;inline" (eg. "Who joined?;%displayname%;true") or "blank" to add a blank field
+      Fields:
+        - "From;%from_clean%;true"
+        - "To;%to_clean%;true"
+      ImageUrl: ""
+      Footer:
+        Text: ""
+        IconUrl: ""
+      Timestamp: false
+  JoinNetwork:
+    # Whether to enable the message
+    Enabled: true
+    # Lets you define a custom name and/or pfp url just for this message type
+    CustomWebhook:
+      Enabled: false
+      Name: ""
+      AvatarUrl: ""
+    # The message content
+    Content: ""
+    Embed:
+      Enabled: true
+      Color: "#3d8c40"
+      Author:
+        ImageUrl: "%embedavatarurl%"
+        Name: "%player% joined the network"
+        Url: ""
+      ThumbnailUrl: ""
+      Title:
+        Text: ""
+        Url: ""
+      Description: ""
+      # Format is "title;value;inline" (eg. "Who joined?;%displayname%;true") or "blank" to add a blank field
+      Fields: []
+      ImageUrl: ""
+      Footer:
+        Text: ""
+        IconUrl: ""
+      Timestamp: false
+  LeaveNetwork:
+    # Whether to enable the message
+    Enabled: true
+    # Lets you define a custom name and/or pfp url just for this message type
+    CustomWebhook:
+      Enabled: false
+      Name: ""
+      AvatarUrl: ""
+    # The message content
+    Content: ""
+    Embed:
+      Enabled: true
+      Color: "#ff0000"
+      Author:
+        ImageUrl: "%embedavatarurl%"
+        Name: "%player% left the network"
+        Url: ""
+      ThumbnailUrl: ""
+      Title:
+        Text: ""
+        Url: ""
+      Description: ""
+      # Format is "title;value;inline" (eg. "Who joined?;%displayname%;true") or "blank" to add a blank field
+      Fields: []
+      ImageUrl: ""
+      Footer:
+        Text: ""
+        IconUrl: ""
+      Timestamp: false

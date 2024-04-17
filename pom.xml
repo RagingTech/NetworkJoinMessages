@@ -1,52 +1,55 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>tv.tirco.bungeejoin</groupId>
-    <artifactId>BungeeJoinMessagesParent</artifactId>
+    <artifactId>BungeeJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
-    <version>1.12.0</version>
-    <packaging>pom</packaging>
+    <version>2.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <!-- Plugin Information -->
     <!-- Name, Description, and URL are used in plugin.yml -->
-    <name>BungeeJoinMessagesParent</name>
-    <description>Broadcast Join messages across your network.</description>
+    <name>BungeeJoinMessages</name>
+    <description>A plugin handling join, leave and switch messages for bungee servers.</description>
     <url>https://www.spigotmc.org/resources/bungee-join-messages.87134/</url>
-    
-    <modules>
-    <module>BungeeJoinMessages</module>
-    <module>BungeeJoinMessages-Bukkit</module>
-	</modules>
+
+    <inceptionYear>2021</inceptionYear>
 
     <licenses>
         <license>
-            <name>GNU License</name>
-            <url>https://www.gnu.org/licenses/</url>
-            <comments>Copyright (c) 2021 Tirco
-    		BungeeJoinMessages is free software: you can redistribute it and/or modify
-    		it under the terms of the GNU General Public License as published by
-    		the Free Software Foundation, either version 3 of the License, or
-    		(at your option) any later version.
-
-    		BungeeJoinMessages is distributed in the hope that it will be useful,
-    		but WITHOUT ANY WARRANTY; without even the implied warranty of
-    		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    		GNU General Public License for more details.</comments>
+            <name>Zlib</name>
+            <url>https://www.zlib.net/zlib_license.html</url>
+            <comments>A permissive, easy-to-understand software license.</comments>
         </license>
     </licenses>
 
     <developers>
         <developer>
-                <name>Tirco</name>
-                <url>http://tirco.tv</url>
+            <name>Tirco</name>
+            <url>http://tirco.tv</url>
+        </developer>
+        <developer>
+            <name>EarthCow</name>
+            <url>https://earthcow.xyz</url>
         </developer>
     </developers>
 
     <properties>
         <!--  Author and MainClass are used in plugin.yml -->
-        <author>Tirco</author>
+        <author>Tirco and EarthCow</author>
         <mainClass>tv.tirco.bungeejoin.BungeeJoinMessages.Main</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>bungeecord-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -63,51 +66,34 @@
             <type>javadoc</type>
             <scope>provided</scope>
         </dependency>
-          <!-- PremiumVanishAPI -->
-  		<dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>16.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- PremiumVanishAPI -->
+        <dependency>
     		<groupId>com.github.LeonMangler</groupId>
     		<artifactId>PremiumVanishAPI</artifactId>
     		<version>2.8.8</version>
   		</dependency>
-  		<dependency>
-        	<groupId>net.luckperms</groupId>
-        	<artifactId>api</artifactId>
-        	<version>5.4</version>
-        	<scope>provided</scope>
-    </dependency>
+        <!-- LuckPermsAPI -->
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.4</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>bungeecord-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-          <repository>
-    		<id>jitpack.io</id>
-    		<url>https://jitpack.io</url>
-  	</repository>
-    </repositories>
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
-        <defaultGoal>clean install</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <!-- Keeping filtering at true here reduces plugin.yml redundancy! -->
                 <filtering>true</filtering>
-                <includes>
-                    <include>plugin.yml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <!-- Keep filtering at false for other resources to prevent bad magic -->
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                    <exclude>plugin.yml</exclude>
-                </excludes>
             </resource>
         </resources>
         <plugins>
