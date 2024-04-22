@@ -1,6 +1,18 @@
 package tv.tirco.bungeejoin.util;
 
+import java.util.*;
+
 import de.myzelyam.api.vanish.BungeeVanishAPI;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.cacheddata.CachedMetaData;
+import net.luckperms.api.context.Context;
+import net.luckperms.api.context.ImmutableContextSet;
+import net.luckperms.api.context.MutableContextSet;
+import net.luckperms.api.model.group.Group;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.NodeType;
+import net.luckperms.api.query.QueryOptions;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -9,8 +21,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
 import tv.tirco.bungeejoin.BungeeJoinMessages.Storage;
-
-import java.util.*;
 
 public class MessageHandler {
 
@@ -194,11 +204,27 @@ public class MessageHandler {
 
 	public String formatMessage(String msg, ProxiedPlayer player) {
 		String serverName = getServerName(player.getServer().getInfo().getName());
-		return msg
+		String formattedMsg = msg
 				.replace("%player%", player.getName())
 				.replace("%displayname%", player.getDisplayName())
 				.replace("%server_name%", serverName)
 				.replace("%server_name_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', serverName)));
+		if (Main.getInstance().LuckPermsAPI) {
+			LuckPerms lp = LuckPermsProvider.get();
+			User lpUser = lp.getUserManager().getUser(player.getUniqueId());
+			if (lpUser != null) {
+				String rank = lpUser.getPrimaryGroup();
+				String displayRank = rank;
+				Group group = lp.getGroupManager().getGroup(rank);
+				if (group != null) {
+					displayRank = Objects.requireNonNullElse(group.getDisplayName(), rank);
+				}
+				formattedMsg = formattedMsg
+						.replace("%lp_rank%", ChatColor.translateAlternateColorCodes('&', rank))
+						.replace("%lp_rank_display%", ChatColor.translateAlternateColorCodes('&', displayRank));
+			}
+		}
+		return formattedMsg;
 	}
 
 	public String formatSwitchMessage(ProxiedPlayer player, String fromName, String toName) {
