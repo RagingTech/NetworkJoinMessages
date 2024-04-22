@@ -159,10 +159,8 @@ public class DiscordWebhookIntegration implements Listener {
     private String replacePlaceholdersSwap(String txt, ProxiedPlayer player, String toServer, String fromServer) {
         String displayTo = ChatColor.translateAlternateColorCodes('&', MessageHandler.getInstance().getServerName(toServer));
         String displayFrom = ChatColor.translateAlternateColorCodes('&', MessageHandler.getInstance().getServerName(fromServer));
-        return txt
+        return MessageHandler.getInstance().formatMessage(txt, player)
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                .replace("%player%", player.getName())
-                .replace("%displayname%", player.getDisplayName())
                 .replace("%to%", displayTo)
                 .replace("%to_clean%", ChatColor.stripColor(displayTo))
                 .replace("%from%", displayFrom)
@@ -177,13 +175,8 @@ public class DiscordWebhookIntegration implements Listener {
     }
 
     private String replacePlaceholdersJoinLeave(String txt, ProxiedPlayer player, boolean leaving) {
-        String displayServer = ChatColor.translateAlternateColorCodes('&', MessageHandler.getInstance().getServerName(player.getServer().getInfo().getName()));
-        return txt
+        return MessageHandler.getInstance().formatMessage(txt, player)
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                .replace("%player%", player.getName())
-                .replace("%displayname%", player.getDisplayName())
-                .replace("%server_name%", displayServer)
-                .replace("%server_name_clean%", ChatColor.stripColor(displayServer))
                 .replace("%playercount_server%", MessageHandler.getInstance().getServerPlayerCount(player.getServer().getInfo().getName(), leaving, player))
                 .replace("%playercount_network%", MessageHandler.getInstance().getNetworkPlayerCount(player, leaving));
     }

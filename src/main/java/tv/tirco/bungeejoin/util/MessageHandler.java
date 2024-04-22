@@ -1,11 +1,5 @@
 package tv.tirco.bungeejoin.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-
 import de.myzelyam.api.vanish.BungeeVanishAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -15,6 +9,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
 import tv.tirco.bungeejoin.BungeeJoinMessages.Storage;
+
+import java.util.*;
 
 public class MessageHandler {
 
@@ -196,72 +192,38 @@ public class MessageHandler {
 		return String.valueOf(players.size());
 	}
 
+	public String formatMessage(String msg, ProxiedPlayer player) {
+		String serverName = getServerName(player.getServer().getInfo().getName());
+		return msg
+				.replace("%player%", player.getName())
+				.replace("%displayname%", player.getDisplayName())
+				.replace("%server_name%", serverName)
+				.replace("%server_name_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', serverName)));
+	}
+
 	public String formatSwitchMessage(ProxiedPlayer player, String fromName, String toName) {
 		String from = getServerName(fromName);
 		String to = getServerName(toName);
-		
-		String messageFormat = getSwapServerMessage();
-		messageFormat = messageFormat.replace("%player%", player.getName());
-		messageFormat = messageFormat.replace("%displayname%", player.getDisplayName());
-		messageFormat = messageFormat.replace("%to%", to);
-		messageFormat = messageFormat.replace("%to_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',to)));
-		messageFormat = messageFormat.replace("%from%", from);
-		messageFormat = messageFormat.replace("%from_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',from)));
-		if(messageFormat.contains("%playercount_from%")) {
-			messageFormat = messageFormat.replace("%playercount_from%", getServerPlayerCount(fromName, true, player));
-		}
-		if(messageFormat.contains("%playercount_to%")) {
-			messageFormat = messageFormat.replace("%playercount_to%", getServerPlayerCount(toName, false, player));
-		}
-		if(messageFormat.contains("%playercount_network%")) {
-			messageFormat = messageFormat.replace("%playercount_network%", getNetworkPlayerCount(player, false));
-		}
-		
-		return messageFormat;
+		return formatMessage(getSwapServerMessage(), player)
+				.replace("%to%", to)
+				.replace("%to_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',to)))
+				.replace("%from%", from)
+				.replace("%from_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',from)))
+				.replace("%playercount_from%", getServerPlayerCount(fromName, true, player))
+				.replace("%playercount_to%", getServerPlayerCount(toName, false, player))
+				.replace("%playercount_network%", getNetworkPlayerCount(player, false));
 	}
 	
 	public String formatJoinMessage(ProxiedPlayer player) {
-		String messageFormat = getJoinNetworkMessage();
-		messageFormat = messageFormat.replace("%player%", player.getName());
-		messageFormat = messageFormat.replace("%displayname%", player.getDisplayName());
-		if(messageFormat.contains("%server_name%")) {
-			ServerInfo server = player.getServer().getInfo();
-			messageFormat = messageFormat.replace("%server_name%", getServerName(server.getName()));
-		}
-		if(messageFormat.contains("%server_name_clean%")) {
-			ServerInfo server = player.getServer().getInfo();
-			messageFormat = messageFormat.replace("%server_name_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', getServerName(server.getName()))));
-		}
-		if(messageFormat.contains("%playercount_server%")) {
-			messageFormat = messageFormat.replace("%playercount_server%", getServerPlayerCount(player, false));
-		}
-		if(messageFormat.contains("%playercount_network%")) {
-			messageFormat = messageFormat.replace("%playercount_network%", getNetworkPlayerCount(player, false));
-		}
-		
-		return messageFormat;
+		return formatMessage(getJoinNetworkMessage(), player)
+				.replace("%playercount_server%", getServerPlayerCount(player, false))
+				.replace("%playercount_network%", getNetworkPlayerCount(player, false));
 	}
 	
 	public String formatQuitMessage(ProxiedPlayer player) {
-		String messageFormat = getLeaveNetworkMessage();
-		messageFormat = messageFormat.replace("%player%", player.getName());
-		messageFormat = messageFormat.replace("%displayname%", player.getDisplayName());
-		if(messageFormat.contains("%server_name%")) {
-			ServerInfo server = player.getServer().getInfo();
-			messageFormat = messageFormat.replace("%server_name%", getServerName(server.getName()));
-		}
-		if(messageFormat.contains("%server_name_clean%")) {
-			ServerInfo server = player.getServer().getInfo();
-			messageFormat = messageFormat.replace("%server_name_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', getServerName(server.getName()))));
-		}
-		if(messageFormat.contains("%playercount_server%")) {
-			messageFormat = messageFormat.replace("%playercount_server%", getServerPlayerCount(player, true));
-		}
-		if(messageFormat.contains("%playercount_network%")) {
-			messageFormat = messageFormat.replace("%playercount_network%", getNetworkPlayerCount(player, true));
-		}
-		
-		return messageFormat;
+		return formatMessage(getLeaveNetworkMessage(), player)
+				.replace("%playercount_server%", getServerPlayerCount(player, true))
+				.replace("%playercount_network%", getNetworkPlayerCount(player, true));
 	}
 
 	public void log(String string) {
