@@ -117,6 +117,14 @@ public class PlayerListener implements Listener{
 		 public void run()
 		 {
 			 if(player.isConnected()) {
+				 while (player.getServer() == null) {
+					 try {
+						 Main.getInstance().getLogger().warning(player.getName() + "'s SERVER IS NULL WAITING A SECOND!!");
+						 wait(1000);
+					 } catch (InterruptedException e) {
+						 throw new RuntimeException(e);
+					 }
+				 }
 				 	Storage.getInstance().setConnected(player, true);
 				    if(!Storage.getInstance().isJoinNetworkMessageEnabled()) {
 				    	return;
