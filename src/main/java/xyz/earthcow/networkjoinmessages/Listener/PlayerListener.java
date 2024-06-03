@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.Listener;
+package xyz.earthcow.networkjoinmessages.Listener;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,13 +14,13 @@ import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Storage;
-import tv.tirco.bungeejoin.events.NetworkJoinEvent;
-import tv.tirco.bungeejoin.events.NetworkQuitEvent;
-import tv.tirco.bungeejoin.events.SwapServerEvent;
-import tv.tirco.bungeejoin.util.HexChat;
-import tv.tirco.bungeejoin.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Storage;
+import xyz.earthcow.networkjoinmessages.events.NetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.util.HexChat;
+import xyz.earthcow.networkjoinmessages.util.MessageHandler;
 
 public class PlayerListener implements Listener{
 	

@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.util;
+package xyz.earthcow.networkjoinmessages.util;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;

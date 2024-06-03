@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.modules;
+package xyz.earthcow.networkjoinmessages.modules;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -9,12 +9,12 @@ import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
-import tv.tirco.bungeejoin.events.NetworkJoinEvent;
-import tv.tirco.bungeejoin.events.NetworkQuitEvent;
-import tv.tirco.bungeejoin.events.SwapServerEvent;
-import tv.tirco.bungeejoin.util.DiscordWebhook;
-import tv.tirco.bungeejoin.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
+import xyz.earthcow.networkjoinmessages.events.NetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.util.DiscordWebhook;
+import xyz.earthcow.networkjoinmessages.util.MessageHandler;
 
 import java.awt.*;
 import java.io.File;

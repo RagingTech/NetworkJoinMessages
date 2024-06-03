@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.commands;
+package xyz.earthcow.networkjoinmessages.commands;
 
 import java.util.List;
 
@@ -10,10 +10,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Storage;
-import tv.tirco.bungeejoin.util.HexChat;
-import tv.tirco.bungeejoin.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Storage;
+import xyz.earthcow.networkjoinmessages.util.HexChat;
+import xyz.earthcow.networkjoinmessages.util.MessageHandler;
 
 public class FakeCommand extends Command implements TabExecutor{
 

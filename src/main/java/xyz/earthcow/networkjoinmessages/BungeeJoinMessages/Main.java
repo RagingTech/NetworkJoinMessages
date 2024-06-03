@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.BungeeJoinMessages;
+package xyz.earthcow.networkjoinmessages.BungeeJoinMessages;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,14 +10,14 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import tv.tirco.bungeejoin.Listener.PlayerListener;
-import tv.tirco.bungeejoin.Listener.VanishListener;
-import tv.tirco.bungeejoin.commands.FakeCommand;
-import tv.tirco.bungeejoin.commands.ReloadCommand;
-import tv.tirco.bungeejoin.commands.ToggleJoinCommand;
-import tv.tirco.bungeejoin.modules.DiscordWebhookIntegration;
-import tv.tirco.bungeejoin.util.HexChat;
-import tv.tirco.bungeejoin.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.Listener.PlayerListener;
+import xyz.earthcow.networkjoinmessages.Listener.VanishListener;
+import xyz.earthcow.networkjoinmessages.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.commands.ReloadCommand;
+import xyz.earthcow.networkjoinmessages.commands.ToggleJoinCommand;
+import xyz.earthcow.networkjoinmessages.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.util.HexChat;
+import xyz.earthcow.networkjoinmessages.util.MessageHandler;
 
 public class Main extends Plugin {
 	

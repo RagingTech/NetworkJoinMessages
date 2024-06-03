@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.BungeeJoinMessages;
+package xyz.earthcow.networkjoinmessages.BungeeJoinMessages;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.UUID;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import tv.tirco.bungeejoin.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.util.MessageHandler;
 
 public class Storage {
 

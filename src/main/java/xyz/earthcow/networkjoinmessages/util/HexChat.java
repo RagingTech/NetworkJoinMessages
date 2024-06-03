@@ -1,4 +1,4 @@
-package tv.tirco.bungeejoin.util;
+package xyz.earthcow.networkjoinmessages.util;
 
 import java.util.regex.Pattern;
 import net.md_5.bungee.api.ChatColor;

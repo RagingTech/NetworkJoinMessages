@@ -1,26 +1,20 @@
-package tv.tirco.bungeejoin.util;
+package xyz.earthcow.networkjoinmessages.util;
 
 import java.util.*;
 
 import de.myzelyam.api.vanish.BungeeVanishAPI;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
-import net.luckperms.api.cacheddata.CachedMetaData;
-import net.luckperms.api.context.Context;
-import net.luckperms.api.context.ImmutableContextSet;
-import net.luckperms.api.context.MutableContextSet;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.NodeType;
-import net.luckperms.api.query.QueryOptions;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Main;
-import tv.tirco.bungeejoin.BungeeJoinMessages.Storage;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
+import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Storage;
 
 public class MessageHandler {
 
@@ -74,7 +68,7 @@ public class MessageHandler {
 	/**
 	 * Send a message globally, based on the players current server.
 	 * @param text - The text to be displayed
-	 * @param type - What type of message should be sendt (switch/join/leave)
+	 * @param type - What type of message should be sent (switch/join/leave)
 	 * @param p - The player to fetch the server from.
 	 */
 	public void broadcastMessage(String text, String type, ProxiedPlayer p) {
