@@ -305,7 +305,7 @@ public class PlayerListener {
             player,
             MessageHandler.getInstance()
                 .getServerName(
-                    player.getCurrentServer().get().getServerInfo().getName()
+                    player.getCurrentServer().isPresent() ? player.getCurrentServer().get().getServerInfo().getName() : "???"
                 ),
             Storage.getInstance().getAdminMessageState(player),
             message

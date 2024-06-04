@@ -409,11 +409,8 @@ public class DiscordWebhookIntegration {
                 "%playercount_server%",
                 MessageHandler.getInstance()
                     .getServerPlayerCount(
-                        Optional.of(
-                            player.getCurrentServer().get().getServer()
-                        ),
-                        leaving,
-                        player
+                        player,
+                        leaving
                     )
             )
             .replace(
