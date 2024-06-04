@@ -66,7 +66,7 @@ public class FakeCommand implements SimpleCommand {
 				}
 			} else if(args[0].equalsIgnoreCase("toggle")) {
 				String msg = "";
-				if(!player.hasPermission("bungeejoinmessages.silent")){
+				if(!player.hasPermission("networkjoinmessages.silent")){
 					msg = VelocityMain.getInstance().getRootNode().node("Messages", "Commands", "Fakemessage", "ToggleSilentNoPerm").getString(
 							"&cYou do not have the permission to join the server silently.");
 					player.sendMessage(Component.text(HexChat.translateHexCodes(msg)));

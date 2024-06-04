@@ -16,7 +16,7 @@ import xyz.earthcow.networkjoinmessages.bungee.util.HexChat;
 public class ToggleJoinCommand extends Command implements TabExecutor{
 
     public ToggleJoinCommand() {
-        super("togglejoinmessage","bungeejoinmessages.togglemessage","bjointoggle");
+        super("togglejoinmessage","networkjoinmessages.togglemessage","bjointoggle");
    }
     
     List<String> commandArguments = ImmutableList.of("join","leave","quit","switch","all");
@@ -25,7 +25,7 @@ public class ToggleJoinCommand extends Command implements TabExecutor{
     public void execute(CommandSender commandSender, String[] args) {
         if (commandSender instanceof ProxiedPlayer) {
             ProxiedPlayer player = (ProxiedPlayer) commandSender;
-            if(!player.hasPermission("bungeejoinmessages.togglemessage")) {
+            if(!player.hasPermission("networkjoinmessages.togglemessage")) {
     			String msg = BungeeMain.getInstance().getConfig().getString("Messages.Commands.NoPermission",
     					"&cYou do not have the permission to use this command.");
                 player.sendMessage(new TextComponent(HexChat.translateHexCodes(msg)));

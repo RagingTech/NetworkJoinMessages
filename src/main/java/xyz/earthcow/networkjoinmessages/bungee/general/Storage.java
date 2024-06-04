@@ -109,7 +109,7 @@ public class Storage {
 			this.SwapServerMessageRequires = "ANY";
 		}
 		
-		MessageHandler.getInstance().log("BungeeJoinMessages Config has been reloaded.");
+		MessageHandler.getInstance().log("Config has been loaded.");
 		
 	}
 	
@@ -127,7 +127,7 @@ public class Storage {
 	}
 	
 	public boolean getAdminMessageState(ProxiedPlayer p) {
-		if(p.hasPermission("bungeejoinmessages.silent")) {
+		if(p.hasPermission("networkjoinmessages.silent")) {
 			if(messageState.containsKey(p.getUniqueId())) {
 				return messageState.get(p.getUniqueId());
 			} else {

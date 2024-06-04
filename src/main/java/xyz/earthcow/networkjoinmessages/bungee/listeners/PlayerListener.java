@@ -86,7 +86,7 @@ public class PlayerListener implements Listener{
 	    		if(Storage.getInstance().notifyAdminsOnSilentMove()) {
 	    			TextComponent silentMessage = new TextComponent(HexChat.translateHexCodes(silent + message));
 	    			for(ProxiedPlayer p : BungeeMain.getInstance().getProxy().getPlayers()) {
-	    				if(p.hasPermission("bungeejoinmessages.silent")) {
+	    				if(p.hasPermission("networkjoinmessages.silent")) {
 	    					p.sendMessage(silentMessage);
 	    				}
 	    			}
@@ -145,7 +145,7 @@ public class PlayerListener implements Listener{
 		    		//Silent
 			    	if(Storage.getInstance().getAdminMessageState(player)) {
 			    		//Notify player about the toggle command.
-			    		if(player.hasPermission("bungeejoinmessages.fakemessage")) {
+			    		if(player.hasPermission("networkjoinmessages.fakemessage")) {
 				    		String toggleNotif = BungeeMain.getInstance().getConfig().getString("Messages.Commands.Fakemessage.JoinNotification",
 				    						"&7[BungeeJoin] You joined the server while silenced.\n"
 				    						+ "&7To have messages automatically enabled for you until\n"
@@ -161,7 +161,7 @@ public class PlayerListener implements Listener{
 			    		if(Storage.getInstance().notifyAdminsOnSilentMove()) {
 			    			TextComponent silentMessage = new TextComponent(HexChat.translateHexCodes( silent + message));
 			    			for(ProxiedPlayer p : BungeeMain.getInstance().getProxy().getPlayers()) {
-			    				if(p.hasPermission("bungeejoinmessages.silent")) {
+			    				if(p.hasPermission("networkjoinmessages.silent")) {
 			    					p.sendMessage(silentMessage);
 			    				}
 			    			}
@@ -218,7 +218,7 @@ public class PlayerListener implements Listener{
     		if(Storage.getInstance().notifyAdminsOnSilentMove()) {
     			TextComponent silentMessage = new TextComponent(HexChat.translateHexCodes(silent + message));
     			for(ProxiedPlayer p : BungeeMain.getInstance().getProxy().getPlayers()) {
-    				if(p.hasPermission("bungeejoinmessages.silent")) {
+    				if(p.hasPermission("networkjoinmessages.silent")) {
     					p.sendMessage(silentMessage);
     				}
     			}

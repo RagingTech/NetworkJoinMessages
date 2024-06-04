@@ -73,14 +73,14 @@ Messages:
     # Don't lower this delay too much, or you may get false join messages from banned/failed logins
     JoinMessageDelaySeconds: 3
 Settings:
-  # Should players with the bungeejoinmessages.silent permission be silenced by default?
+  # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /fakemessage toggle command
   SilentJoinDefaultState: true
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true
   JoinNetworkMessageEnabled: true
   LeaveNetworkMessageEnabled: true
-  # Should other players with the bungeejoinmessages.silent permission be notified of players moving silently?
+  # Should other players with the networkjoinmessages.silent permission be notified of players moving silently?
   NotifyAdminsOnSilentMove: true
 
   # NOTE: These do not affect silenced players. Silenced move messages will be seen by all players with the permission.

@@ -15,7 +15,7 @@ public class VanishListener implements Listener{
 		ProxiedPlayer player = e.getPlayer();
 		//Main.getInstance().getLogger().info("playerHideEvent triggered");
 		if(BungeeMain.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing",true)){
-			if(player.hasPermission("bungeejoinmessages.silent")) {
+			if(player.hasPermission("networkjoinmessages.silent")) {
 				Storage.getInstance().setAdminMessageState(player, true);
 				BungeeMain.getInstance().getLogger().info("PremiumVanish has toggled the MessageState of " + player.getDisplayName() + " to true");
 			}
@@ -27,7 +27,7 @@ public class VanishListener implements Listener{
 		ProxiedPlayer player = e.getPlayer();
 		BungeeMain.getInstance().getLogger().info("playerShowEvent triggered");
 		if(BungeeMain.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing",true)){
-			if(player.hasPermission("bungeejoinmessages.silent")) {
+			if(player.hasPermission("networkjoinmessages.silent")) {
 				Storage.getInstance().setAdminMessageState(player, false);
 				BungeeMain.getInstance().getLogger().info("PremiumVanish has toggled the MessageState of " + player.getDisplayName() + " to false");
 			}

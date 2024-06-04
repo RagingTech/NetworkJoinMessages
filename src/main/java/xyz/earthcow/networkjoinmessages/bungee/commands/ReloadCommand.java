@@ -8,12 +8,12 @@ import xyz.earthcow.networkjoinmessages.bungee.util.HexChat;
 
 public class ReloadCommand extends Command {
     public ReloadCommand() {
-        super("bungeejoinreload","bungeejoinmessages.reload","bjoinreload");
+        super("bungeejoinreload","networkjoinmessages.reload","bjoinreload");
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if(sender.hasPermission("bungeejoinmessages.reload")) {
+        if(sender.hasPermission("networkjoinmessages.reload")) {
             BungeeMain.getInstance().reloadConfig();
             BungeeMain.getInstance().getDiscordWebhookIntegration().loadConfig();
 			String msg = BungeeMain.getInstance().getConfig().getString("Messages.Commands.Reload.ConfigReloaded",

@@ -19,14 +19,14 @@ public class FakeCommand extends Command implements TabExecutor{
 
 	//Personal note: I hate the way commands are set up with bungee.
     public FakeCommand() {
-        super("fakemessage","bungeejoinmessages.fakemessage","fm");
+        super("fakemessage","networkjoinmessages.fakemessage","fm");
    }
     
     @Override
     public void execute(CommandSender commandSender, String[] args) {
         if (commandSender instanceof ProxiedPlayer) {
             ProxiedPlayer player = (ProxiedPlayer) commandSender;
-            if(!player.hasPermission("bungeejoinmessages.fakemessage")) {
+            if(!player.hasPermission("networkjoinmessages.fakemessage")) {
             	return;
             }
             if(args.length < 1) {
@@ -71,7 +71,7 @@ public class FakeCommand extends Command implements TabExecutor{
             		}
             	} else if(args[0].equalsIgnoreCase("toggle")) {
             		String msg = "";
-            		if(!player.hasPermission("bungeejoinmessages.silent")){
+            		if(!player.hasPermission("networkjoinmessages.silent")){
             			msg = BungeeMain.getInstance().getConfig().getString("Messages.Commands.Fakemessage.ToggleSilentNoPerm",
             					"&cYou do not have the permission to join the server silently.");
             			TextComponent message = new TextComponent(HexChat.translateHexCodes( msg));
