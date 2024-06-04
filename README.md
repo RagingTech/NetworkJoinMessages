@@ -3,8 +3,9 @@
 This is a continuation of Tirco's project [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages) as it appears it is no longer being maintained.
 
 **Added Features** (so far)
-- Adds the option to configure the join message delay (advanced users only)
-- Adds a Discord webhook integration to allow sending the messages to Discord
+
+-   Adds the option to configure the join message delay (advanced users only)
+-   Adds a Discord webhook integration to allow sending the messages to Discord
 
 ## License
 
@@ -21,12 +22,12 @@ including commercial applications, and to alter it and redistribute it
 freely, subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not
-claim that you wrote the original software. If you use this software
-in a product, an acknowledgment in the product documentation would be
-appreciated but is not required.
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
 
 2. Altered source versions must be plainly marked as such, and must not be
-misrepresented as being the original software.
+   misrepresented as being the original software.
 
 3. This notice may not be removed or altered from any source
-distribution.
+   distribution.

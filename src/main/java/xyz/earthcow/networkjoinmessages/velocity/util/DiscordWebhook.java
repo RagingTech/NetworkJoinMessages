@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.velocity.util;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,8 +7,9 @@ import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.TemporalAccessor;
-import java.util.List;
 import java.util.*;
+import java.util.List;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Class used to execute Discord Webhooks with low effort
@@ -56,7 +56,9 @@ public class DiscordWebhook {
 
     public void execute() throws IOException {
         if (this.content == null && this.embeds.isEmpty()) {
-            throw new IllegalArgumentException("Set content or add at least one EmbedObject");
+            throw new IllegalArgumentException(
+                "Set content or add at least one EmbedObject"
+            );
         }
 
         JSONObject json = new JSONObject();
@@ -142,9 +144,13 @@ public class DiscordWebhook {
         }
 
         URL url = new URL(this.url);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        HttpsURLConnection connection =
+            (HttpsURLConnection) url.openConnection();
         connection.addRequestProperty("Content-Type", "application/json");
-        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
+        connection.addRequestProperty(
+            "User-Agent",
+            "Java-DiscordWebhook-BY-Gelox_"
+        );
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
 
@@ -158,6 +164,7 @@ public class DiscordWebhook {
     }
 
     public static class EmbedObject {
+
         private String title;
         private String description;
         private String url;
@@ -261,6 +268,7 @@ public class DiscordWebhook {
         }
 
         private static class Footer {
+
             private final String text;
             private final String iconUrl;
 
@@ -279,6 +287,7 @@ public class DiscordWebhook {
         }
 
         private static class Thumbnail {
+
             private final String url;
 
             private Thumbnail(String url) {
@@ -291,6 +300,7 @@ public class DiscordWebhook {
         }
 
         private static class Image {
+
             private final String url;
 
             private Image(String url) {
@@ -303,6 +313,7 @@ public class DiscordWebhook {
         }
 
         private static class Author {
+
             private final String name;
             private final String url;
             private final String iconUrl;
@@ -327,6 +338,7 @@ public class DiscordWebhook {
         }
 
         private static class Field {
+
             private final String name;
             private final String value;
             private final boolean inline;
@@ -384,7 +396,9 @@ public class DiscordWebhook {
                     builder.append("[");
                     int len = Array.getLength(val);
                     for (int j = 0; j < len; j++) {
-                        builder.append(Array.get(val, j).toString()).append(j != len - 1 ? "," : "");
+                        builder
+                            .append(Array.get(val, j).toString())
+                            .append(j != len - 1 ? "," : "");
                     }
                     builder.append("]");
                 }
@@ -399,5 +413,4 @@ public class DiscordWebhook {
             return "\"" + string + "\"";
         }
     }
-
 }

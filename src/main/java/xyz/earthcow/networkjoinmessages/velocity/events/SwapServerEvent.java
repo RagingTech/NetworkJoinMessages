@@ -13,7 +13,13 @@ public class SwapServerEvent {
     private final boolean isSilenced;
     private final String message;
 
-    public SwapServerEvent(Player player, String serverFrom, String serverTo, boolean isSilenced, String message) {
+    public SwapServerEvent(
+        Player player,
+        String serverFrom,
+        String serverTo,
+        boolean isSilenced,
+        String message
+    ) {
         this.player = player;
         this.serverFrom = serverFrom;
         this.serverTo = serverTo;

@@ -1,8 +1,7 @@
 package xyz.earthcow.networkjoinmessages.velocity.listeners;
 
 public class VanishListener {
-
-	/*@Subscribe
+    /*@Subscribe
 	public void playerHideEvent(PlayerHideEvent e) {
 		Player player = e.getPlayer();
 		if (VelocityMain.getInstance().getRootNode().node("OtherPlugins", "PremiumVanish", "ToggleFakemessageWhenVanishing").getBoolean(true)) {

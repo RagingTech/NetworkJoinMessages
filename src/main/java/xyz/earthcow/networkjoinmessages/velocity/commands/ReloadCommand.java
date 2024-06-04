@@ -9,19 +9,25 @@ public class ReloadCommand implements SimpleCommand {
 
     @Override
     public void execute(SimpleCommand.Invocation invocation) {
-
         if (invocation.source().hasPermission("networkjoinmessages.reload")) {
             VelocityMain.getInstance().reloadConfig();
-            VelocityMain.getInstance().getDiscordWebhookIntegration().loadConfig();
-            String msg = VelocityMain.getInstance().getRootNode().node("Messages", "Commands", "Reload", "ConfigReloaded").getString("Config Reloaded!");
-            invocation.source().sendMessage(Component.text(HexChat.translateHexCodes(msg)));
+            VelocityMain.getInstance()
+                .getDiscordWebhookIntegration()
+                .loadConfig();
+            String msg = VelocityMain.getInstance()
+                .getRootNode()
+                .node("Messages", "Commands", "Reload", "ConfigReloaded")
+                .getString("Config Reloaded!");
+            invocation
+                .source()
+                .sendMessage(Component.text(HexChat.translateHexCodes(msg)));
         }
-
     }
 
     @Override
     public boolean hasPermission(final SimpleCommand.Invocation invocation) {
-        return invocation.source().hasPermission("networkjoinmessages.exclusions");
+        return invocation
+            .source()
+            .hasPermission("networkjoinmessages.exclusions");
     }
-
 }

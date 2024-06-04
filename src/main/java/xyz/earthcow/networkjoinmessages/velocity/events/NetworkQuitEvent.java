@@ -12,7 +12,12 @@ public class NetworkQuitEvent {
     private final boolean isSilenced;
     private final String message;
 
-    public NetworkQuitEvent(Player player, String serverLeft, boolean isSilenced, String message) {
+    public NetworkQuitEvent(
+        Player player,
+        String serverLeft,
+        boolean isSilenced,
+        String message
+    ) {
         this.player = player;
         this.serverLeft = serverLeft;
         this.isSilenced = isSilenced;
