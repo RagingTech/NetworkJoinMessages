@@ -33,7 +33,11 @@ public class PlayerListener {
             return;
         }
 
-        ServerInfo serverInfo = event.getOriginalServer().getServerInfo();
+        if (event.getPreviousServer() == null) {
+            return;
+        }
+
+        ServerInfo serverInfo = event.getPreviousServer().getServerInfo();
         String serverName = serverInfo.getName();
         if (serverName != null) {
             Storage.getInstance().setFrom(player, serverName);

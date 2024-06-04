@@ -268,16 +268,6 @@ public class MessageHandler {
     }
 
     public String formatMessage(String msg, Player player) {
-        if (!player.getCurrentServer().isPresent()) {
-            try {
-                VelocityMain.getInstance()
-                    .getLogger()
-                    .warn(
-                        "WAITING FOR 1 SECOND BECAUSE PLAYER SERVER NULL MH1"
-                    );
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {}
-        }
         String serverName = player.getCurrentServer().isPresent()
             ? getServerName(
                 player.getCurrentServer().get().getServerInfo().getName()
