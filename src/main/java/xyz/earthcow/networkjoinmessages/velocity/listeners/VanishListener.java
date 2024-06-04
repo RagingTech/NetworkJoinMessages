@@ -1,36 +1,27 @@
-package xyz.earthcow.networkjoinmessages.bungee.listeners;
+package xyz.earthcow.networkjoinmessages.velocity.listeners;
 
-import de.myzelyam.api.vanish.BungeePlayerHideEvent;
-import de.myzelyam.api.vanish.BungeePlayerShowEvent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
-import xyz.earthcow.networkjoinmessages.bungee.general.Main;
-import xyz.earthcow.networkjoinmessages.bungee.general.Storage;
+public class VanishListener {
 
-public class VanishListener implements Listener{
-
-	@EventHandler
-	public void playerHideEvent(BungeePlayerHideEvent e) {
-		ProxiedPlayer player = e.getPlayer();
-		//Main.getInstance().getLogger().info("playerHideEvent triggered");
-		if(Main.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing",true)){
-			if(player.hasPermission("bungeejoinmessages.silent")) {
+	/*@Subscribe
+	public void playerHideEvent(PlayerHideEvent e) {
+		Player player = e.getPlayer();
+		if (VelocityMain.getInstance().getRootNode().node("OtherPlugins", "PremiumVanish", "ToggleFakemessageWhenVanishing").getBoolean(true)) {
+			if (player.hasPermission("networkjoinmessages.silent")) {
 				Storage.getInstance().setAdminMessageState(player, true);
-				Main.getInstance().getLogger().info("PremiumVanish has toggled the MessageState of " + player.getDisplayName() + " to true");
+				VelocityMain.getInstance().getLogger().info("PremiumVanish has toggled the MessageState of " + player.getUsername() + " to true");
 			}
 		}
 	}
-	
-	@EventHandler
-	public void playerShowEvent(BungeePlayerShowEvent e) {
-		ProxiedPlayer player = e.getPlayer();
-		Main.getInstance().getLogger().info("playerShowEvent triggered");
-		if(Main.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing",true)){
-			if(player.hasPermission("bungeejoinmessages.silent")) {
+
+	@Subscribe
+	public void playerShowEvent(PlayerShowEvent e) {
+		Player player = e.getPlayer();
+		VelocityMain.getInstance().getLogger().info("playerShowEvent triggered");
+		if (VelocityMain.getInstance().getRootNode().node("OtherPlugins", "PremiumVanish", "ToggleFakemessageWhenVanishing").getBoolean(true)) {
+			if (player.hasPermission("networkjoinmessages.silent")) {
 				Storage.getInstance().setAdminMessageState(player, false);
-				Main.getInstance().getLogger().info("PremiumVanish has toggled the MessageState of " + player.getDisplayName() + " to false");
+				VelocityMain.getInstance().getLogger().info("PremiumVanish has toggled the MessageState of " + player.getUsername() + " to false");
 			}
 		}
-	}
+	}*/
 }

@@ -1,6 +1,15 @@
 package xyz.earthcow.networkjoinmessages.velocity.general;
 
+import com.google.inject.Inject;
+import com.velocitypowered.api.command.CommandManager;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.ProxyServer;
+import org.slf4j.Logger;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
@@ -14,94 +23,119 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Plugin(id = "networkjoinmessages", name = "NetworkJoinMessages", version = "2.1.0",
-		url = "https://github.com/EarthCow/NetworkDevPlugin", description = "${description}", authors = {"EarthCow"})
-public class Main extends {
+		url = "https://github.com/RagingTech/NetworkJoinMessages", description = "A plugin handling join, leave and switch messages for proxy servers.", authors = {"EarthCow"})
+public class VelocityMain {
 	
-	private static Main instance;
-    //private File file;
-    private Configuration configuration;
-    
-    private Plugin mainPlugin;
-    public boolean VanishAPI = false;
-	private DiscordWebhookIntegration discordWebhookIntegration;
-    public boolean LuckPermsAPI = false;
-
-	@Override
-    public void onEnable() {
-		getLogger().info("Bungee Version is loading...");
-		setInstance(this);
-		this.mainPlugin = this;
-        // Don't log enabling, Spigot does that for you automatically!
-
-		loadConfig();
-		discordWebhookIntegration = new DiscordWebhookIntegration();
-        // Commands enabled with following method must have entries in plugin.yml
-        //getCommand("example").setExecutor(new ExampleCommand(this));
-		MessageHandler.getInstance().setupConfigMessages();
-		Storage.getInstance().setUpDefaultValuesFromConfig();
-		getProxy().getPluginManager().registerListener(this, new PlayerListener());
-		
-		ProxyServer.getInstance().getPluginManager().registerCommand(this, new FakeCommand());
-		ProxyServer.getInstance().getPluginManager().registerCommand(this, new ReloadCommand());
-		ProxyServer.getInstance().getPluginManager().registerCommand(this, new ToggleJoinCommand());
-		
-		if(ProxyServer.getInstance().getPluginManager().getPlugin("SuperVanish") != null
-				|| ProxyServer.getInstance().getPluginManager().getPlugin("PremiumVanish") != null) {
-			getLogger().info("Detected PremiumVanish! - Using API.");
-			this.VanishAPI = true;
-			getProxy().getPluginManager().registerListener(this, new VanishListener());
-		}
-		if(ProxyServer.getInstance().getPluginManager().getPlugin("LuckPerms") != null) {
-			getLogger().info("Detected Luckperms! - Using API.");
-			this.LuckPermsAPI = true;
-		}
-		getLogger().info("has loaded!");
-    }
-    
-    private void loadConfig() {
-        if (!getDataFolder().exists()) getDataFolder().mkdir(); //Make folder
-        		File file = new File(getDataFolder(), "config.yml");
-          try {
-              if (!file.exists()) {
-                  try (InputStream in = getResourceAsStream("config.yml")) {
-                      Files.copy(in, file.toPath());
-                  } catch (IOException e) {
-                      e.printStackTrace();
-                  }
-              }
-              configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(getDataFolder(), "config.yml"));
-          } catch (IOException e) {
-              e.printStackTrace();
-          }
-		
-	}
-    
-    public Configuration getConfig() {
-		return configuration;
-    }
-
-	@Override
-    public void onDisable() {
-        // Don't log disabling, Spigot does that for you automatically!
-    }
-
-
-	public static Main getInstance() {
+	private static VelocityMain instance;
+	public static VelocityMain getInstance() {
 		return instance;
 	}
 
-	public static void setInstance(Main instance) {
-		Main.instance = instance;
+	private final ProxyServer proxy;
+	public ProxyServer getProxy() {
+		return proxy;
 	}
 
-	public Plugin getPlugin() {
-		return mainPlugin;
+	private final Logger logger;
+	public Logger getLogger() {
+		return logger;
 	}
 
+	private final Path dataDirectory;
+	public Path getDataDirectory() {
+		return dataDirectory;
+	}
+
+	private CommentedConfigurationNode rootNode;;
+	public CommentedConfigurationNode getRootNode() {
+		return rootNode;
+	}
+
+	private DiscordWebhookIntegration discordWebhookIntegration;
 	public DiscordWebhookIntegration getDiscordWebhookIntegration() {
 		return discordWebhookIntegration;
+	}
+
+	public boolean VanishAPI = false;
+	public boolean LuckPermsAPI = false;
+
+	@Inject
+	public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
+		this.proxy = proxy;
+		this.logger = logger;
+		this.dataDirectory = dataDirectory;
+
+		instance = this;
+	}
+
+	@Subscribe
+	public void onProxyInitialization(ProxyInitializeEvent event) {
+		loadConfig();
+		discordWebhookIntegration = new DiscordWebhookIntegration();
+
+		MessageHandler.getInstance().setupConfigMessages();
+		Storage.getInstance().setUpDefaultValuesFromConfig();
+		proxy.getEventManager().register(this, new PlayerListener());
+
+		CommandManager commandManager = proxy.getCommandManager();
+		commandManager.register(
+				commandManager.metaBuilder("fakemessage")
+					.aliases("fmr")
+					.plugin(this)
+					.build(),
+				new FakeCommand()
+		);
+		commandManager.register(
+				commandManager.metaBuilder("networkjoinreload")
+					.aliases("njoinreload")
+					.plugin(this)
+					.build(),
+				new ReloadCommand()
+		);
+		commandManager.register(
+				commandManager.metaBuilder("togglejoinmessage")
+						.aliases("njointoggle")
+						.plugin(this)
+						.build(),
+				new ToggleJoinCommand()
+		);
+
+		if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
+			getLogger().info("Detected PremiumVanish! - Using API.");
+			this.VanishAPI = true;
+			proxy.getEventManager().register(this, new VanishListener());
+		}
+		if (proxy.getPluginManager().getPlugin("luckperms").isPresent()) {
+			getLogger().info("Detected Luckperms! - Using API.");
+			this.LuckPermsAPI = true;
+		}
+	}
+    
+    private void loadConfig() {
+		File dataFolder = dataDirectory.toFile();
+        if (!dataFolder.exists()) dataFolder.mkdir();
+
+		File file = dataDirectory.resolve("config.yml").toFile();
+		if (!file.exists()) {
+			try (InputStream in = getClass().getClassLoader().getResourceAsStream("config.yml")) {
+				Files.copy(in, file.toPath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		YamlConfigurationLoader loader = YamlConfigurationLoader.builder().path(dataDirectory.resolve("config.yml")).build();
+
+		try {
+			rootNode = loader.load();
+		} catch (IOException e) {
+			System.err.println("An error occurred while loading the configuration: " + e.getMessage());
+			if (e.getCause() != null) {
+				e.getCause().printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -133,15 +167,18 @@ public class Main extends {
 		String message = "";
 		switch(type) {
 			case "MOVE":
-				message = getConfig().getString("Messages.Misc.ConsoleSilentMoveEvent","&1Move Event was silenced. <player> <from> -> <to>");
+				message = rootNode.node("Messages", "Misc", "ConsoleSilentMoveEvent").getString();
+				message = message == null || message.isEmpty() ? message = "&1Move Event was silenced. <player> <from> -> <to>" : message;
 				message = message.replace("<to>", to);
 				message = message.replace("<from>", from);
 				break;
 			case "QUIT":
-				message = getConfig().getString("Messages.Misc.ConsoleSilentQuitEvent","&6Quit Event was silenced. <player> left the network.");
+				message = rootNode.node("Messages", "Misc", "ConsoleSilentQuitEvent").getString();
+				message = message == null || message.isEmpty() ? message = "&6Quit Event was silenced. <player> left the network." : message;
 				break;
 			case "JOIN":
-				message = getConfig().getString("Messages.Misc.ConsoleSilentJoinEvent","&6Join Event was silenced. <player> joined the network.");
+				message = rootNode.node("Messages", "Misc", "ConsoleSilentJoinEvent").getString();
+				message = message == null || message.isEmpty() ? message = "&6Join Event was silenced. <player> joined the network." : message;
 				break;
 		default:
 			return;

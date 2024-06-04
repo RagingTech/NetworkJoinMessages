@@ -1,26 +1,25 @@
-package xyz.earthcow.networkjoinmessages.bungee.events;
+package xyz.earthcow.networkjoinmessages.velocity.events;
 
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Event;
+import com.velocitypowered.api.proxy.Player;
 
 /**
  * Called when a player quits the network
  */
-public class NetworkQuitEvent extends Event{
+public class NetworkQuitEvent {
 
-    private final ProxiedPlayer player;
+    private final Player player;
     private final String serverLeft;
     private final boolean isSilenced;
     private final String message;
 
-    public NetworkQuitEvent(ProxiedPlayer player, String serverLeft, boolean isSilenced, String message) {
+    public NetworkQuitEvent(Player player, String serverLeft, boolean isSilenced, String message) {
         this.player = player;
         this.serverLeft = serverLeft;
         this.isSilenced = isSilenced;
         this.message = message;
     }
 
-    public ProxiedPlayer getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 

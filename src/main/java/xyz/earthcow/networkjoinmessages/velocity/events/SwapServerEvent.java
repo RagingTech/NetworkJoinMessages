@@ -1,20 +1,19 @@
-package xyz.earthcow.networkjoinmessages.bungee.events;
+package xyz.earthcow.networkjoinmessages.velocity.events;
 
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Event;
+import com.velocitypowered.api.proxy.Player;
 
 /**
  * Called when a player swaps from one server to another on the network
  */
-public class SwapServerEvent extends Event{
+public class SwapServerEvent {
 
-    private final ProxiedPlayer player;
+    private final Player player;
     private final String serverFrom;
     private final String serverTo;
     private final boolean isSilenced;
     private final String message;
 
-    public SwapServerEvent(ProxiedPlayer player, String serverFrom, String serverTo, boolean isSilenced, String message) {
+    public SwapServerEvent(Player player, String serverFrom, String serverTo, boolean isSilenced, String message) {
         this.player = player;
         this.serverFrom = serverFrom;
         this.serverTo = serverTo;
@@ -22,7 +21,7 @@ public class SwapServerEvent extends Event{
         this.message = message;
     }
 
-    public ProxiedPlayer getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 

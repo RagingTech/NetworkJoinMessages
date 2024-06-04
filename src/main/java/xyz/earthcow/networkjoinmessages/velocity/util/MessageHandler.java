@@ -1,20 +1,22 @@
-package xyz.earthcow.networkjoinmessages.bungee.util;
+package xyz.earthcow.networkjoinmessages.velocity.util;
 
-import java.util.*;
-
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import de.myzelyam.api.vanish.BungeeVanishAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.config.Configuration;
-import xyz.earthcow.networkjoinmessages.bungee.general.Main;
-import xyz.earthcow.networkjoinmessages.bungee.general.Storage;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
+import xyz.earthcow.networkjoinmessages.velocity.general.Storage;
+import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
+
+import java.util.*;
 
 public class MessageHandler {
 
@@ -34,16 +36,16 @@ public class MessageHandler {
 	//String FirstTimeJoinMessage = "";
 
 	public void setupConfigMessages() {
-		Configuration config = Main.getInstance().getConfig();
-		SwapServerMessage = config.getString("Messages.SwapServerMessage","&6&l%player%&r  &7[%from%&7] -> [%to%&7]");
-		JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage","&6%player% &6has connected to the network!");
-		LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage","&6%player% &6has disconnected from the network!");
+		CommentedConfigurationNode rootNode = VelocityMain.getInstance().getRootNode();
+		SwapServerMessage = rootNode.node("Messages", "SwapServerMessage").getString("&6&l%player%&r  &7[%from%&7] -> [%to%&7]");
+		JoinNetworkMessage = rootNode.node("Messages", "JoinNetworkMessage").getString("&6%player% &6has connected to the network!");
+		LeaveNetworkMessage = rootNode.node("Messages", "LeaveNetworkMessage").getString("&6%player% &6has disconnected from the network!");
 		
 		HashMap<String, String> serverNames = new HashMap<String, String>();
 		
-		for(String server : config.getSection("Servers").getKeys()) {
+		for(ConfigurationNode server : rootNode.node("Servers").childrenList()) {
 			//Main.getInstance().getLogger().info("Looping: " + server);
-			serverNames.put(server.toLowerCase(), config.getString("Servers." + server, server));
+			serverNames.put(server.key() + "", rootNode.node(server.key(), server.getString()).getString(server.getString()));
 			//Main.getInstance().getLogger().info("Put: " + server.toLowerCase() + " as " + config.getString("Servers." + server, server));
 		}
 		
@@ -71,21 +73,19 @@ public class MessageHandler {
 	 * @param type - What type of message should be sent (switch/join/leave)
 	 * @param p - The player to fetch the server from.
 	 */
-	public void broadcastMessage(String text, String type, ProxiedPlayer p) {
-		if(p.getServer() == null) {
+	public void broadcastMessage(String text, String type, Player p) {
+		if(!p.getCurrentServer().isPresent()) {
 			//Fixes NPE when connecting to offline server.
-			MessageHandler.getInstance().log("Broadcast Message of " + p.getName() + " halted as Server returned Null. #01");
+			MessageHandler.getInstance().log("Broadcast Message of " + p.getUsername() + " halted as Server returned Null. #01");
 			return;
 		}
-		broadcastMessage(text, type, p.getServer().getInfo().getName(), "???");
+		broadcastMessage(text, type, p.getCurrentServer().get().getServerInfo().getName(), "???");
 	}
 
 	public void broadcastMessage(String text, String type, String from, String to) {
-		TextComponent msg = new TextComponent();
-		msg.setText(text);
-				//You could also use a StringBuilder here to get the arguments.
+		TextComponent msg = Component.text(text);
 		
-		List<ProxiedPlayer> receivers = new ArrayList<ProxiedPlayer>();
+		List<Player> receivers = new ArrayList<Player>();
 		if(type.equalsIgnoreCase("switch")) {
 			receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to,from));
 		} else if(type.equalsIgnoreCase("join")){
@@ -93,18 +93,18 @@ public class MessageHandler {
 		} else if(type.equalsIgnoreCase("leave")){
 			receivers.addAll(Storage.getInstance().getLeaveMessageReceivers(from));
 		}else {
-			receivers.addAll(ProxyServer.getInstance().getPlayers());
+			receivers.addAll(VelocityMain.getInstance().getProxy().getAllPlayers());
 		}
 		
 		//Remove the players that have messages disabled
 		List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-		Main.getInstance().getLogger().info(text);
+		VelocityMain.getInstance().getLogger().info(text);
 		
 		//Add the players that are on ignored servers to the ignored list.
 		ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
 		//Parse through all receivers and ignore the ones that are on the ignore list.
-		for(ProxiedPlayer player : receivers) {
+		for(Player player : receivers) {
 			if(ignorePlayers.contains(player.getUniqueId())) {
 				continue;
 			} else {
@@ -126,32 +126,35 @@ public class MessageHandler {
 		return SwapServerMessage;
 	}
 
-	public Iterable<String> getServerNames() {
+	public List<String> getServerNames() {
 		if(serverNames != null) {
-			return serverNames.keySet();
+			return List.of(serverNames.keySet().toArray(new String[0]));
 		}
 		return null;
 	}
-	public String getServerPlayerCount(ProxiedPlayer player, boolean leaving) {
-		return getServerPlayerCount(player.getServer().getInfo(), leaving, player);
+	public String getServerPlayerCount(Player player, boolean leaving) {
+		if (player.getCurrentServer().isPresent()) {
+			return getServerPlayerCount(Optional.of(player.getCurrentServer().get().getServer()), leaving, player);
+		}
+		return "?";
 	}
 	
-	public String getServerPlayerCount(String serverName, boolean leaving, ProxiedPlayer player) {
+	public String getServerPlayerCount(String serverName, boolean leaving, Player player) {
 
-		return getServerPlayerCount(Main.getInstance().getProxy().getServers().get(serverName), leaving, player);
+		return getServerPlayerCount(VelocityMain.getInstance().getProxy().getServer(serverName), leaving, player);
 	}
 	
-	public String getServerPlayerCount(ServerInfo serverInfo, boolean leaving, ProxiedPlayer player) {
+	public String getServerPlayerCount(Optional<RegisteredServer> registeredServer, boolean leaving, Player player) {
 		String serverPlayerCount = "?";
-		if(serverInfo != null) {
+		if(registeredServer.isPresent()) {
 			int count = 0;
-			List<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>(serverInfo.getPlayers());
-			
+			List<Player> players = new ArrayList<Player>(registeredServer.get().getPlayersConnected());
+
 			//VanishAPI Count
-			if(Main.getInstance().VanishAPI) {
-				if(Main.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount",true)) {
+			if(VelocityMain.getInstance().VanishAPI) {
+				if(VelocityMain.getInstance().getRootNode().node("OtherPlugins", "PremiumVanish", "RemoveVanishedPlayersFromPlayerCount").getBoolean(true)) {
 					List<UUID> vanished = BungeeVanishAPI.getInvisiblePlayers();
-					for(ProxiedPlayer p : serverInfo.getPlayers()) {
+					for(Player p : registeredServer.get().getPlayersConnected()) {
 						if(vanished.contains(p.getUniqueId())){
 							players.remove(p);
 						}
@@ -178,8 +181,8 @@ public class MessageHandler {
 		return serverPlayerCount;
 	}
 	
-	public String getNetworkPlayerCount(ProxiedPlayer player, Boolean leaving) {
-		Collection<ProxiedPlayer> players = Main.getInstance().getProxy().getPlayers();
+	public String getNetworkPlayerCount(Player player, Boolean leaving) {
+		Collection<Player> players = VelocityMain.getInstance().getProxy().getAllPlayers();
 		if(leaving && player != null) {
 			if(players.contains(player)) {
 				return String.valueOf(players.size() - 1);
@@ -196,14 +199,20 @@ public class MessageHandler {
 		return String.valueOf(players.size());
 	}
 
-	public String formatMessage(String msg, ProxiedPlayer player) {
-		String serverName = getServerName(player.getServer().getInfo().getName());
+	public String formatMessage(String msg, Player player) {
+		if (!player.getCurrentServer().isPresent()) {
+			try {
+				VelocityMain.getInstance().getLogger().warn("WAITING FOR 1 SECOND BECAUSE PLAYER SERVER NULL MH1");
+				Thread.sleep(1000);
+			} catch (InterruptedException ignored) {}
+		}
+		String serverName = player.getCurrentServer().isPresent() ? getServerName(player.getCurrentServer().get().getServerInfo().getName()) : "???";
 		String formattedMsg = msg
-				.replace("%player%", player.getName())
-				.replace("%displayname%", player.getDisplayName())
+				.replace("%player%", player.getUsername())
+				.replace("%displayname%", player.getUsername())
 				.replace("%server_name%", serverName)
-				.replace("%server_name_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', serverName)));
-		if (Main.getInstance().LuckPermsAPI) {
+				.replace("%server_name_clean%", PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(serverName)));
+		if (VelocityMain.getInstance().LuckPermsAPI) {
 			LuckPerms lp = LuckPermsProvider.get();
 			User lpUser = lp.getUserManager().getUser(player.getUniqueId());
 			if (lpUser != null) {
@@ -214,40 +223,40 @@ public class MessageHandler {
 					displayRank = Objects.requireNonNullElse(group.getDisplayName(), rank);
 				}
 				formattedMsg = formattedMsg
-						.replace("%lp_rank%", ChatColor.translateAlternateColorCodes('&', rank))
-						.replace("%lp_rank_display%", ChatColor.translateAlternateColorCodes('&', displayRank));
+						.replace("%lp_rank%", LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(rank)))
+						.replace("%lp_rank_display%", LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(displayRank)));
 			}
 		}
 		return formattedMsg;
 	}
 
-	public String formatSwitchMessage(ProxiedPlayer player, String fromName, String toName) {
+	public String formatSwitchMessage(Player player, String fromName, String toName) {
 		String from = getServerName(fromName);
 		String to = getServerName(toName);
 		return formatMessage(getSwapServerMessage(), player)
 				.replace("%to%", to)
-				.replace("%to_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',to)))
+				.replace("%to_clean%", PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(to)))
 				.replace("%from%", from)
-				.replace("%from_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',from)))
+				.replace("%from_clean%", PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(from)))
 				.replace("%playercount_from%", getServerPlayerCount(fromName, true, player))
 				.replace("%playercount_to%", getServerPlayerCount(toName, false, player))
 				.replace("%playercount_network%", getNetworkPlayerCount(player, false));
 	}
 	
-	public String formatJoinMessage(ProxiedPlayer player) {
+	public String formatJoinMessage(Player player) {
 		return formatMessage(getJoinNetworkMessage(), player)
 				.replace("%playercount_server%", getServerPlayerCount(player, false))
 				.replace("%playercount_network%", getNetworkPlayerCount(player, false));
 	}
 	
-	public String formatQuitMessage(ProxiedPlayer player) {
+	public String formatQuitMessage(Player player) {
 		return formatMessage(getLeaveNetworkMessage(), player)
 				.replace("%playercount_server%", getServerPlayerCount(player, true))
 				.replace("%playercount_network%", getNetworkPlayerCount(player, true));
 	}
 
 	public void log(String string) {
-		Main.getInstance().getLogger().info(string);
+		VelocityMain.getInstance().getLogger().info(string);
 		
 	}
 

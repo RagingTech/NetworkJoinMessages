@@ -1,7 +1,8 @@
-package xyz.earthcow.networkjoinmessages.bungee.util;
+package xyz.earthcow.networkjoinmessages.velocity.util;
+
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.regex.Pattern;
-import net.md_5.bungee.api.ChatColor;
 
 public class HexChat {
 
@@ -9,7 +10,7 @@ public class HexChat {
 	
 	public static String translateHexCodes(String message) {
 		// Translate RGB codes
-		return ChatColor.translateAlternateColorCodes('&', message.replaceAll("(?i)\\&(x|#)([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])", "&x&$2&$3&$4&$5&$6&$7"));
+		return LegacyComponentSerializer.legacySection().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message.replaceAll("(?i)\\&(x|#)([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])([0-9A-F])", "&x&$2&$3&$4&$5&$6&$7")));
 	}
 
 //	public static String translateHexCodes (String textToTranslate) {
