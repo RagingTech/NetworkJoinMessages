@@ -1,25 +1,23 @@
-package xyz.earthcow.networkjoinmessages.BungeeJoinMessages;
+package xyz.earthcow.networkjoinmessages.velocity.general;
+
+import com.velocitypowered.api.plugin.Plugin;
+import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
+import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
+import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
+import xyz.earthcow.networkjoinmessages.velocity.listeners.VanishListener;
+import xyz.earthcow.networkjoinmessages.velocity.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.velocity.util.HexChat;
+import xyz.earthcow.networkjoinmessages.velocity.util.MessageHandler;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.config.Configuration;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
-import xyz.earthcow.networkjoinmessages.Listener.PlayerListener;
-import xyz.earthcow.networkjoinmessages.Listener.VanishListener;
-import xyz.earthcow.networkjoinmessages.commands.FakeCommand;
-import xyz.earthcow.networkjoinmessages.commands.ReloadCommand;
-import xyz.earthcow.networkjoinmessages.commands.ToggleJoinCommand;
-import xyz.earthcow.networkjoinmessages.modules.DiscordWebhookIntegration;
-import xyz.earthcow.networkjoinmessages.util.HexChat;
-import xyz.earthcow.networkjoinmessages.util.MessageHandler;
-
-public class Main extends Plugin {
+@Plugin(id = "networkjoinmessages", name = "NetworkJoinMessages", version = "2.1.0",
+		url = "https://github.com/EarthCow/NetworkDevPlugin", description = "${description}", authors = {"EarthCow"})
+public class Main extends {
 	
 	private static Main instance;
     //private File file;

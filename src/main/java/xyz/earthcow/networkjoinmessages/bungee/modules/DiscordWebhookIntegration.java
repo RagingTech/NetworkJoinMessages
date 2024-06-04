@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.modules;
+package xyz.earthcow.networkjoinmessages.bungee.modules;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -9,12 +9,12 @@ import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
-import xyz.earthcow.networkjoinmessages.events.NetworkJoinEvent;
-import xyz.earthcow.networkjoinmessages.events.NetworkQuitEvent;
-import xyz.earthcow.networkjoinmessages.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.util.DiscordWebhook;
-import xyz.earthcow.networkjoinmessages.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.events.NetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.bungee.util.DiscordWebhook;
+import xyz.earthcow.networkjoinmessages.bungee.util.MessageHandler;
 
 import java.awt.*;
 import java.io.File;
@@ -27,7 +27,7 @@ import java.util.List;
 public class DiscordWebhookIntegration implements Listener {
 
     private Configuration discordConfig;
-    private final Main plugin = Main.getInstance();
+    private final BungeeMain plugin = BungeeMain.getInstance();
     private String webhookUrl = "";
 
     public DiscordWebhookIntegration() {
@@ -200,7 +200,7 @@ public class DiscordWebhookIntegration implements Listener {
         String hexColor = discordConfig.getString(key + ".Color");
 
         if (hexColor.isEmpty()) {
-            Main.getInstance().getPlugin().getLogger().warning("A color was missing from embed config!");
+            BungeeMain.getInstance().getPlugin().getLogger().warning("A color was missing from embed config!");
             hexColor = "#000000";
         }
 
@@ -209,7 +209,7 @@ public class DiscordWebhookIntegration implements Listener {
             hexColor = "#" + hexColor;
         }
         if (hexColor.length() != 7) {
-            Main.getInstance().getPlugin().getLogger().warning("An invalid color: " + hexColor + " was provided!");
+            BungeeMain.getInstance().getPlugin().getLogger().warning("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";
         }
 
@@ -293,7 +293,7 @@ public class DiscordWebhookIntegration implements Listener {
         String hexColor = discordConfig.getString(key + ".Color");
 
         if (hexColor.isEmpty()) {
-            Main.getInstance().getPlugin().getLogger().warning("A color was missing from embed config!");
+            BungeeMain.getInstance().getPlugin().getLogger().warning("A color was missing from embed config!");
             hexColor = "#000000";
         }
 
@@ -302,7 +302,7 @@ public class DiscordWebhookIntegration implements Listener {
             hexColor = "#" + hexColor;
         }
         if (hexColor.length() != 7) {
-            Main.getInstance().getPlugin().getLogger().warning("An invalid color: " + hexColor + " was provided!");
+            BungeeMain.getInstance().getPlugin().getLogger().warning("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";
         }
 

@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.Listener;
+package xyz.earthcow.networkjoinmessages.bungee.listeners;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,13 +14,13 @@ import net.md_5.bungee.api.event.ServerConnectEvent.Reason;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Storage;
-import xyz.earthcow.networkjoinmessages.events.NetworkJoinEvent;
-import xyz.earthcow.networkjoinmessages.events.NetworkQuitEvent;
-import xyz.earthcow.networkjoinmessages.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.util.HexChat;
-import xyz.earthcow.networkjoinmessages.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.bungee.general.Main;
+import xyz.earthcow.networkjoinmessages.bungee.general.Storage;
+import xyz.earthcow.networkjoinmessages.bungee.events.NetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.bungee.util.HexChat;
+import xyz.earthcow.networkjoinmessages.bungee.util.MessageHandler;
 
 public class PlayerListener implements Listener{
 	

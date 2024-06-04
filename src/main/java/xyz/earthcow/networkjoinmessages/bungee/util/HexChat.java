@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.util;
+package xyz.earthcow.networkjoinmessages.bungee.util;
 
 import java.util.regex.Pattern;
 import net.md_5.bungee.api.ChatColor;

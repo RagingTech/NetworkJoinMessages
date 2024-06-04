@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.util;
+package xyz.earthcow.networkjoinmessages.bungee.util;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;

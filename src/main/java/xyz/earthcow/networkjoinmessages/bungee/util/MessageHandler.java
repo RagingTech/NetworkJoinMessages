@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.util;
+package xyz.earthcow.networkjoinmessages.bungee.util;
 
 import java.util.*;
 
@@ -13,8 +13,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Storage;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.general.Storage;
 
 public class MessageHandler {
 
@@ -34,7 +34,7 @@ public class MessageHandler {
 	//String FirstTimeJoinMessage = "";
 
 	public void setupConfigMessages() {
-		Configuration config = Main.getInstance().getConfig();
+		Configuration config = BungeeMain.getInstance().getConfig();
 		SwapServerMessage = config.getString("Messages.SwapServerMessage","&6&l%player%&r  &7[%from%&7] -> [%to%&7]");
 		JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage","&6%player% &6has connected to the network!");
 		LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage","&6%player% &6has disconnected from the network!");
@@ -98,7 +98,7 @@ public class MessageHandler {
 		
 		//Remove the players that have messages disabled
 		List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-		Main.getInstance().getLogger().info(text);
+		BungeeMain.getInstance().getLogger().info(text);
 		
 		//Add the players that are on ignored servers to the ignored list.
 		ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
@@ -138,7 +138,7 @@ public class MessageHandler {
 	
 	public String getServerPlayerCount(String serverName, boolean leaving, ProxiedPlayer player) {
 
-		return getServerPlayerCount(Main.getInstance().getProxy().getServers().get(serverName), leaving, player);
+		return getServerPlayerCount(BungeeMain.getInstance().getProxy().getServers().get(serverName), leaving, player);
 	}
 	
 	public String getServerPlayerCount(ServerInfo serverInfo, boolean leaving, ProxiedPlayer player) {
@@ -148,8 +148,8 @@ public class MessageHandler {
 			List<ProxiedPlayer> players = new ArrayList<ProxiedPlayer>(serverInfo.getPlayers());
 			
 			//VanishAPI Count
-			if(Main.getInstance().VanishAPI) {
-				if(Main.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount",true)) {
+			if(BungeeMain.getInstance().VanishAPI) {
+				if(BungeeMain.getInstance().getConfig().getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount",true)) {
 					List<UUID> vanished = BungeeVanishAPI.getInvisiblePlayers();
 					for(ProxiedPlayer p : serverInfo.getPlayers()) {
 						if(vanished.contains(p.getUniqueId())){
@@ -179,7 +179,7 @@ public class MessageHandler {
 	}
 	
 	public String getNetworkPlayerCount(ProxiedPlayer player, Boolean leaving) {
-		Collection<ProxiedPlayer> players = Main.getInstance().getProxy().getPlayers();
+		Collection<ProxiedPlayer> players = BungeeMain.getInstance().getProxy().getPlayers();
 		if(leaving && player != null) {
 			if(players.contains(player)) {
 				return String.valueOf(players.size() - 1);
@@ -203,7 +203,7 @@ public class MessageHandler {
 				.replace("%displayname%", player.getDisplayName())
 				.replace("%server_name%", serverName)
 				.replace("%server_name_clean%", ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', serverName)));
-		if (Main.getInstance().LuckPermsAPI) {
+		if (BungeeMain.getInstance().LuckPermsAPI) {
 			LuckPerms lp = LuckPermsProvider.get();
 			User lpUser = lp.getUserManager().getUser(player.getUniqueId());
 			if (lpUser != null) {
@@ -247,7 +247,7 @@ public class MessageHandler {
 	}
 
 	public void log(String string) {
-		Main.getInstance().getLogger().info(string);
+		BungeeMain.getInstance().getLogger().info(string);
 		
 	}
 

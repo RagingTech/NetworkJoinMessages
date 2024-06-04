@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.commands;
+package xyz.earthcow.networkjoinmessages.bungee.commands;
 
 import java.util.List;
 
@@ -10,10 +10,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Main;
-import xyz.earthcow.networkjoinmessages.BungeeJoinMessages.Storage;
-import xyz.earthcow.networkjoinmessages.util.HexChat;
-import xyz.earthcow.networkjoinmessages.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.general.Storage;
+import xyz.earthcow.networkjoinmessages.bungee.util.HexChat;
+import xyz.earthcow.networkjoinmessages.bungee.util.MessageHandler;
 
 public class FakeCommand extends Command implements TabExecutor{
 
@@ -30,7 +30,7 @@ public class FakeCommand extends Command implements TabExecutor{
             	return;
             }
             if(args.length < 1) {
-            	String msg =  Main.getInstance().getConfig().getString("Messages.Commands.Fakemessage.NoArgument",     			
+            	String msg =  BungeeMain.getInstance().getConfig().getString("Messages.Commands.Fakemessage.NoArgument",
             			"&6Arguments:\n"
             			+ "- &cfakejoin\n"
             			+ "- &cfakequit\n"
@@ -51,7 +51,7 @@ public class FakeCommand extends Command implements TabExecutor{
             		
             	} else if(args[0].equalsIgnoreCase("fakeswitch")  || args[0].equalsIgnoreCase("fs")) {
             		if(args.length < 3) {
-                    	String msg =  Main.getInstance().getConfig().getString("Messages.Commands.Fakemessage.FakeSwitchNoArgument",     					
+                    	String msg =  BungeeMain.getInstance().getConfig().getString("Messages.Commands.Fakemessage.FakeSwitchNoArgument",
                     			"&6Arguments:\n"
                     			+ "- &cfakejoin\n"
                     			+ "- &cfakequit\n"
@@ -72,14 +72,14 @@ public class FakeCommand extends Command implements TabExecutor{
             	} else if(args[0].equalsIgnoreCase("toggle")) {
             		String msg = "";
             		if(!player.hasPermission("bungeejoinmessages.silent")){
-            			msg = Main.getInstance().getConfig().getString("Messages.Commands.Fakemessage.ToggleSilentNoPerm", 
+            			msg = BungeeMain.getInstance().getConfig().getString("Messages.Commands.Fakemessage.ToggleSilentNoPerm",
             					"&cYou do not have the permission to join the server silently.");
             			TextComponent message = new TextComponent(HexChat.translateHexCodes( msg));
                     	player.sendMessage(message);
                     	return;
             		} else {
             			Boolean state = !Storage.getInstance().getAdminMessageState(player);
-            			msg = Main.getInstance().getConfig().getString("Messages.Commands.Fakemessage.ToggleSilent", 
+            			msg = BungeeMain.getInstance().getConfig().getString("Messages.Commands.Fakemessage.ToggleSilent",
             					"&eYour SilentMode has now been set to &6<state>");
             			msg = msg.replace("<state>", state+"");
             			TextComponent message = new TextComponent(HexChat.translateHexCodes( msg));
@@ -107,7 +107,7 @@ public class FakeCommand extends Command implements TabExecutor{
 				return MessageHandler.getInstance().getServerNames();
 			}
 		default:
-			return ImmutableList.of(Main.getInstance().getConfig().getString("Messages.Commands.NoMoreArgumentsNeeded","No more arguments needed."));
+			return ImmutableList.of(BungeeMain.getInstance().getConfig().getString("Messages.Commands.NoMoreArgumentsNeeded","No more arguments needed."));
     	}
 	}
 
