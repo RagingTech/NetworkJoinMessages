@@ -83,7 +83,6 @@ public class DiscordWebhookIntegration {
             try {
                 webhook.execute();
             } catch (Exception e) {
-                e.printStackTrace();
                 plugin.getLogger().warn("[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url.");
             }
         }).schedule();
