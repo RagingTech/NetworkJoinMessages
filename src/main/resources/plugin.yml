@@ -10,30 +10,30 @@ main: ${mainClass}
 
 commands:
     fakemessage:
-        description: Send a fake join or leave message from bungee
-        permission: bungeejoinmessage.fakemessage
+        description: Send a fake join or leave message from the proxy
+        permission: networkjoinmessages.fakemessage
         usage: /<command>
         aliases: [fmr]
-    bungeejoinreload:
+    networkjoinreload:
         description: reloads the configuration file
-        permission: bungeejoinmessage.reload
+        permission: networkjoinmessages.reload
         usage: /<command>
-        aliases: [bjoinreload]
+        aliases: [njoinreload]
     togglejoinmessage:
         description: Toggles incomming join messages.
-        permission: bungeejoinmessages.togglemessage
+        permission: networkjoinmessages.togglemessage
         usage: /<command>
-        aliases: [bjointoggle]
+        aliases: [njointoggle]
 permissions:
-    bungejoinmessages.fakemessage:
+    networkjoinmessages.fakemessage:
         description: "Allows the use of the fakemessage command."
         default: op
-    bungejoinmessages.reload:
+    networkjoinmessages.reload:
         description: "Allows the use of the reload command."
         default: op
-    bungejoinmessages.togglemessage:
+    networkjoinmessages.togglemessage:
         description: "Allows the use of the togglemessage command."
         default: op
-    bungeejoinmessages.silent:
+    networkjoinmessages.silent:
         description: "lets you join the server without notifications."
         default: false
