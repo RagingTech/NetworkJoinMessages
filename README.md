@@ -2,11 +2,6 @@
 
 This is a continuation of Tirco's project [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages) as it appears it is no longer being maintained.
 
-**Added Features** (so far)
-
--   Adds the option to configure the join message delay (advanced users only)
--   Adds a Discord webhook integration to allow sending the messages to Discord
-
 ## License
 
 Zlib was chosen as the basis for this project (BukkitPlugin) as it is highly permissive and easy for people to understand. The license has only been modified for this project to reflect authorship and creation year.
