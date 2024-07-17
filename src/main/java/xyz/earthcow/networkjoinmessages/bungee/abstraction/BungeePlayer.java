@@ -43,6 +43,6 @@ public class BungeePlayer implements CorePlayer {
         if (server == null) {
             return null;
         }
-        return new BungeeServer(server);
+        return new BungeeServer(server.getInfo());
     }
 }

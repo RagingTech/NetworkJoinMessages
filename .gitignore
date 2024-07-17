@@ -3,6 +3,8 @@
 /.project
 /.settings/
 
+*.xml
+
 #IntelliJ
 .idea
 *.iml
