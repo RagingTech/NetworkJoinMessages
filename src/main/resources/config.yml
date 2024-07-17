@@ -138,3 +138,6 @@ OtherPlugins:
   PremiumVanish:
     ToggleFakemessageWhenVanishing: true
     RemoveVanishedPlayersFromPlayerCount: true
+
+# Do not touch this
+config-version: 1

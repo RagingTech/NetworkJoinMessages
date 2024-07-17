@@ -128,3 +128,6 @@ Messages:
         Text: ""
         IconUrl: ""
       Timestamp: false
+
+# Do not touch this
+config-version: 1

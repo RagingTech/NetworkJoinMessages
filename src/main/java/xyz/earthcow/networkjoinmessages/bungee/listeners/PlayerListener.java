@@ -293,7 +293,7 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        if (!Storage.getInstance().isJoinNetworkMessageEnabled()) {
+        if (!Storage.getInstance().isLeaveNetworkMessageEnabled()) {
             Storage.getInstance().setConnected(player, false);
             return;
         }
