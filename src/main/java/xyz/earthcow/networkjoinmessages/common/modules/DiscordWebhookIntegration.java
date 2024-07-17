@@ -38,7 +38,7 @@ public class DiscordWebhookIntegration {
         // Set the main webhook url
         webhookUrl = discordConfig.getString("WebhookUrl");
 
-        corePlugin.getLogger().info("Discord Integration is enabled!");
+        corePlugin.getCoreLogger().info("Discord Integration is enabled!");
     }
 
     private void executeWebhook(DiscordWebhook webhook) {
@@ -47,7 +47,7 @@ public class DiscordWebhookIntegration {
                     webhook.execute();
                 } catch (Exception e) {
                     corePlugin
-                        .getLogger()
+                        .getCoreLogger()
                         .warn(
                             "[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url."
                         );
@@ -328,7 +328,7 @@ public class DiscordWebhookIntegration {
 
         if (hexColor.isEmpty()) {
             corePlugin
-                    .getLogger()
+                    .getCoreLogger()
                     .warn("A color was missing from embed config!");
             hexColor = "#000000";
         }
@@ -339,7 +339,7 @@ public class DiscordWebhookIntegration {
         }
         if (hexColor.length() != 7) {
             corePlugin
-                    .getLogger()
+                    .getCoreLogger()
                     .warn("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";
         }
@@ -503,7 +503,7 @@ public class DiscordWebhookIntegration {
 
         if (hexColor.isEmpty()) {
             corePlugin
-                    .getLogger()
+                    .getCoreLogger()
                     .warn("A color was missing from embed config!");
             hexColor = "#000000";
         }
@@ -514,7 +514,7 @@ public class DiscordWebhookIntegration {
         }
         if (hexColor.length() != 7) {
             corePlugin
-                    .getLogger()
+                    .getCoreLogger()
                     .warn("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";
         }

@@ -1,6 +1,9 @@
 package xyz.earthcow.networkjoinmessages.common.general;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
@@ -24,6 +27,10 @@ public class NetworkJoinMessagesCore {
         return discordWebhookIntegration;
     }
 
+    public final CoreFakeCommand coreFakeCommand = new CoreFakeCommand();
+    public final CoreReloadCommand coreReloadCommand = new CoreReloadCommand();
+    public final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
+
     public NetworkJoinMessagesCore(CorePlugin plugin) {
         this.plugin = plugin;
 
@@ -35,7 +42,7 @@ public class NetworkJoinMessagesCore {
     }
 
     public void loadConfig() {
-        ConfigManager.setupConfig(plugin.getLogger(), plugin.getDataFolder());
+        ConfigManager.setupConfig(plugin.getCoreLogger(), plugin.getDataFolder());
         MessageHandler.getInstance().setupConfigMessages();
         Storage.getInstance().setUpDefaultValuesFromConfig();
     }
@@ -78,6 +85,6 @@ public class NetworkJoinMessagesCore {
                 return;
         }
         message = message.replace("<player>", name);
-        plugin.getLogger().info(HexChat.translateHexCodes(message));
+        plugin.getCoreLogger().info(HexChat.translateHexCodes(message));
     }
 }

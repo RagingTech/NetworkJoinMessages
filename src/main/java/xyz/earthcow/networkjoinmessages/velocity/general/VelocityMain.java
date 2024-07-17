@@ -10,9 +10,9 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
-import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityLogger;
-import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityPlayer;
-import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityServer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityLogger;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
@@ -46,7 +46,7 @@ public class VelocityMain implements CorePlugin {
 
     private final VelocityLogger velocityLogger;
     @Override
-    public CoreLogger getLogger() {
+    public CoreLogger getCoreLogger() {
         return velocityLogger;
     }
 
@@ -94,7 +94,7 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public ServerType getServerType() {
-        return null;
+        return ServerType.VELOCITY;
     }
 
     @Inject

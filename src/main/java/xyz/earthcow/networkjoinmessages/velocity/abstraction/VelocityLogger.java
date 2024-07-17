@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.velocity.abstaction;
+package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;

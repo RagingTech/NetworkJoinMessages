@@ -88,7 +88,7 @@ public class CorePlayerListener {
                     while (player.getCurrentServer() == null) {
                         try {
                             NetworkJoinMessagesCore.getInstance().getPlugin()
-                                .getLogger()
+                                .getCoreLogger()
                                 .warn(
                                     player.getName() +
                                     "'s SERVER IS NULL WAITING A SECOND!!"

@@ -10,7 +10,7 @@ public interface CorePlugin {
 
     ServerType getServerType();
     File getDataFolder();
-    CoreLogger getLogger();
+    CoreLogger getCoreLogger();
 
     List<CorePlayer> getAllPlayers();
     CoreBackendServer getServer(String serverName);

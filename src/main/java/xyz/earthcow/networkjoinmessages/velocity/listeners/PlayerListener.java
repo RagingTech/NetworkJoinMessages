@@ -6,8 +6,8 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
-import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityPlayer;
-import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityServer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
 
 public class PlayerListener {
 

@@ -102,7 +102,7 @@ public class MessageHandler {
 
         //Remove the players that have messages disabled
         List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        NetworkJoinMessagesCore.getInstance().getPlugin().getLogger().info(text);
+        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(text);
 
         //Add the players that are on ignored servers to the ignored list.
         ignorePlayers.addAll(
@@ -278,6 +278,6 @@ public class MessageHandler {
     }
 
     public void log(String string) {
-        NetworkJoinMessagesCore.getInstance().getPlugin().getLogger().info(string);
+        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(string);
     }
 }

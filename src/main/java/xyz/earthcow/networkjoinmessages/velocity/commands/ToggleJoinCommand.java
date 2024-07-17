@@ -2,13 +2,14 @@ package xyz.earthcow.networkjoinmessages.velocity.commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
-import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityCommandSender;
+import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
 
 import java.util.List;
 
 public class ToggleJoinCommand implements SimpleCommand {
 
-    private final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
+    private final CoreToggleJoinCommand coreToggleJoinCommand = NetworkJoinMessagesCore.getInstance().coreToggleJoinCommand;
 
     @Override
     public void execute(SimpleCommand.Invocation invocation) {

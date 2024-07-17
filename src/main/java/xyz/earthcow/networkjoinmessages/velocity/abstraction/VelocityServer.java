@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.velocity.abstaction;
+package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
