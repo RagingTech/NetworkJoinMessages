@@ -7,92 +7,109 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import org.slf4j.Logger;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+import xyz.earthcow.networkjoinmessages.common.abstraction.*;
+import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityLogger;
+import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityPlayer;
+import xyz.earthcow.networkjoinmessages.velocity.abstaction.VelocityServer;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
-import xyz.earthcow.networkjoinmessages.velocity.listeners.VanishListener;
-import xyz.earthcow.networkjoinmessages.velocity.modules.DiscordWebhookIntegration;
-import xyz.earthcow.networkjoinmessages.velocity.util.HexChat;
-import xyz.earthcow.networkjoinmessages.velocity.util.MessageHandler;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Plugin(
     id = "networkjoinmessages",
     name = "NetworkJoinMessages",
-    version = "2.1.0",
+    version = "2.0.0",
     url = "https://github.com/RagingTech/NetworkJoinMessages",
     description = "A plugin handling join, leave and switch messages for proxy servers.",
     authors = { "EarthCow" }
 )
-public class VelocityMain {
+public class VelocityMain implements CorePlugin {
 
     private static VelocityMain instance;
-
     public static VelocityMain getInstance() {
         return instance;
     }
 
     private final ProxyServer proxy;
-
     public ProxyServer getProxy() {
         return proxy;
     }
 
-    private final Logger logger;
-
-    public Logger getLogger() {
-        return logger;
+    private final VelocityLogger velocityLogger;
+    @Override
+    public CoreLogger getLogger() {
+        return velocityLogger;
     }
 
-    private final Path dataDirectory;
-
-    public Path getDataDirectory() {
-        return dataDirectory;
+    @Override
+    public List<CorePlayer> getAllPlayers() {
+        return proxy.getAllPlayers().stream().map(VelocityPlayer::new).collect(Collectors.toList());
     }
 
-    private CommentedConfigurationNode rootNode;
-
-    public CommentedConfigurationNode getRootNode() {
-        return rootNode;
+    @Override
+    public CoreBackendServer getServer(String serverName) {
+        return new VelocityServer(proxy.getServer(serverName).orElse(null));
     }
 
-    private DiscordWebhookIntegration discordWebhookIntegration;
-
-    public DiscordWebhookIntegration getDiscordWebhookIntegration() {
-        return discordWebhookIntegration;
+    @Override
+    public void fireEvent(Object event) {
+        proxy.getEventManager().fireAndForget(event);
     }
 
-    public boolean VanishAPI = false;
-    public boolean LuckPermsAPI = false;
+    @Override
+    public boolean getVanishAPI() {
+        return false;
+    }
+
+    @Override
+    public void runTaskLater(Runnable task, int timeInSecondsLater) {
+        proxy.getScheduler().buildTask(this, task).delay(timeInSecondsLater, TimeUnit.SECONDS).schedule();
+    }
+
+    @Override
+    public void runTaskAsync(Runnable task) {
+        proxy.getScheduler().buildTask(this, task).schedule();
+    }
+
+    private final File dataFolder;
+    @Override
+    public File getDataFolder() {
+        return dataFolder;
+    }
+
+    private NetworkJoinMessagesCore core;
+    @Override
+    public NetworkJoinMessagesCore getCore() {
+        return core;
+    }
+
+    @Override
+    public ServerType getServerType() {
+        return null;
+    }
 
     @Inject
-    public VelocityMain(
-        ProxyServer proxy,
-        Logger logger,
-        @DataDirectory Path dataDirectory
-    ) {
+    public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
         this.proxy = proxy;
-        this.logger = logger;
-        this.dataDirectory = dataDirectory;
+        this.velocityLogger = new VelocityLogger(logger);
+        this.dataFolder = dataDirectory.toFile();
 
         instance = this;
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        loadConfig();
-        discordWebhookIntegration = new DiscordWebhookIntegration();
+        this.core = new NetworkJoinMessagesCore(this);
 
-        MessageHandler.getInstance().setupConfigMessages();
-        Storage.getInstance().setUpDefaultValuesFromConfig();
         proxy.getEventManager().register(this, new PlayerListener());
 
         CommandManager commandManager = proxy.getCommandManager();
@@ -121,111 +138,6 @@ public class VelocityMain {
             new ToggleJoinCommand()
         );
 
-        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
-            getLogger().info("Detected PremiumVanish! - Using API.");
-            this.VanishAPI = true;
-            proxy.getEventManager().register(this, new VanishListener());
-        }
-        if (proxy.getPluginManager().getPlugin("luckperms").isPresent()) {
-            getLogger().info("Detected Luckperms! - Using API.");
-            this.LuckPermsAPI = true;
-        }
-    }
-
-    private void loadConfig() {
-        File dataFolder = dataDirectory.toFile();
-        if (!dataFolder.exists()) dataFolder.mkdir();
-
-        File file = dataDirectory.resolve("config.yml").toFile();
-        if (!file.exists()) {
-            try (
-                InputStream in = getClass()
-                    .getClassLoader()
-                    .getResourceAsStream("config.yml")
-            ) {
-                Files.copy(in, file.toPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
-            .path(dataDirectory.resolve("config.yml"))
-            .build();
-
-        try {
-            rootNode = loader.load();
-        } catch (IOException e) {
-            System.err.println(
-                "An error occurred while loading the configuration: " +
-                e.getMessage()
-            );
-            if (e.getCause() != null) {
-                e.getCause().printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Attempt to load values from configfile.
-     */
-    public void reloadConfig() {
-        loadConfig();
-        MessageHandler.getInstance().setupConfigMessages();
-        Storage.getInstance().setUpDefaultValuesFromConfig();
-    }
-
-    /**
-     * Used when there's no specific from/to server.
-     * @param type - Type of event
-     * @param name - Name of player.
-     */
-    public void SilentEvent(String type, String name) {
-        SilentEvent(type, name, "", "");
-    }
-
-    /**
-     * Used to send a move message.
-     * @param type - The type of event that is silenced.
-     * @param name - Name of the player.
-     * @param from - Name of the server that is being moved from.
-     * @param to - Name of the server that is being moved to.
-     */
-    public void SilentEvent(String type, String name, String from, String to) {
-        String message = "";
-        switch (type) {
-            case "MOVE":
-                message = rootNode
-                    .node("Messages", "Misc", "ConsoleSilentMoveEvent")
-                    .getString();
-                message = message == null || message.isEmpty()
-                    ? message =
-                        "&1Move Event was silenced. <player> <from> -> <to>"
-                    : message;
-                message = message.replace("<to>", to);
-                message = message.replace("<from>", from);
-                break;
-            case "QUIT":
-                message = rootNode
-                    .node("Messages", "Misc", "ConsoleSilentQuitEvent")
-                    .getString();
-                message = message == null || message.isEmpty()
-                    ? message =
-                        "&6Quit Event was silenced. <player> left the network."
-                    : message;
-                break;
-            case "JOIN":
-                message = rootNode
-                    .node("Messages", "Misc", "ConsoleSilentJoinEvent")
-                    .getString();
-                message = message == null || message.isEmpty()
-                    ? message =
-                        "&6Join Event was silenced. <player> joined the network."
-                    : message;
-                break;
-            default:
-                return;
-        }
-        message = message.replace("<player>", name);
-        getLogger().info(HexChat.translateHexCodes(message));
+        // TODO Add vanish support
     }
 }

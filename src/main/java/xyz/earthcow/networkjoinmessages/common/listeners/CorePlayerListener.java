@@ -11,7 +11,7 @@ import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
-public class PlayerListener {
+public class CorePlayerListener {
 
     private String getSilentPrefix() {
         return ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix");

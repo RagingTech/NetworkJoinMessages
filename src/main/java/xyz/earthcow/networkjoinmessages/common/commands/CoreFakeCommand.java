@@ -10,7 +10,7 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.util.List;
 
-public class FakeCommand implements Command {
+public class CoreFakeCommand implements Command {
 
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {

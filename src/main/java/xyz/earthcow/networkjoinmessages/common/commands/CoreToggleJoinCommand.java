@@ -9,7 +9,7 @@ import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 
 import java.util.List;
 
-public class ToggleJoinCommand implements Command {
+public class CoreToggleJoinCommand implements Command {
 
     List<String> commandArguments = ImmutableList.of(
         "join",

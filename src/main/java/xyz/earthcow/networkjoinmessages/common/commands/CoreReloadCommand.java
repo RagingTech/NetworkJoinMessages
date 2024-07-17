@@ -7,19 +7,7 @@ import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 
 import java.util.List;
 
-public class ReloadCommand implements Command {
-
-    @Override
-    public void execute(Invocation invocation) {
-
-    }
-
-    @Override
-    public boolean hasPermission(final Invocation invocation) {
-        return invocation
-            .source()
-            .hasPermission();
-    }
+public class CoreReloadCommand implements Command {
 
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
