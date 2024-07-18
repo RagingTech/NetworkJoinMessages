@@ -13,7 +13,7 @@ public class Storage {
 
     private static Storage instance;
 
-    HashMap<CorePlayer, String> previousServer = new HashMap<>();
+    HashMap<UUID, String> previousServer = new HashMap<>();
     HashMap<UUID, Boolean> messageState = new HashMap<>();
     List<UUID> onlinePlayers = new ArrayList<>();
     List<UUID> noJoinMessage = new ArrayList<>();
@@ -186,23 +186,23 @@ public class Storage {
     }
 
     public String getFrom(CorePlayer p) {
-        if (previousServer.containsKey(p)) {
-            return previousServer.get(p);
+        if (previousServer.containsKey(p.getUniqueId())) {
+            return previousServer.get(p.getUniqueId());
         } else {
             return p.getCurrentServer() == null ? "???" : p.getCurrentServer().getName();
         }
     }
 
     public void setFrom(CorePlayer p, String name) {
-        previousServer.put(p, name);
+        previousServer.put(p.getUniqueId(), name);
     }
 
     public boolean isElsewhere(CorePlayer player) {
-        return previousServer.containsKey(player);
+        return previousServer.containsKey(player.getUniqueId());
     }
 
     public void clearPlayer(CorePlayer player) {
-        previousServer.remove(player);
+        previousServer.remove(player.getUniqueId());
     }
 
     private void setJoinState(UUID id, boolean state) {
