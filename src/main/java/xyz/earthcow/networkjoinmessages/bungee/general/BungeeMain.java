@@ -1,6 +1,7 @@
 package xyz.earthcow.networkjoinmessages.bungee.general;
 
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeLogger;
@@ -78,7 +79,9 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     @Override
     public CoreBackendServer getServer(String serverName) {
-        return new BungeeServer(getProxy().getServerInfo(serverName));
+        ServerInfo serverInfo = getProxy().getServerInfo(serverName);
+        if (serverInfo == null) return null;
+        return new BungeeServer(serverInfo);
     }
 
     @Override

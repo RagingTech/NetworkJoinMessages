@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
@@ -57,7 +58,9 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public CoreBackendServer getServer(String serverName) {
-        return new VelocityServer(proxy.getServer(serverName).orElse(null));
+        RegisteredServer registeredServer = proxy.getServer(serverName).orElse(null);
+        if (registeredServer == null) return null;
+        return new VelocityServer(registeredServer);
     }
 
     @Override
