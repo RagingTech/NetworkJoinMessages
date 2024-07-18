@@ -20,7 +20,7 @@ public class ConfigManager {
         logger.info("Attempting to load config files...");
         try {
             config = YamlDocument.create(new File(dataFolder, "config.yml"),
-                    ClassLoader.getSystemResourceAsStream("config.yml"), GeneralSettings.DEFAULT,
+                    NetworkJoinMessagesCore.getInstance().getClass().getClassLoader().getResourceAsStream("config.yml"), GeneralSettings.DEFAULT,
                     LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT,
                     UpdaterSettings.builder().setVersioning(new BasicVersioning("config-version"))
                             .setOptionSorting(UpdaterSettings.OptionSorting.SORT_BY_DEFAULTS).build());
@@ -29,7 +29,7 @@ public class ConfigManager {
             config.save();
 
             discordConfig = YamlDocument.create(new File(dataFolder, "discord.yml"),
-                    ClassLoader.getSystemResourceAsStream("discord.yml"), GeneralSettings.DEFAULT,
+                    NetworkJoinMessagesCore.getInstance().getClass().getClassLoader().getResourceAsStream("discord.yml"), GeneralSettings.DEFAULT,
                     LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT,
                     UpdaterSettings.builder().setVersioning(new BasicVersioning("config-version"))
                             .setOptionSorting(UpdaterSettings.OptionSorting.SORT_BY_DEFAULTS).build());

@@ -132,8 +132,6 @@ public class Storage {
                         );
                 this.SwapServerMessageRequires = "ANY";
         }
-
-        MessageHandler.getInstance().log("Config has been loaded.");
     }
 
     public boolean isSwapServerMessageEnabled() {
