@@ -31,7 +31,7 @@ public class MessageHandler {
         YamlDocument config = ConfigManager.getPluginConfig();
         SwapServerMessage = config.getString("Messages.SwapServerMessage");
         JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage");
-        JoinNetworkMessage = config.getString("Messages.LeaveNetworkMessage");
+        LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage");
 
         HashMap<String, String> serverNames = new HashMap<String, String>();
 
