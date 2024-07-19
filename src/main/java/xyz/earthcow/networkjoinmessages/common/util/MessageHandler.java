@@ -8,6 +8,7 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MessageHandler {
 
@@ -167,26 +168,15 @@ public class MessageHandler {
     ) {
         String serverPlayerCount = "?";
         if (backendServer != null) {
-            int count = 0;
-            List<CorePlayer> players = new ArrayList<>(
-                    backendServer.getPlayersConnected()
-            );
+            List<CorePlayer> players = new ArrayList<>(backendServer.getPlayersConnected());
+            int count = players.size();
 
             // TODO Add vanish support
 
             if (leaving && player != null) {
-                if (players.contains(player)) {
-                    count = players.size() - 1;
+                if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
+                    count--;
                 }
-            } else if (player != null) {
-                if (!players.contains(player)) {
-                    count = players.size() + 1;
-                } else {
-                    count = players.size();
-                }
-            }
-            if (count < 0) {
-                count = 0;
             }
 
             serverPlayerCount = count + "";
@@ -198,20 +188,13 @@ public class MessageHandler {
         Collection<CorePlayer> players = NetworkJoinMessagesCore.getInstance()
             .getPlugin()
             .getAllPlayers();
+        int count = players.size();
         if (leaving && player != null) {
-            if (players.contains(player)) {
-                return String.valueOf(players.size() - 1);
-            } else {
-                return String.valueOf(players.size());
-            }
-        } else if (player != null) {
-            if (players.contains(player)) {
-                return String.valueOf(players.size());
-            } else {
-                return String.valueOf(players.size() + 1);
+            if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
+                count--;
             }
         }
-        return String.valueOf(players.size());
+        return count + "";
     }
 
     public String formatMessage(String msg, CorePlayer player) {
