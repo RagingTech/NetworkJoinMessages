@@ -52,18 +52,18 @@ Messages:
         &7[BungeeJoin] You joined the server while silenced.
         &7To have messages automatically enabled for you until
         &7next reboot, use the command &f/fm toggle&7.
-      ToggleJoin:
-        MissingFirstArgument: |-
-          &6Please specify which messages you would like to disable/enable.
-          &6Valid arguments are:&f join, leave, switch, all
-        MissingState: |-
-          &6Please specify which state you would like to set the message to.
-          &6Valid arguments are: &aon &7/ &coff &6or &atrue &7/ &cfalse&f.
-        Confirmation: |-
-          &6Receive messages for &f<mode>&6 has been set to &f<state>
-          &6This will last until the network reboots.
-      Reload:
-        ConfigReloaded: Config Reloaded!
+    ToggleJoin:
+      MissingFirstArgument: |-
+        &6Please specify which messages you would like to disable/enable.
+        &6Valid arguments are:&f join, leave, switch, all
+      MissingState: |-
+        &6Please specify which state you would like to set the message to.
+        &6Valid arguments are: &aon &7/ &coff &6or &atrue &7/ &cfalse&f.
+      Confirmation: |-
+        &6Receive messages for &f<mode>&6 has been set to &f<state>
+        &6This will last until the network reboots.
+    Reload:
+      ConfigReloaded: Config Reloaded!
   Misc:
     SilentPrefix: "&7[Silent] "
     ConsoleSilentMoveEvent: "&1Move Event was silenced. <player> <from> -> <to>"

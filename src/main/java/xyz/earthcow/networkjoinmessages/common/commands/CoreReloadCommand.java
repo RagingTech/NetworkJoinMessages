@@ -20,7 +20,7 @@ public class CoreReloadCommand implements Command {
 
     @Override
     public String getRequiredPermssion() {
-        return "networkjoinmessages.exclusions";
+        return "networkjoinmessages.reload";
     }
 
     @Override
