@@ -70,8 +70,14 @@ Messages:
     ConsoleSilentJoinEvent: "&6Join Event was silenced. <player> joined the network."
     ConsoleSilentQuitEvent: "&cQuit Event was silenced. <player> left the network."
     # New in 1.13.0
-    # Don't lower this delay too much, or you may get false join messages from banned/failed logins
+    # Don't lower this delay too much, or you may get false join messages from banned/failed logins on BungeeCord
     JoinMessageDelaySeconds: 3
+    # New in 2.1.0
+    # This is the maximum number of seconds the server should wait before assuming a player disconnected
+    # Generally, this should never need to be changed, however if your server has an incredibly slow connection
+    # with it taking more than 10 seconds for players to join, it should be increased accordingly
+    # This only applies to Velocity servers
+    JoinMessageWaitLimit: 10
 Settings:
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /fakemessage toggle command
@@ -140,4 +146,4 @@ OtherPlugins:
     RemoveVanishedPlayersFromPlayerCount: true
 
 # Do not touch this
-config-version: 1
+config-version: 2
