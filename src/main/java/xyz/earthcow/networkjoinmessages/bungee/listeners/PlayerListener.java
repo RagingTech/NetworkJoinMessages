@@ -35,11 +35,6 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPostLogin(PostLoginEvent event) {
-        corePlayerListener.onLogin(new BungeePlayer(event.getPlayer()));
-    }
-
-    @EventHandler
     public void onPostQuit(PlayerDisconnectEvent event) {
         corePlayerListener.onDisconnect(new BungeePlayer(event.getPlayer()));
     }

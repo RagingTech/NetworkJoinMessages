@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.listeners;
 
+import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
@@ -10,6 +11,8 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+
+import java.util.stream.Collectors;
 
 public class CorePlayerListener {
 
@@ -27,31 +30,101 @@ public class CorePlayerListener {
         }
     }
 
-    public void onServerConnected(CorePlayer player, CoreBackendServer server) {
-        if (!Storage.getInstance().isConnected(player)) {
-            return;
-        }
+    public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
+        NetworkJoinMessagesCore.getInstance().getPlugin().runTaskAsync(() -> {
+            if (!Storage.getInstance().isConnected(player)) {
+                // If the player is NOT already connected they have just joined the network
+                Storage.getInstance().setConnected(player, true);
+                int count = 0;
+                while (player.getCurrentServer() == null && count < 120) {
+                    if (count % 5 == 0) {
+                        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Waiting for non-null server: waited " + count + " times");
+                    }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ignored) {
 
-        String to = server.getName();
-        String from = "???";
-        if (Storage.getInstance().isElsewhere(player)) {
-            from = Storage.getInstance().getFrom(player);
-        } else {
-            return;
-        }
+                    }
+                    count++;
+                }
+                if (player.getCurrentServer() == null) {
+                    NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger()
+                            .severe(player.getName() + "'s server was still null after persistent checks! " +
+                            "Please report this to the developer at https://github.com/RagingTech/NetworkJoinMessages/issues");
+                    return;
+                }
+                if (!Storage.getInstance().isJoinNetworkMessageEnabled()) {
+                    return;
+                }
 
-        if (Storage.getInstance().isSwapServerMessageEnabled()) {
+                // Blacklist Check
+                if (Storage.getInstance().blacklistCheck(player)) {
+                    return;
+                }
+
+                // TODO Add vanish support
+
+                String message = MessageHandler.getInstance().formatJoinMessage(player);
+
+                if (Storage.getInstance().getAdminMessageState(player)) {
+                    // Silent
+                    if (player.hasPermission("networkjoinmessages.fakemessage")) {
+                        String toggleNotif = ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification");
+                        player.sendMessage(HexChat.translateHexCodes(toggleNotif));
+                    }
+
+                    // Send to console
+                    NetworkJoinMessagesCore.getInstance().SilentEvent("JOIN", player.getName());
+
+                    // Send to admin players
+                    if (Storage.getInstance().notifyAdminsOnSilentMove()) {
+                        for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                                .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).collect(Collectors.toList())) {
+                            p.sendMessage(HexChat.translateHexCodes(getSilentPrefix() + message));
+                        }
+                    }
+                } else {
+                    // Not silent
+                    MessageHandler.getInstance().broadcastMessage(HexChat.translateHexCodes(message), "join", player);
+                }
+
+                // All checks have passed to reach this point
+                // Call the custom NetworkJoinEvent
+                NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
+                        player,
+                        MessageHandler.getInstance().getServerDisplayName(server.getName()),
+                        Storage.getInstance().getAdminMessageState(player),
+                        message
+                );
+                NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
+                NetworkJoinMessagesCore.getInstance()
+                        .getPlugin()
+                        .fireEvent(networkJoinEvent);
+                return;
+            }
+
+            // If the player IS already connected they have just switched servers
+            if (!Storage.getInstance().isElsewhere(player)) {
+                return;
+            }
+            String to = server.getName();
+            String from = Storage.getInstance().getFrom(player);
+
+            if (!Storage.getInstance().isSwapServerMessageEnabled()) {
+                return;
+            }
+
             if (Storage.getInstance().blacklistCheck(from, to)) {
                 return;
             }
 
             String message = MessageHandler.getInstance()
-                .formatSwitchMessage(player, from, to);
+                    .formatSwitchMessage(player, from, to);
 
             // Silent
             if (Storage.getInstance().getAdminMessageState(player)) {
                 NetworkJoinMessagesCore.getInstance()
-                    .SilentEvent("MOVE", player.getName(), from, to);
+                        .SilentEvent("MOVE", player.getName(), from, to);
                 if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                     for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                         if (p.hasPermission("networkjoinmessages.silent")) {
@@ -61,106 +134,21 @@ public class CorePlayerListener {
                 }
             } else {
                 MessageHandler.getInstance()
-                    .broadcastMessage(HexChat.translateHexCodes(message), "switch", from, to);
+                        .broadcastMessage(HexChat.translateHexCodes(message), "switch", from, to);
             }
 
             // Call the custom ServerSwapEvent
             SwapServerEvent swapServerEvent = new SwapServerEvent(
-                player,
-                MessageHandler.getInstance().getServerDisplayName(from),
-                MessageHandler.getInstance().getServerDisplayName(to),
-                Storage.getInstance().getAdminMessageState(player),
-                message
+                    player,
+                    MessageHandler.getInstance().getServerDisplayName(from),
+                    MessageHandler.getInstance().getServerDisplayName(to),
+                    Storage.getInstance().getAdminMessageState(player),
+                    message
             );
             NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
             NetworkJoinMessagesCore.getInstance()
-                .getPlugin().fireEvent(swapServerEvent);
-        }
-    }
-
-    public void onLogin(CorePlayer player) {
-        if (player == null) {
-            return;
-        }
-
-        NetworkJoinMessagesCore.getInstance()
-            .getPlugin().runTaskLater(() -> {
-                int secondsWaited = 0;
-                while (player.getCurrentServer() == null && secondsWaited < ConfigManager.getPluginConfig().getInt("Messages.Misc.JoinMessageWaitLimit")) {
-                    try {
-                        NetworkJoinMessagesCore.getInstance().getPlugin()
-                            .getCoreLogger()
-                            .warn(
-                                player.getName() +
-                                "'s SERVER IS NULL WAITING A SECOND!!"
-                            );
-                        Thread.sleep(1000);
-                        secondsWaited++;
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                if (player.getCurrentServer() == null) {
-                    // Assume that the player has disconnected
-                    NetworkJoinMessagesCore.getInstance().getPlugin()
-                            .getCoreLogger()
-                            .warn(player.getName() + "'s server was found to be null after waiting the maximum amount of seconds. Assuming they disconnected.");
-                }
-
-                Storage.getInstance().setConnected(player, true);
-                if (!Storage.getInstance().isJoinNetworkMessageEnabled()) {
-                    return;
-                }
-                String message = MessageHandler.getInstance()
-                    .formatJoinMessage(player);
-
-                // TODO Add vanish support
-
-                // Blacklist Check
-                if (Storage.getInstance().blacklistCheck(player)) {
-                    return;
-                }
-
-                // Silent
-                if (Storage.getInstance().getAdminMessageState(player)) {
-                    if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                        String toggleNotif = ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification");
-                        player.sendMessage(HexChat.translateHexCodes(toggleNotif));
-                    }
-
-                    // Send to console
-                    NetworkJoinMessagesCore.getInstance()
-                        .SilentEvent("JOIN", player.getName());
-                    // Send to admin players
-                    if (Storage.getInstance().notifyAdminsOnSilentMove()) {
-                        for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
-                            if (p.hasPermission("networkjoinmessages.silent")) {
-                                p.sendMessage(HexChat.translateHexCodes(getSilentPrefix() + message));
-                            }
-                        }
-                    }
-                } else {
-                    MessageHandler.getInstance()
-                        .broadcastMessage(
-                            HexChat.translateHexCodes(message),
-                            "join",
-                            player
-                        );
-                }
-
-                // All checks have passed to reach this point
-                // Call the custom NetworkJoinEvent
-                NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
-                    player,
-                    MessageHandler.getInstance().getServerDisplayName(player.getCurrentServer().getName()),
-                    Storage.getInstance().getAdminMessageState(player),
-                    message
-                );
-                NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
-                NetworkJoinMessagesCore.getInstance()
-                    .getPlugin()
-                    .fireEvent(networkJoinEvent);
-            }, ConfigManager.getPluginConfig().getInt("Messages.Misc.JoinMessageDelaySeconds"));
+                    .getPlugin().fireEvent(swapServerEvent);
+        });
     }
 
     public void onDisconnect(CorePlayer player) {
@@ -172,8 +160,9 @@ public class CorePlayerListener {
             return;
         }
 
+        Storage.getInstance().setConnected(player, false);
+
         if (!Storage.getInstance().isLeaveNetworkMessageEnabled()) {
-            Storage.getInstance().setConnected(player, false);
             return;
         }
 
@@ -195,15 +184,8 @@ public class CorePlayerListener {
                 }
             }
         } else {
-            MessageHandler.getInstance()
-                .broadcastMessage(
-                    HexChat.translateHexCodes(message),
-                    "leave",
-                    player
-                );
+            MessageHandler.getInstance().broadcastMessage(HexChat.translateHexCodes(message), "leave", player);
         }
-
-        Storage.getInstance().setConnected(player, false);
 
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(

@@ -28,11 +28,6 @@ public class PlayerListener {
     }
 
     @Subscribe
-    public void onLogin(LoginEvent event) {
-        corePlayerListener.onLogin(new VelocityPlayer(event.getPlayer()));
-    }
-
-    @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         corePlayerListener.onDisconnect(new VelocityPlayer(event.getPlayer()));
     }
