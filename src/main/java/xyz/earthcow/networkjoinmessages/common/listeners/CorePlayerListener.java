@@ -1,7 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.listeners;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
@@ -23,20 +22,15 @@ public class CorePlayerListener {
             return;
         }
 
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("previous server is null: " + previousServerName);
-
         if (previousServerName != null) {
             Storage.getInstance().setFrom(player, previousServerName);
         }
     }
 
     public void onServerConnected(CorePlayer player, CoreBackendServer server) {
-        CoreLogger l = NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger();
-        l.warn("1");
         if (!Storage.getInstance().isConnected(player)) {
             return;
         }
-        l.warn("2");
 
         String to = server.getName();
         String from = "???";
@@ -45,13 +39,11 @@ public class CorePlayerListener {
         } else {
             return;
         }
-        l.warn("3");
 
         if (Storage.getInstance().isSwapServerMessageEnabled()) {
             if (Storage.getInstance().blacklistCheck(from, to)) {
                 return;
             }
-            l.warn("4");
 
             String message = MessageHandler.getInstance()
                 .formatSwitchMessage(player, from, to);
