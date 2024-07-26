@@ -37,8 +37,8 @@ public class CorePlayerListener {
                 Storage.getInstance().setConnected(player, true);
                 int count = 0;
                 while (player.getCurrentServer() == null && count < 120) {
-                    if (count % 5 == 0) {
-                        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Waiting for non-null server: waited " + count + " times");
+                    if (count % 5 == 0 && count != 0) {
+                        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Waiting for non-null server: waited for half a second " + count + " times");
                     }
                     try {
                         Thread.sleep(500);
