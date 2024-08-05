@@ -1,20 +1,19 @@
-package xyz.earthcow.networkjoinmessages.bungee.events;
+package xyz.earthcow.networkjoinmessages.common.events;
 
-import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.plugin.Event;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 
 /**
  * Called when a player joins the network and all respective checks have passed
  */
-public class NetworkJoinEvent extends Event {
+public class NetworkJoinEvent {
 
-    private final ProxiedPlayer player;
+    private final CorePlayer player;
     private final String serverJoined;
     private final boolean isSilenced;
     private final String message;
 
     public NetworkJoinEvent(
-        ProxiedPlayer player,
+        CorePlayer player,
         String serverJoined,
         boolean isSilenced,
         String message
@@ -25,7 +24,7 @@ public class NetworkJoinEvent extends Event {
         this.message = message;
     }
 
-    public ProxiedPlayer getPlayer() {
+    public CorePlayer getPlayer() {
         return player;
     }
 

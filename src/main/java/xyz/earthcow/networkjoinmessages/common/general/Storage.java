@@ -1,21 +1,24 @@
-package xyz.earthcow.networkjoinmessages.velocity.general;
+package xyz.earthcow.networkjoinmessages.common.general;
 
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
-import java.util.*;
-import org.spongepowered.configurate.serialize.SerializationException;
-import xyz.earthcow.networkjoinmessages.velocity.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class Storage {
 
     private static Storage instance;
 
-    HashMap<Player, String> previousServer;
-    HashMap<UUID, Boolean> messageState;
-    List<UUID> onlinePlayers;
-    List<UUID> noJoinMessage;
-    List<UUID> noLeaveMessage;
-    List<UUID> noSwitchMessage;
+    HashMap<UUID, String> previousServer = new HashMap<>();
+    HashMap<UUID, Boolean> messageState = new HashMap<>();
+    List<UUID> onlinePlayers = new ArrayList<>();
+    List<UUID> noJoinMessage = new ArrayList<>();
+    List<UUID> noLeaveMessage = new ArrayList<>();
+    List<UUID> noSwitchMessage = new ArrayList<>();
 
     boolean SwapServerMessageEnabled = true;
     boolean JoinNetworkMessageEnabled = true;
@@ -32,11 +35,11 @@ public class Storage {
     boolean LeftViewableByLeft = true;
     boolean LeftViewableByOther = true;
 
-    List<String> ServerJoinMessageDisabled;
-    List<String> ServerLeaveMessageDisabled;
+    List<String> ServerJoinMessageDisabled = new ArrayList<>();
+    List<String> ServerLeaveMessageDisabled = new ArrayList<>();
 
     //BlackList settings
-    List<String> BlacklistedServers;
+    List<String> BlacklistedServers = new ArrayList<>();
     boolean useBlacklistAsWhitelist;
     String SwapServerMessageRequires = "ANY";
 
@@ -52,102 +55,65 @@ public class Storage {
         return instance;
     }
 
-    public Storage() {
-        this.previousServer = new HashMap<Player, String>();
-        this.messageState = new HashMap<UUID, Boolean>();
-        this.onlinePlayers = new ArrayList<UUID>();
-        this.noJoinMessage = new ArrayList<UUID>();
-        this.noLeaveMessage = new ArrayList<UUID>();
-        this.noSwitchMessage = new ArrayList<UUID>();
-    }
-
     /**
      * Grab values from config and save them here.
      */
     public void setUpDefaultValuesFromConfig() {
-        try {
-            SwapServerMessageEnabled = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "SwapServerMessageEnabled")
-                .getBoolean(true);
-            JoinNetworkMessageEnabled = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "JoinNetworkMessageEnabled")
-                .getBoolean(true);
-            LeaveNetworkMessageEnabled = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "LeaveNetworkMessageEnabled")
-                .getBoolean(true);
-            NotifyAdminsOnSilentMove = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "NotifyAdminsOnSilentMove")
-                .getBoolean(true);
+        this.SwapServerMessageEnabled = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.SwapServerMessageEnabled");
+        this.JoinNetworkMessageEnabled = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.JoinNetworkMessageEnabled");
+        this.LeaveNetworkMessageEnabled = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.LeaveNetworkMessageEnabled");
+        this.NotifyAdminsOnSilentMove = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.NotifyAdminsOnSilentMove");
 
-            SwapViewableByJoined = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "SwapServerMessageViewableBy", "ServerJoined")
-                .getBoolean(true);
-            SwapViewableByLeft = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "SwapServerMessageViewableBy", "ServerLeft")
-                .getBoolean(true);
-            SwapViewableByOther = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "SwapServerMessageViewableBy", "OtherServer")
-                .getBoolean(true);
+        this.SwapViewableByJoined = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.SwapServerMessageViewableBy.ServerJoined");
+        this.SwapViewableByLeft = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.SwapServerMessageViewableBy.ServerLeft");
+        this.SwapViewableByOther = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.SwapServerMessageViewableBy.OtherServer");
 
-            JoinViewableByJoined = VelocityMain.getInstance()
-                .getRootNode()
-                .node(
-                    "Settings",
-                    "JoinNetworkMessageViewableBy",
-                    "ServerJoined"
-                )
-                .getBoolean(true);
-            JoinViewableByOther = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "JoinNetworkMessageViewableBy", "OtherServer")
-                .getBoolean(true);
+        this.JoinViewableByJoined = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.JoinNetworkMessageViewableBy.ServerJoined");
+        this.JoinViewableByOther = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.JoinNetworkMessageViewableBy.OtherServer");
 
-            LeftViewableByLeft = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "LeaveNetworkMessageViewableBy", "ServerLeft")
-                .getBoolean(true);
-            LeftViewableByOther = VelocityMain.getInstance()
-                .getRootNode()
-                .node(
-                    "Settings",
-                    "LeaveNetworkMessageViewableBy",
-                    "OtherServer"
-                )
-                .getBoolean(true);
+        this.LeftViewableByLeft = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.LeaveNetworkMessageViewableBy.ServerLeft");
+        this.LeftViewableByOther = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.LeaveNetworkMessageViewableBy.OtherServer");
 
-            BlacklistedServers = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "ServerBlacklist")
-                .getList(String.class, new ArrayList<>());
-            useBlacklistAsWhitelist = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "UseBlacklistAsWhitelist")
-                .getBoolean(false);
-            SwapServerMessageRequires = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "SwapServerMessageRequires")
-                .getString("ANY")
+        //Blacklist
+        this.BlacklistedServers = ConfigManager
+                .getPluginConfig()
+                .getStringList("Settings.ServerBlacklist");
+        this.useBlacklistAsWhitelist = ConfigManager
+                .getPluginConfig()
+                .getBoolean("Settings.UseBlacklistAsWhitelist");
+        this.SwapServerMessageRequires = ConfigManager
+                .getPluginConfig()
+                .getString("Settings.SwapServerMessageRequires")
                 .toUpperCase();
 
-            ServerJoinMessageDisabled = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "IgnoreJoinMessagesList")
-                .getList(String.class, new ArrayList<>());
-            ServerLeaveMessageDisabled = VelocityMain.getInstance()
-                .getRootNode()
-                .node("Settings", "IgnoreLeaveMessagesList")
-                .getList(String.class, new ArrayList<>());
-        } catch (SerializationException serializationException) {
-            serializationException.printStackTrace();
-            return;
-        }
+        this.ServerJoinMessageDisabled = ConfigManager
+                .getPluginConfig()
+                .getStringList("Settings.IgnoreJoinMessagesList");
+        this.ServerLeaveMessageDisabled = ConfigManager
+                .getPluginConfig()
+                .getStringList("Settings.IgnoreLeaveMessagesList");
 
         //Verify Swap Server Message
         switch (SwapServerMessageRequires) {
@@ -158,16 +124,14 @@ public class Storage {
                 break;
             default:
                 MessageHandler.getInstance()
-                    .log(
-                        "Setting error: Settings.SwapServerMessageRequires " +
-                        "only allows JOINED LEFT BOTH or ANY. Got " +
-                        SwapServerMessageRequires +
-                        "Defaulting to ANY."
-                    );
+                        .log(
+                                "Setting error: Settings.SwapServerMessageRequires " +
+                                        "only allows JOINED LEFT BOTH or ANY. Got " +
+                                        SwapServerMessageRequires +
+                                        "Defaulting to ANY."
+                        );
                 this.SwapServerMessageRequires = "ANY";
         }
-
-        MessageHandler.getInstance().log("Config has been loaded.");
     }
 
     public boolean isSwapServerMessageEnabled() {
@@ -186,15 +150,13 @@ public class Storage {
         return NotifyAdminsOnSilentMove;
     }
 
-    public boolean getAdminMessageState(Player p) {
+    public boolean getAdminMessageState(CorePlayer p) {
         if (p.hasPermission("networkjoinmessages.silent")) {
             if (messageState.containsKey(p.getUniqueId())) {
                 return messageState.get(p.getUniqueId());
             } else {
-                boolean state = VelocityMain.getInstance()
-                    .getRootNode()
-                    .node("Settings", "SilentJoinDefaultState")
-                    .getBoolean(true);
+                boolean state = ConfigManager.getPluginConfig()
+                    .getBoolean("Settings.SilentJoinDefaultState");
                 messageState.put(p.getUniqueId(), state);
                 return state;
             }
@@ -203,15 +165,15 @@ public class Storage {
         }
     }
 
-    public void setAdminMessageState(Player player, Boolean state) {
+    public void setAdminMessageState(CorePlayer player, Boolean state) {
         messageState.put(player.getUniqueId(), state);
     }
 
-    public Boolean isConnected(Player p) {
+    public Boolean isConnected(CorePlayer p) {
         return onlinePlayers.contains(p.getUniqueId());
     }
 
-    public void setConnected(Player p, Boolean state) {
+    public void setConnected(CorePlayer p, Boolean state) {
         if (state) {
             if (!isConnected(p)) {
                 onlinePlayers.add(p.getUniqueId());
@@ -223,24 +185,24 @@ public class Storage {
         }
     }
 
-    public String getFrom(Player p) {
-        if (previousServer.containsKey(p)) {
-            return previousServer.get(p);
+    public String getFrom(CorePlayer p) {
+        if (previousServer.containsKey(p.getUniqueId())) {
+            return previousServer.get(p.getUniqueId());
         } else {
-            return p.getCurrentServer().get().getServerInfo().getName();
+            return p.getCurrentServer() == null ? "???" : p.getCurrentServer().getName();
         }
     }
 
-    public void setFrom(Player p, String name) {
-        previousServer.put(p, name);
+    public void setFrom(CorePlayer p, String name) {
+        previousServer.put(p.getUniqueId(), name);
     }
 
-    public boolean isElsewhere(Player player) {
-        return previousServer.containsKey(player);
+    public boolean isElsewhere(CorePlayer player) {
+        return previousServer.containsKey(player.getUniqueId());
     }
 
-    public void clearPlayer(Player player) {
-        previousServer.remove(player);
+    public void clearPlayer(CorePlayer player) {
+        previousServer.remove(player.getUniqueId());
     }
 
     private void setJoinState(UUID id, boolean state) {
@@ -308,19 +270,19 @@ public class Storage {
         }
     }
 
-    public List<Player> getSwitchMessageReceivers(String to, String from) {
-        List<Player> receivers = new ArrayList<>();
+    public List<CorePlayer> getSwitchMessageReceivers(String to, String from) {
+        List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
         if (SwapViewableByJoined && SwapViewableByLeft && SwapViewableByOther) {
             receivers.addAll(
-                VelocityMain.getInstance().getProxy().getAllPlayers()
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (SwapViewableByOther) {
             receivers.addAll(
-                VelocityMain.getInstance().getProxy().getAllPlayers()
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             //Players on the connected server is not allowed to see. Remove them all.
             if (!SwapViewableByJoined) {
@@ -345,19 +307,19 @@ public class Storage {
         }
     }
 
-    public List<Player> getJoinMessageReceivers(String server) {
-        List<Player> receivers = new ArrayList<>();
+    public List<CorePlayer> getJoinMessageReceivers(String server) {
+        List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
         if (JoinViewableByJoined && JoinViewableByOther) {
             receivers.addAll(
-                VelocityMain.getInstance().getProxy().getAllPlayers()
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (JoinViewableByOther) {
             receivers.addAll(
-                VelocityMain.getInstance().getProxy().getAllPlayers()
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
@@ -369,19 +331,19 @@ public class Storage {
         }
     }
 
-    public List<Player> getLeaveMessageReceivers(String server) {
-        List<Player> receivers = new ArrayList<>();
+    public List<CorePlayer> getLeaveMessageReceivers(String server) {
+        List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
         if (LeftViewableByLeft && LeftViewableByOther) {
             receivers.addAll(
-                VelocityMain.getInstance().getProxy().getAllPlayers()
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (LeftViewableByOther) {
             receivers.addAll(
-                VelocityMain.getInstance().getProxy().getAllPlayers()
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
@@ -393,36 +355,35 @@ public class Storage {
         }
     }
 
-    public List<Player> getServerPlayers(String serverName) {
-        Optional<RegisteredServer> registeredServer = VelocityMain.getInstance()
-            .getProxy()
+    public List<CorePlayer> getServerPlayers(String serverName) {
+        CoreBackendServer backendServer = NetworkJoinMessagesCore.getInstance()
+            .getPlugin()
             .getServer(serverName);
-        return registeredServer
-            .map(server -> new ArrayList<>(server.getPlayersConnected()))
-            .orElseGet(ArrayList::new);
+        if (backendServer == null) {
+            return new ArrayList<>();
+        }
+        return backendServer.getPlayersConnected();
     }
 
-    public boolean blacklistCheck(Player player) {
-        if (!player.getCurrentServer().isPresent()) {
+    public boolean blacklistCheck(CorePlayer player) {
+        if (player.getCurrentServer() == null) {
             MessageHandler.getInstance()
                 .log(
                     "Warning: Server of " +
-                    player.getUsername() +
+                    player.getName() +
                     " came back as Null. Blackisted Server check failed. #01"
                 );
             return false;
         }
         String server = player
             .getCurrentServer()
-            .get()
-            .getServerInfo()
             .getName();
         //Null check because of Geyser issues.
         if (server == null) {
             MessageHandler.getInstance()
                 .log(
                     "Warning: Server of " +
-                    player.getUsername() +
+                    player.getName() +
                     " came back as Null. Blackisted Server check failed. #02"
                 );
             return false;
@@ -499,24 +460,20 @@ public class Storage {
         List<UUID> ignored = new ArrayList<UUID>();
         if (type.equalsIgnoreCase("join")) {
             for (String s : ServerJoinMessageDisabled) {
-                Optional<RegisteredServer> registeredServer =
-                    VelocityMain.getInstance().getProxy().getServer(s);
-                if (registeredServer.isPresent()) {
-                    for (Player p : registeredServer
-                        .get()
-                        .getPlayersConnected()) {
+                CoreBackendServer backendServer =
+                    NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                if (backendServer != null) {
+                    for (CorePlayer p : backendServer.getPlayersConnected()) {
                         ignored.add(p.getUniqueId());
                     }
                 }
             }
         } else if (type.equalsIgnoreCase("leave")) {
             for (String s : ServerLeaveMessageDisabled) {
-                Optional<RegisteredServer> registeredServer =
-                    VelocityMain.getInstance().getProxy().getServer(s);
-                if (registeredServer.isPresent()) {
-                    for (Player p : registeredServer
-                        .get()
-                        .getPlayersConnected()) {
+                CoreBackendServer backendServer =
+                        NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                if (backendServer != null) {
+                    for (CorePlayer p : backendServer.getPlayersConnected()) {
                         ignored.add(p.getUniqueId());
                     }
                 }

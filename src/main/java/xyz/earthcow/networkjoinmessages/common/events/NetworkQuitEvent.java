@@ -1,19 +1,19 @@
-package xyz.earthcow.networkjoinmessages.velocity.events;
+package xyz.earthcow.networkjoinmessages.common.events;
 
-import com.velocitypowered.api.proxy.Player;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 
 /**
  * Called when a player quits the network
  */
 public class NetworkQuitEvent {
 
-    private final Player player;
+    private final CorePlayer player;
     private final String serverLeft;
     private final boolean isSilenced;
     private final String message;
 
     public NetworkQuitEvent(
-        Player player,
+        CorePlayer player,
         String serverLeft,
         boolean isSilenced,
         String message
@@ -24,7 +24,7 @@ public class NetworkQuitEvent {
         this.message = message;
     }
 
-    public Player getPlayer() {
+    public CorePlayer getPlayer() {
         return player;
     }
 

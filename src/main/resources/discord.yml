@@ -1,6 +1,6 @@
 # This is the configuration for an optional discord webhook integration
 # Here you can provide a discord webhook url for notifications :)
-# This feature is new in 2.0.0
+# This feature is new in 1.13.0
 
 # Whether to enable the integration
 Enabled: false
@@ -128,3 +128,6 @@ Messages:
         Text: ""
         IconUrl: ""
       Timestamp: false
+
+# Do not touch this
+config-version: 1
