@@ -10,4 +10,7 @@ public interface CorePlayer extends CoreCommandSender {
     UUID getUniqueId();
     @Nullable
     CoreBackendServer getCurrentServer();
+    @Nullable
+    CoreBackendServer getLastKnownConnectedServer();
+    void setLastKnownConnectedServer(CoreBackendServer server);
 }
