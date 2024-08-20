@@ -71,12 +71,12 @@ public class MessageHandler {
                     player.getName() +
                     " halted as Server returned Null. #01"
                 );
-            return;
+            //return;
         }
         broadcastMessage(
             text,
             type,
-            player.getCurrentServer().getName(),
+            player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(),
             "???"
         );
     }
