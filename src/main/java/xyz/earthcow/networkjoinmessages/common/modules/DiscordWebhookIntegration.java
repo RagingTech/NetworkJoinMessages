@@ -11,6 +11,7 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.awt.*;
@@ -236,11 +237,9 @@ public class DiscordWebhookIntegration {
                 .formatMessage(txt, player)
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                 .replace("%to%", displayTo)
-                // TODO Strip color
-                .replace("%to_clean%", displayTo)
+                .replace("%to_clean%", HexChat.removeColorCodes(displayTo))
                 .replace("%from%", displayFrom)
-                // TODO Strip color
-                .replace("%from_clean%", displayFrom)
+                .replace("%from_clean%", HexChat.removeColorCodes(displayFrom))
                 .replace(
                         "%playercount_from%", MessageHandler.getInstance()
                                 .getServerPlayerCount(fromServer, true, player)

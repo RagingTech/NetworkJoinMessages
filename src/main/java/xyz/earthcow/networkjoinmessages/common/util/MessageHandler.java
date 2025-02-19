@@ -207,8 +207,7 @@ public class MessageHandler {
             .replace("%player%", player.getName())
             .replace("%displayname%", player.getName())
             .replace("%server_name%", serverName)
-                // TODO Actually make this remove all formatting
-            .replace("%server_name_clean%", serverName);
+            .replace("%server_name_clean%", HexChat.removeColorCodes(serverName));
     }
 
     public String formatSwitchMessage(
@@ -220,11 +219,9 @@ public class MessageHandler {
         String to = getServerDisplayName(toName);
         return formatMessage(getSwapServerMessage(), player)
             .replace("%to%", to)
-                // TODO Actually make this remove all formatting
-            .replace("%to_clean%", to)
+            .replace("%to_clean%", HexChat.removeColorCodes(to))
             .replace("%from%", from)
-                // TODO Actually make this remove all formatting
-            .replace("%from_clean%", from)
+            .replace("%from_clean%", HexChat.removeColorCodes(from))
             .replace(
                 "%playercount_from%",
                 getServerPlayerCount(fromName, true, player)
