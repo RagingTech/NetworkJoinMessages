@@ -13,8 +13,10 @@ import java.util.UUID;
 
 public class BungeePlayer implements CorePlayer {
     private final ProxiedPlayer bungeePlayer;
+    private CoreBackendServer lastKnownConnectedServer;
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
         this.bungeePlayer = bungeePlayer;
+        this.lastKnownConnectedServer = new BungeeServer(bungeePlayer.getServer().getInfo());
     }
 
     @Override
@@ -41,8 +43,18 @@ public class BungeePlayer implements CorePlayer {
     public @Nullable CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {
-            return null;
+            return lastKnownConnectedServer;
         }
         return new BungeeServer(server.getInfo());
+    }
+
+    @Override
+    public @Nullable CoreBackendServer getLastKnownConnectedServer() {
+        return lastKnownConnectedServer;
+    }
+
+    @Override
+    public void setLastKnownConnectedServer(CoreBackendServer server) {
+        lastKnownConnectedServer = server;
     }
 }

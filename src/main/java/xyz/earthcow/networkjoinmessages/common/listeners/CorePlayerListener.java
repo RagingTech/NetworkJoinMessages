@@ -53,6 +53,7 @@ public class CorePlayerListener {
                             "Please report this to the developer at https://github.com/RagingTech/NetworkJoinMessages/issues");
                     return;
                 }
+                player.setLastKnownConnectedServer(server);
                 if (!Storage.getInstance().isJoinNetworkMessageEnabled()) {
                     return;
                 }
@@ -102,6 +103,7 @@ public class CorePlayerListener {
                         .fireEvent(networkJoinEvent);
                 return;
             }
+            player.setLastKnownConnectedServer(server);
 
             // If the player IS already connected they have just switched servers
             if (!Storage.getInstance().isElsewhere(player)) {
@@ -157,16 +159,19 @@ public class CorePlayerListener {
         }
 
         if (!Storage.getInstance().isConnected(player)) {
+            player.setLastKnownConnectedServer(null);
             return;
         }
 
         Storage.getInstance().setConnected(player, false);
 
         if (!Storage.getInstance().isLeaveNetworkMessageEnabled()) {
+            player.setLastKnownConnectedServer(null);
             return;
         }
 
         if (Storage.getInstance().blacklistCheck(player)) {
+            player.setLastKnownConnectedServer(null);
             return;
         }
 
@@ -200,5 +205,7 @@ public class CorePlayerListener {
         NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         NetworkJoinMessagesCore.getInstance()
             .getPlugin().fireEvent(networkQuitEvent);
+
+        player.setLastKnownConnectedServer(null);
     }
 }

@@ -12,8 +12,12 @@ import java.util.UUID;
 
 public class VelocityPlayer implements CorePlayer {
     private final Player velocityPlayer;
+    private CoreBackendServer lastKnownConnectedServer;
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
+        if (velocityPlayer.getCurrentServer().isPresent()) {
+            this.lastKnownConnectedServer = new VelocityServer(velocityPlayer.getCurrentServer().get().getServer());
+        }
     }
 
     @Override
@@ -40,8 +44,18 @@ public class VelocityPlayer implements CorePlayer {
     public @Nullable CoreBackendServer getCurrentServer() {
         ServerConnection serverConnection = velocityPlayer.getCurrentServer().orElse(null);
         if (serverConnection == null) {
-            return null;
+            return lastKnownConnectedServer;
         }
         return new VelocityServer(serverConnection.getServer());
+    }
+
+    @Override
+    public @Nullable CoreBackendServer getLastKnownConnectedServer() {
+        return lastKnownConnectedServer;
+    }
+
+    @Override
+    public void setLastKnownConnectedServer(CoreBackendServer server) {
+        lastKnownConnectedServer = server;
     }
 }
