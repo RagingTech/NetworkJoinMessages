@@ -1,6 +1,9 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
@@ -14,11 +17,21 @@ public class MessageHandler {
 
     private static MessageHandler instance;
 
+    private LuckPerms luckPerms = null;
+
     public static MessageHandler getInstance() {
         if (instance == null) {
             instance = new MessageHandler();
         }
         return instance;
+    }
+
+    public MessageHandler() {
+        try {
+            luckPerms = LuckPermsProvider.get();
+        } catch (IllegalStateException e) {
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
+        }
     }
 
     String SwapServerMessage = "";
@@ -197,13 +210,31 @@ public class MessageHandler {
         return count + "";
     }
 
+    public String handleLpPlaceholders(String str, CorePlayer player) {
+        if (luckPerms == null) return str;
+        User lpUser = luckPerms.getUserManager().getUser(player.getUniqueId());
+        String prefix = "";
+        String suffix = "";
+        if (lpUser != null) {
+            if (lpUser.getCachedData().getMetaData().getPrefix() != null) {
+                prefix = lpUser.getCachedData().getMetaData().getPrefix();
+            }
+            if (lpUser.getCachedData().getMetaData().getSuffix() != null) {
+                suffix = lpUser.getCachedData().getMetaData().getSuffix();
+            }
+        }
+        return str
+                .replace("%player_prefix%", prefix)
+                .replace("%player_suffix%", suffix);
+    }
+
     public String formatMessage(String msg, CorePlayer player) {
         String serverName = player.getCurrentServer() != null
             ? getServerDisplayName(
                 player.getCurrentServer().getName()
             )
             : "???";
-        return msg
+        return handleLpPlaceholders(msg, player)
             .replace("%player%", player.getName())
             .replace("%displayname%", player.getName())
             .replace("%server_name%", serverName)
