@@ -2,7 +2,6 @@ package xyz.earthcow.networkjoinmessages.velocity.listeners;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;

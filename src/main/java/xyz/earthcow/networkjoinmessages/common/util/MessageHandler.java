@@ -1,6 +1,9 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 public class MessageHandler {
 
     private static MessageHandler instance;
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     private LuckPerms luckPerms = null;
 
@@ -26,12 +30,50 @@ public class MessageHandler {
         return instance;
     }
 
+    public static MiniMessage getMiniMessage() {
+        return miniMessage;
+    }
+
     public MessageHandler() {
         try {
             luckPerms = LuckPermsProvider.get();
         } catch (IllegalStateException e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
+    }
+
+    /**
+     * Strips all MiniMessage tags and & color codes from the input string
+     * and returns the plain text.
+     *
+     * @param input The input string containing MiniMessage syntax and/or & color codes.
+     * @return The plain text without any formatting.
+     */
+    public static String stripTags(String input) {
+        // Parse the input string into a Component
+        Component component = miniMessage.deserialize(input);
+
+        // Extract the plain text content from the Component
+        return extractPlainText(component);
+    }
+
+    /**
+     * Recursively extracts plain text from a Component.
+     *
+     * @param component The Component to extract text from.
+     * @return The plain text content.
+     */
+    public static String extractPlainText(Component component) {
+        if (component instanceof TextComponent) {
+            return ((TextComponent) component).content();
+        }
+
+        // Recursively extract text from children
+        StringBuilder builder = new StringBuilder();
+        for (Component child : component.children()) {
+            builder.append(extractPlainText(child));
+        }
+        return builder.toString();
     }
 
     String SwapServerMessage = "";
@@ -75,55 +117,31 @@ public class MessageHandler {
      * @param type - What type of message should be sent (switch/join/leave)
      * @param player - The player to fetch the server from.
      */
-    public void broadcastMessage(String text, String type, CorePlayer player) {
+    public void broadcastMessage(Component text, String type, CorePlayer player) {
         if (player.getCurrentServer() == null) {
-            //Fixes NPE when connecting to offline server.
-            MessageHandler.getInstance()
-                .log(
-                    "Broadcast Message of " +
-                    player.getName() +
-                    " halted as Server returned Null. #01"
-                );
-            //return;
+            MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
+            return;
         }
-        broadcastMessage(
-            text,
-            type,
-            player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(),
-            "???"
-        );
+        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???");
     }
 
-    public void broadcastMessage(String text, String type, String from, String to) {
+    public void broadcastMessage(Component text, String type, String from, String to) {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
-            receivers.addAll(
-                Storage.getInstance().getSwitchMessageReceivers(to, from)
-            );
+            receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
         } else if (type.equalsIgnoreCase("join")) {
-            receivers.addAll(
-                Storage.getInstance().getJoinMessageReceivers(from)
-            );
+            receivers.addAll(Storage.getInstance().getJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("leave")) {
-            receivers.addAll(
-                Storage.getInstance().getLeaveMessageReceivers(from)
-            );
+            receivers.addAll(Storage.getInstance().getLeaveMessageReceivers(from));
         } else {
-            receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
-            );
+            receivers.addAll(NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers());
         }
 
-        //Remove the players that have messages disabled
         List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(text);
+        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(miniMessage.serialize(text));
 
-        //Add the players that are on ignored servers to the ignored list.
-        ignorePlayers.addAll(
-            Storage.getInstance().getIgnoredServerPlayers(type)
-        );
+        ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
-        //Parse through all receivers and ignore the ones that are on the ignore list.
         for (CorePlayer player : receivers) {
             if (ignorePlayers.contains(player.getUniqueId())) {
                 continue;
@@ -228,64 +246,47 @@ public class MessageHandler {
                 .replace("%player_suffix%", suffix);
     }
 
-    public String formatMessage(String msg, CorePlayer player) {
+    public Component formatMessage(String msg, CorePlayer player) {
         String serverName = player.getCurrentServer() != null
-            ? getServerDisplayName(
-                player.getCurrentServer().getName()
-            )
-            : "???";
-        return handleLpPlaceholders(msg, player)
-            .replace("%player%", player.getName())
-            .replace("%displayname%", player.getName())
-            .replace("%server_name%", serverName)
-            .replace("%server_name_clean%", HexChat.removeColorCodes(serverName));
+                ? getServerDisplayName(player.getCurrentServer().getName())
+                : "???";
+        String formattedMsg = handleLpPlaceholders(msg, player)
+                .replace("%player%", player.getName())
+                .replace("%displayname%", player.getName())
+                .replace("%server_name%", serverName)
+                .replace("%server_name_clean%", stripTags(serverName));
+        return miniMessage.deserialize(formattedMsg);
     }
 
-    public String formatSwitchMessage(
-        CorePlayer player,
-        String fromName,
-        String toName
-    ) {
+    public Component formatSwitchMessage(CorePlayer player, String fromName, String toName) {
         String from = getServerDisplayName(fromName);
         String to = getServerDisplayName(toName);
-        return formatMessage(getSwapServerMessage(), player)
-            .replace("%to%", to)
-            .replace("%to_clean%", HexChat.removeColorCodes(to))
-            .replace("%from%", from)
-            .replace("%from_clean%", HexChat.removeColorCodes(from))
-            .replace(
-                "%playercount_from%",
-                getServerPlayerCount(fromName, true, player)
-            )
-            .replace(
-                "%playercount_to%",
-                getServerPlayerCount(toName, false, player)
-            )
-            .replace(
-                "%playercount_network%",
-                getNetworkPlayerCount(player, false)
-            );
+        return formatMessage(
+                getSwapServerMessage()
+                    .replace("%to%", to)
+                    .replace("%to_clean%", stripTags(to))
+                    .replace("%from%", from)
+                    .replace("%from_clean%", stripTags(from))
+                    .replace("%playercount_from%", getServerPlayerCount(fromName, true, player))
+                    .replace("%playercount_to%", getServerPlayerCount(toName, false, player))
+                    .replace("%playercount_network%", getNetworkPlayerCount(player, false))
+                , player);
     }
 
-    public String formatJoinMessage(CorePlayer player) {
-        return formatMessage(getJoinNetworkMessage(), player)
-            .replace(
-                "%playercount_server%",
-                getServerPlayerCount(player, false)
-            )
-            .replace(
-                "%playercount_network%",
-                getNetworkPlayerCount(player, false)
-            );
+    public Component formatJoinMessage(CorePlayer player) {
+        return formatMessage(
+                getJoinNetworkMessage()
+                    .replace("%playercount_server%", getServerPlayerCount(player, false))
+                    .replace("%playercount_network%", getNetworkPlayerCount(player, false))
+                , player);
     }
 
-    public String formatQuitMessage(CorePlayer player) {
-        return formatMessage(getLeaveNetworkMessage(), player)
-            .replace("%playercount_server%", getServerPlayerCount(player, true))
-            .replace(
-                "%playercount_network%",
-                getNetworkPlayerCount(player, true)
-            );
+    public Component formatQuitMessage(CorePlayer player) {
+        return formatMessage(
+                getJoinNetworkMessage()
+                        .replace("%playercount_server%", getServerPlayerCount(player, true))
+                        .replace("%playercount_network%", getNetworkPlayerCount(player, true))
+                , player);
     }
 
     public void log(String string) {

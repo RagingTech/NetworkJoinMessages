@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,11 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public void sendMessage(String message) {
         velocityPlayer.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+    }
+
+    @Override
+    public void sendMessage(Component component) {
+        velocityPlayer.sendMessage(component);
     }
 
     @Override

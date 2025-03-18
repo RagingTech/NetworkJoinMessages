@@ -1,9 +1,10 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
+import net.kyori.adventure.text.Component;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
-import xyz.earthcow.networkjoinmessages.common.util.HexChat;
+import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.util.List;
 
@@ -13,8 +14,10 @@ public class CoreReloadCommand implements Command {
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
             NetworkJoinMessagesCore.getInstance().loadConfig();
-            String msg = ConfigManager.getPluginConfig().getString("Messages.Commands.Reload.ConfigReloaded");
-            coreCommandSender.sendMessage(HexChat.translateHexCodes(msg));
+            Component msg = MessageHandler.getMiniMessage().deserialize(
+                ConfigManager.getPluginConfig().getString("Messages.Commands.Reload.ConfigReloaded")
+            );
+            coreCommandSender.sendMessage(msg);
         }
     }
 

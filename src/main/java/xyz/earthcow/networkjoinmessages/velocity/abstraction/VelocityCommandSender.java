@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
@@ -26,6 +27,11 @@ public class VelocityCommandSender implements CoreCommandSender {
     @Override
     public void sendMessage(String message) {
         source.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+    }
+
+    @Override
+    public void sendMessage(Component component) {
+        source.sendMessage(component);
     }
 
     @Override

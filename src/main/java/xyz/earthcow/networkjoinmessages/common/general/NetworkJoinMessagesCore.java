@@ -5,7 +5,6 @@ import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
-import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 public class NetworkJoinMessagesCore {
@@ -85,6 +84,6 @@ public class NetworkJoinMessagesCore {
                 return;
         }
         message = message.replace("<player>", name);
-        plugin.getCoreLogger().info(HexChat.translateHexCodes(message));
+        plugin.getCoreLogger().info(message);
     }
 }

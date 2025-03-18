@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.bungee.general;
 
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Event;
@@ -24,10 +25,12 @@ public class BungeeMain extends Plugin implements CorePlugin {
     private NetworkJoinMessagesCore core;
 
     private BungeeLogger bungeeLogger;
+    private BungeeAudiences audiences;
 
     @Override
     public void onEnable() {
         this.bungeeLogger = new BungeeLogger(getLogger());
+        this.audiences = BungeeAudiences.create(this);
         this.core = new NetworkJoinMessagesCore(this);
 
         instance = this;
@@ -55,6 +58,10 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     public static BungeeMain getInstance() {
         return instance;
+    }
+
+    public BungeeAudiences getAudiences() {
+        return audiences;
     }
 
     @Override
