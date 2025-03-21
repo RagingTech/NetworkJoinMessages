@@ -97,7 +97,7 @@ public class CorePlayerListener {
                         player,
                         MessageHandler.getInstance().getServerDisplayName(server.getName()),
                         Storage.getInstance().getAdminMessageState(player),
-                        MessageHandler.extractPlainText(message)
+                        MessageHandler.stripColor(message)
                 );
                 NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
                 NetworkJoinMessagesCore.getInstance()
@@ -147,7 +147,7 @@ public class CorePlayerListener {
                     MessageHandler.getInstance().getServerDisplayName(from),
                     MessageHandler.getInstance().getServerDisplayName(to),
                     Storage.getInstance().getAdminMessageState(player),
-                    MessageHandler.extractPlainText(message)
+                    MessageHandler.stripColor(message)
             );
             NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
             NetworkJoinMessagesCore.getInstance()
@@ -202,7 +202,7 @@ public class CorePlayerListener {
                     player.getCurrentServer() != null ? player.getCurrentServer().getName() : "???"
                 ),
             Storage.getInstance().getAdminMessageState(player),
-            MessageHandler.extractPlainText(message)
+            MessageHandler.stripColor(message)
         );
         NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         NetworkJoinMessagesCore.getInstance()

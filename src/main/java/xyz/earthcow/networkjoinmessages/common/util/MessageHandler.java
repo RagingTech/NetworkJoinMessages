@@ -2,9 +2,9 @@ package xyz.earthcow.networkjoinmessages.common.util;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
@@ -100,38 +100,12 @@ public class MessageHandler {
         }
     }
 
-    /**
-     * Strips all MiniMessage tags and & color codes from the input string
-     * and returns the plain text.
-     *
-     * @param input The input string containing MiniMessage syntax and/or & color codes.
-     * @return The plain text without any formatting.
-     */
-    public static String stripTags(String input) {
-        // Parse the input string into a Component
-        Component component = deserialize(input);
-
-        // Extract the plain text content from the Component
-        return extractPlainText(component);
+    public static String sanitize(String str) {
+        return stripColor(deserialize(str));
     }
 
-    /**
-     * Recursively extracts plain text from a Component.
-     *
-     * @param component The Component to extract text from.
-     * @return The plain text content.
-     */
-    public static String extractPlainText(Component component) {
-        if (component instanceof TextComponent) {
-            return ((TextComponent) component).content();
-        }
-
-        // Recursively extract text from children
-        StringBuilder builder = new StringBuilder();
-        for (Component child : component.children()) {
-            builder.append(extractPlainText(child));
-        }
-        return builder.toString();
+    public static String stripColor(Component component) {
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
     String SwapServerMessage = "";
@@ -196,7 +170,7 @@ public class MessageHandler {
         }
 
         List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(extractPlainText(text));
+        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(stripColor(text));
 
         ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
@@ -312,7 +286,7 @@ public class MessageHandler {
                 .replace("%player%", player.getName())
                 .replace("%displayname%", player.getName())
                 .replace("%server_name%", serverName)
-                .replace("%server_name_clean%", stripTags(serverName));
+                .replace("%server_name_clean%", sanitize(serverName));
         return deserialize(formattedMsg);
     }
 
@@ -322,9 +296,9 @@ public class MessageHandler {
         return formatMessage(
                 getSwapServerMessage()
                     .replace("%to%", to)
-                    .replace("%to_clean%", stripTags(to))
+                    .replace("%to_clean%", sanitize(to))
                     .replace("%from%", from)
-                    .replace("%from_clean%", stripTags(from))
+                    .replace("%from_clean%", sanitize(from))
                     .replace("%playercount_from%", getServerPlayerCount(fromName, true, player))
                     .replace("%playercount_to%", getServerPlayerCount(toName, false, player))
                     .replace("%playercount_network%", getNetworkPlayerCount(player, false))

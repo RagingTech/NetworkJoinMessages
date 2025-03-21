@@ -232,15 +232,15 @@ public class DiscordWebhookIntegration {
         String displayTo = MessageHandler.getInstance().getServerDisplayName(toServer);
         String displayFrom = MessageHandler.getInstance().getServerDisplayName(fromServer);
         return
-            MessageHandler.extractPlainText(
+            MessageHandler.stripColor(
                     MessageHandler.getInstance()
                         .formatMessage(txt, player)
                 )
                     .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                     .replace("%to%", displayTo)
-                    .replace("%to_clean%", MessageHandler.stripTags(displayTo))
+                    .replace("%to_clean%", MessageHandler.sanitize(displayTo))
                     .replace("%from%", displayFrom)
-                    .replace("%from_clean%", MessageHandler.stripTags(displayFrom))
+                    .replace("%from_clean%", MessageHandler.sanitize(displayFrom))
                     .replace(
                             "%playercount_from%", MessageHandler.getInstance()
                                     .getServerPlayerCount(fromServer, true, player)
@@ -275,7 +275,7 @@ public class DiscordWebhookIntegration {
             boolean leaving
     ) {
         return
-            MessageHandler.extractPlainText(
+            MessageHandler.stripColor(
                     MessageHandler.getInstance()
                         .formatMessage(txt, player)
                 )
