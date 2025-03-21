@@ -3,8 +3,8 @@ package xyz.earthcow.networkjoinmessages.common.util;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
@@ -15,12 +15,15 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MessageHandler {
 
     private static MessageHandler instance;
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
 
     private LuckPerms luckPerms = null;
 
@@ -31,9 +34,62 @@ public class MessageHandler {
         return instance;
     }
 
+    private static String translateLegacyCodes(String str) {
+        str = replaceEssentialsColorCodes(str);
+        return str
+            .replace('§', '&')
+            .replace("&0", convertToTag(NamedTextColor.BLACK.asHexString()))
+            .replace("&1", convertToTag(NamedTextColor.DARK_BLUE.asHexString()))
+            .replace("&2", convertToTag(NamedTextColor.DARK_GREEN.asHexString()))
+            .replace("&3", convertToTag(NamedTextColor.DARK_AQUA.asHexString()))
+            .replace("&4", convertToTag(NamedTextColor.DARK_RED.asHexString()))
+            .replace("&5", convertToTag(NamedTextColor.DARK_PURPLE.asHexString()))
+            .replace("&6", convertToTag(NamedTextColor.GOLD.asHexString()))
+            .replace("&7", convertToTag(NamedTextColor.GRAY.asHexString()))
+            .replace("&8", convertToTag(NamedTextColor.DARK_GRAY.asHexString()))
+            .replace("&9", convertToTag(NamedTextColor.BLUE.asHexString()))
+            .replace("&a", convertToTag(NamedTextColor.GREEN.asHexString()))
+            .replace("&b", convertToTag(NamedTextColor.AQUA.asHexString()))
+            .replace("&c", convertToTag(NamedTextColor.RED.asHexString()))
+            .replace("&d", convertToTag(NamedTextColor.LIGHT_PURPLE.asHexString()))
+            .replace("&e", convertToTag(NamedTextColor.YELLOW.asHexString()))
+            .replace("&f", convertToTag(NamedTextColor.WHITE.asHexString()))
+            .replace("&k", convertToTag("obfuscated"))
+            .replace("&l", convertToTag("bold"))
+            .replace("&m", convertToTag("strikethrough"))
+            .replace("&n", convertToTag("underlined"))
+            .replace("&o", convertToTag("italic"))
+            .replace("&r", convertToTag("reset"))
+            .replace("\\n", convertToTag("newline"))
+
+            // "&#FFC0CBHello! -> <#FFC0CB>Hello!
+            .replaceAll("&#([A-Fa-f0-9]{6})", "<#$1>");
+    }
+
+    private static String replaceEssentialsColorCodes(String str) {
+        // "§x§f§b§6§3§f§5Hello!" -> "&#fb63f5Hello!"
+        Matcher matcher = essentialsPattern.matcher(str);
+
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            String hexColor = matcher.group(0)
+                .replace("§x", "")
+                .replace("§", "");
+            matcher.appendReplacement(result, "&#" + hexColor);
+        }
+
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    private static String convertToTag(String str) {
+        return "<" + str + ">";
+    }
+
     public static Component deserialize(String str) {
-        Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(str);
-        return miniMessage.deserialize(miniMessage.serialize(component));
+        return miniMessage.deserialize(translateLegacyCodes(str));
     }
 
     public MessageHandler() {
@@ -53,7 +109,7 @@ public class MessageHandler {
      */
     public static String stripTags(String input) {
         // Parse the input string into a Component
-        Component component = miniMessage.deserialize(input);
+        Component component = deserialize(input);
 
         // Extract the plain text content from the Component
         return extractPlainText(component);
