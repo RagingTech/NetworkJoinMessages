@@ -285,7 +285,7 @@ public class MessageHandler {
 
     public Component formatQuitMessage(CorePlayer player) {
         return formatMessage(
-                getJoinNetworkMessage()
+                getLeaveNetworkMessage()
                         .replace("%playercount_server%", getServerPlayerCount(player, true))
                         .replace("%playercount_network%", getNetworkPlayerCount(player, true))
                 , player);
