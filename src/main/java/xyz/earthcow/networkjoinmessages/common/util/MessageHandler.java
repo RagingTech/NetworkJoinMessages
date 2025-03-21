@@ -37,7 +37,7 @@ public class MessageHandler {
     public MessageHandler() {
         try {
             luckPerms = LuckPermsProvider.get();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | NoClassDefFoundError e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
     }
