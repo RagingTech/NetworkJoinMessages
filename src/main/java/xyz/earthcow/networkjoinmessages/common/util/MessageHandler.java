@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
@@ -30,8 +31,9 @@ public class MessageHandler {
         return instance;
     }
 
-    public static MiniMessage getMiniMessage() {
-        return miniMessage;
+    public static Component deserialize(String str) {
+        Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(str);
+        return miniMessage.deserialize(miniMessage.serialize(component));
     }
 
     public MessageHandler() {
@@ -138,7 +140,7 @@ public class MessageHandler {
         }
 
         List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(miniMessage.serialize(text));
+        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(extractPlainText(text));
 
         ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
@@ -255,7 +257,7 @@ public class MessageHandler {
                 .replace("%displayname%", player.getName())
                 .replace("%server_name%", serverName)
                 .replace("%server_name_clean%", stripTags(serverName));
-        return miniMessage.deserialize(formattedMsg);
+        return deserialize(formattedMsg);
     }
 
     public Component formatSwitchMessage(CorePlayer player, String fromName, String toName) {

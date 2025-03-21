@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class CorePlayerListener {
 
     private Component getSilentPrefix() {
-        return MessageHandler.getMiniMessage().deserialize(ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix"));
+        return MessageHandler.deserialize(ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix"));
     }
 
     public void onPreConnect(CorePlayer player, String previousServerName) {
@@ -70,7 +70,7 @@ public class CorePlayerListener {
                 if (Storage.getInstance().getAdminMessageState(player)) {
                     // Silent
                     if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                        Component toggleNotif = MessageHandler.getMiniMessage().deserialize(
+                        Component toggleNotif = MessageHandler.deserialize(
                             ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification")
                         );
                         player.sendMessage(toggleNotif);
