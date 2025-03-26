@@ -119,7 +119,7 @@ public class VelocityMain implements CorePlugin {
         commandManager.register(
             commandManager
                 .metaBuilder("fakemessage")
-                .aliases("fmr")
+                .aliases("fm")
                 .plugin(this)
                 .build(),
             new FakeCommand()
