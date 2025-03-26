@@ -9,7 +9,7 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 public class ToggleJoinCommand extends Command implements TabExecutor {
 
     public ToggleJoinCommand() {
-        super("networkjoinmessage", NetworkJoinMessagesCore.getInstance().coreToggleJoinCommand.getRequiredPermssion(), "njointoggle");
+        super("networkjoinmessage", NetworkJoinMessagesCore.getInstance().coreToggleJoinCommand.getRequiredPermission(), "njointoggle");
     }
 
     @Override

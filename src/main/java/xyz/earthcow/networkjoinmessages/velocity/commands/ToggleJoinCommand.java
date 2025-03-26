@@ -20,7 +20,7 @@ public class ToggleJoinCommand implements SimpleCommand {
     public boolean hasPermission(final SimpleCommand.Invocation invocation) {
         return invocation
             .source()
-            .hasPermission(coreToggleJoinCommand.getRequiredPermssion());
+            .hasPermission(coreToggleJoinCommand.getRequiredPermission());
     }
 
     @Override

@@ -8,7 +8,7 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 public class ReloadCommand extends Command {
 
     public ReloadCommand() {
-        super("networkjoinreload", NetworkJoinMessagesCore.getInstance().coreReloadCommand.getRequiredPermssion(), "njoinreload");
+        super("networkjoinreload", NetworkJoinMessagesCore.getInstance().coreReloadCommand.getRequiredPermission(), "njoinreload");
     }
 
     @Override

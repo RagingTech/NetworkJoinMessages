@@ -20,7 +20,7 @@ public class FakeCommand implements SimpleCommand {
     public boolean hasPermission(final SimpleCommand.Invocation invocation) {
         return invocation
             .source()
-            .hasPermission(coreFakeCommand.getRequiredPermssion());
+            .hasPermission(coreFakeCommand.getRequiredPermission());
     }
 
     @Override

@@ -15,6 +15,6 @@ public class ReloadCommand implements SimpleCommand {
     public boolean hasPermission(final SimpleCommand.Invocation invocation) {
         return invocation
             .source()
-            .hasPermission(NetworkJoinMessagesCore.getInstance().coreReloadCommand.getRequiredPermssion());
+            .hasPermission(NetworkJoinMessagesCore.getInstance().coreReloadCommand.getRequiredPermission());
     }
 }

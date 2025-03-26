@@ -88,7 +88,7 @@ public class CoreFakeCommand implements Command {
     }
 
     @Override
-    public String getRequiredPermssion() {
+    public String getRequiredPermission() {
         return "networkjoinmessages.fakemessage";
     }
 

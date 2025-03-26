@@ -70,7 +70,7 @@ public class CoreToggleJoinCommand implements Command {
     }
 
     @Override
-    public String getRequiredPermssion() {
+    public String getRequiredPermission() {
         return "networkjoinmessages.togglemessage";
     }
 

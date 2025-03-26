@@ -12,7 +12,7 @@ public class FakeCommand extends Command implements TabExecutor {
     private final CoreFakeCommand coreFakeCommand = NetworkJoinMessagesCore.getInstance().coreFakeCommand;
 
     public FakeCommand() {
-        super("fakemessage", NetworkJoinMessagesCore.getInstance().coreFakeCommand.getRequiredPermssion(), "fm");
+        super("fakemessage", NetworkJoinMessagesCore.getInstance().coreFakeCommand.getRequiredPermission(), "fm");
     }
 
     @Override
