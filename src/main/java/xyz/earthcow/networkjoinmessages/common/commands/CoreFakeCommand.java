@@ -12,6 +12,10 @@ import java.util.List;
 
 public class CoreFakeCommand implements Command {
 
+    private final List<String> COMMAND_ARGS = ImmutableList.of(
+        "fakejoin", "fakequit", "fakeswitch", "fj", "fq", "fs", "toggle"
+    );
+
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (!(coreCommandSender instanceof CorePlayer)) {
@@ -58,14 +62,13 @@ public class CoreFakeCommand implements Command {
                         player
                     ));
                     return;
-                } else {
-                    String fromName = args[1];
-                    String toName = args[2];
-
-                    message = MessageHandler.getInstance().formatSwitchMessage(player, fromName, toName);
-                    MessageHandler.getInstance().broadcastMessage(message, "switch", fromName, toName);
-                    return;
                 }
+                String fromName = args[1];
+                String toName = args[2];
+
+                message = MessageHandler.getInstance().formatSwitchMessage(player, fromName, toName);
+                MessageHandler.getInstance().broadcastMessage(message, "switch", fromName, toName);
+                return;
             case "toggle":
                 if (!player.hasPermission("networkjoinmessages.silent")) {
                     player.sendMessage(MessageHandler.getInstance().formatMessage(
@@ -94,19 +97,18 @@ public class CoreFakeCommand implements Command {
 
     @Override
     public List<String> getTabCompletion(CoreCommandSender coreCommandSender, String[] args) {
-        List<String> commandArguments = ImmutableList.of(
-            "fakejoin", "fakequit", "fakeswitch", "fj", "fq", "fs", "toggle"
-        );
         switch (args.length) {
+            case 0:
             case 1:
-                return commandArguments;
+                return COMMAND_ARGS;
             case 2:
-                if (args[0].equalsIgnoreCase("fs") || args[0].equalsIgnoreCase("fakeswitch")) {
-                    return MessageHandler.getInstance().getServerNames();
-                }
             case 3:
                 if (args[0].equalsIgnoreCase("fs") || args[0].equalsIgnoreCase("fakeswitch")) {
                     return MessageHandler.getInstance().getServerNames();
+                } else {
+                    return ImmutableList.of(
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.NoMoreArgumentsNeeded")
+                    );
                 }
             default:
                 return ImmutableList.of(
