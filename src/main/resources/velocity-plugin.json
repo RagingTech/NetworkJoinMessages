@@ -1,0 +1,24 @@
+{
+  "id": "networkjoinmessages",
+  "name": "NetworkJoinMessages",
+  "version": "${project.version}",
+  "url": "https://github.com/RagingTech/NetworkJoinMessages",
+  "description": "A plugin handling join, leave and switch messages for proxy servers.",
+  "authors": [
+    "EarthCow"
+  ],
+  "dependencies": {
+    "supervanish": {
+      "optional": true
+    },
+    "premiumvanish": {
+      "optional": true
+    },
+    "luckperms": {
+      "optional": true
+    },
+    "papiproxybridge": {
+      "optional": true
+    }
+  }
+}

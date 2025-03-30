@@ -232,7 +232,7 @@ public class DiscordWebhookIntegration {
         String displayTo = MessageHandler.getInstance().getServerDisplayName(toServer);
         String displayFrom = MessageHandler.getInstance().getServerDisplayName(fromServer);
         return
-            MessageHandler.stripColor(
+            MessageHandler.sanitize(
                     MessageHandler.getInstance()
                         .formatMessage(txt, player)
                 )
@@ -275,7 +275,7 @@ public class DiscordWebhookIntegration {
             boolean leaving
     ) {
         return
-            MessageHandler.stripColor(
+            MessageHandler.sanitize(
                     MessageHandler.getInstance()
                         .formatMessage(txt, player)
                 )

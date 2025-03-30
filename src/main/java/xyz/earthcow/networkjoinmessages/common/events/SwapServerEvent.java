@@ -12,19 +12,22 @@ public class SwapServerEvent {
     private final String serverTo;
     private final boolean isSilenced;
     private final String message;
+    private final String cleanMessage;
 
     public SwapServerEvent(
         CorePlayer player,
         String serverFrom,
         String serverTo,
         boolean isSilenced,
-        String message
+        String message,
+        String cleanMessage
     ) {
         this.player = player;
         this.serverFrom = serverFrom;
         this.serverTo = serverTo;
         this.isSilenced = isSilenced;
         this.message = message;
+        this.cleanMessage = cleanMessage;
     }
 
     public CorePlayer getPlayer() {
@@ -45,5 +48,9 @@ public class SwapServerEvent {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getCleanMessage() {
+        return cleanMessage;
     }
 }

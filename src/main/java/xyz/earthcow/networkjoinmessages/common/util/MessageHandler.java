@@ -8,8 +8,11 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
+import net.william278.papiproxybridge.api.PlaceholderAPI;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
@@ -26,6 +29,7 @@ public class MessageHandler {
     private static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
 
     private LuckPerms luckPerms = null;
+    private PlaceholderAPI placeholderAPI = null;
 
     public static MessageHandler getInstance() {
         if (instance == null) {
@@ -92,11 +96,23 @@ public class MessageHandler {
         return miniMessage.deserialize(translateLegacyCodes(str));
     }
 
+    public static String serialize(Component component) {
+        return miniMessage.serialize(component);
+    }
+
     public MessageHandler() {
         try {
             luckPerms = LuckPermsProvider.get();
         } catch (IllegalStateException | NoClassDefFoundError e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
+        }
+
+        try {
+            placeholderAPI = PlaceholderAPI.createInstance();
+            placeholderAPI.getServers();
+        } catch (NoClassDefFoundError | NullPointerException e) {
+            placeholderAPI = null;
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
     }
 
@@ -143,13 +159,26 @@ public class MessageHandler {
         return name;
     }
 
+    public void sendMessage(CoreCommandSender sender, String message) {
+        if (placeholderAPI != null && sender instanceof CorePlayer) {
+            CorePlayer player = (CorePlayer) sender;
+            placeholderAPI.formatPlaceholders(message, player.getUniqueId()).thenAccept(
+                formatted -> {
+                    sender.sendMessage(deserialize(formatted));
+                }
+            );
+            return;
+        }
+        sender.sendMessage(deserialize(message));
+    }
+
     /**
      * Send a message globally, based on the players current server.
      * @param text - The text to be displayed
      * @param type - What type of message should be sent (switch/join/leave)
      * @param player - The player to fetch the server from.
      */
-    public void broadcastMessage(Component text, String type, CorePlayer player) {
+    public void broadcastMessage(String text, String type, CorePlayer player) {
         if (player.getCurrentServer() == null) {
             MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
             return;
@@ -157,7 +186,7 @@ public class MessageHandler {
         broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???");
     }
 
-    public void broadcastMessage(Component text, String type, String from, String to) {
+    public void broadcastMessage(String text, String type, String from, String to) {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
             receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
@@ -170,7 +199,7 @@ public class MessageHandler {
         }
 
         List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(stripColor(text));
+        log(sanitize(text));
 
         ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
@@ -178,7 +207,7 @@ public class MessageHandler {
             if (ignorePlayers.contains(player.getUniqueId())) {
                 continue;
             }
-            player.sendMessage(text);
+            sendMessage(player, text);
         }
     }
 
@@ -278,19 +307,18 @@ public class MessageHandler {
                 .replace("%player_suffix%", suffix);
     }
 
-    public Component formatMessage(String msg, CorePlayer player) {
+    public String formatMessage(String msg, CorePlayer player) {
         String serverName = player.getCurrentServer() != null
                 ? getServerDisplayName(player.getCurrentServer().getName())
                 : "???";
-        String formattedMsg = handleLpPlaceholders(msg, player)
+        return handleLpPlaceholders(msg, player)
                 .replace("%player%", player.getName())
                 .replace("%displayname%", player.getName())
                 .replace("%server_name%", serverName)
                 .replace("%server_name_clean%", sanitize(serverName));
-        return deserialize(formattedMsg);
     }
 
-    public Component formatSwitchMessage(CorePlayer player, String fromName, String toName) {
+    public String parseSwitchMessage(CorePlayer player, String fromName, String toName) {
         String from = getServerDisplayName(fromName);
         String to = getServerDisplayName(toName);
         return formatMessage(
@@ -305,7 +333,7 @@ public class MessageHandler {
                 , player);
     }
 
-    public Component formatJoinMessage(CorePlayer player) {
+    public String formatJoinMessage(CorePlayer player) {
         return formatMessage(
                 getJoinNetworkMessage()
                     .replace("%playercount_server%", getServerPlayerCount(player, false))
@@ -313,7 +341,7 @@ public class MessageHandler {
                 , player);
     }
 
-    public Component formatQuitMessage(CorePlayer player) {
+    public String formatQuitMessage(CorePlayer player) {
         return formatMessage(
                 getLeaveNetworkMessage()
                         .replace("%playercount_server%", getServerPlayerCount(player, true))

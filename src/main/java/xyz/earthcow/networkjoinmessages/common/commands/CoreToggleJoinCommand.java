@@ -26,26 +26,26 @@ public class CoreToggleJoinCommand implements Command {
         CorePlayer player = (CorePlayer) coreCommandSender;
 
         if (!player.hasPermission("networkjoinmessages.togglemessage")) {
-            player.sendMessage(MessageHandler.getInstance().formatMessage(
-                ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission"),
-                player
-            ));
+            MessageHandler.getInstance().sendMessage(
+                player,
+                ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission")
+            );
             return;
         }
 
         if (args.length < 1) {
-            player.sendMessage(MessageHandler.getInstance().formatMessage(
-                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument"),
-                player
-            ));
+            MessageHandler.getInstance().sendMessage(
+                player,
+                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
+            );
             return;
         }
 
         if (args.length < 2) {
-            player.sendMessage(MessageHandler.getInstance().formatMessage(
-                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingState"),
-                player
-            ));
+            MessageHandler.getInstance().sendMessage(
+                player,
+                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingState")
+            );
             return;
         }
 
@@ -53,21 +53,22 @@ public class CoreToggleJoinCommand implements Command {
         boolean state = args[1].equalsIgnoreCase("on") || args[1].equalsIgnoreCase("true");
 
         if (!COMMAND_ARGS.contains(mode)) {
-            player.sendMessage(MessageHandler.getInstance().formatMessage(
-                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument"),
-                player
-            ));
+            MessageHandler.getInstance().sendMessage(
+                player,
+                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
+            );
             return;
         }
 
         Storage.getInstance().setSendMessageState(mode, player.getUniqueId(), state);
-        Component confirmationMessage = MessageHandler.getInstance().formatMessage(
+
+        MessageHandler.getInstance().sendMessage(
+            player,
             ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.Confirmation")
                 .replaceAll("<mode>", mode)
-                .replaceAll("<state>", String.valueOf(state)),
-            player
+                .replaceAll("<state>", String.valueOf(state))
         );
-        player.sendMessage(confirmationMessage);
+
     }
 
     @Override

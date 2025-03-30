@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
-import net.kyori.adventure.text.Component;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
@@ -14,10 +13,9 @@ public class CoreReloadCommand implements Command {
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
             NetworkJoinMessagesCore.getInstance().loadConfig();
-            Component msg = MessageHandler.deserialize(
+            MessageHandler.getInstance().sendMessage(coreCommandSender,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.Reload.ConfigReloaded")
             );
-            coreCommandSender.sendMessage(msg);
         }
     }
 

@@ -65,15 +65,17 @@ public class CorePlayerListener {
 
                 // TODO Add vanish support
 
-                Component message = MessageHandler.getInstance().formatJoinMessage(player);
+                String message = MessageHandler.getInstance().formatJoinMessage(player);
 
                 if (Storage.getInstance().getAdminMessageState(player)) {
                     // Silent
                     if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                        Component toggleNotif = MessageHandler.deserialize(
-                            ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification")
+                        MessageHandler.getInstance().sendMessage(player,
+                            MessageHandler.getInstance().formatMessage(
+                                ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
+                                player
+                            )
                         );
-                        player.sendMessage(toggleNotif);
                     }
 
                     // Send to console
@@ -83,7 +85,7 @@ public class CorePlayerListener {
                     if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                         for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
                                 .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).collect(Collectors.toList())) {
-                            p.sendMessage(message.append(getSilentPrefix()));
+                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
                         }
                     }
                 } else {
@@ -91,13 +93,15 @@ public class CorePlayerListener {
                     MessageHandler.getInstance().broadcastMessage(message, "join", player);
                 }
 
+                Component formattedMessage = MessageHandler.deserialize(message);
                 // All checks have passed to reach this point
                 // Call the custom NetworkJoinEvent
                 NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
                         player,
                         MessageHandler.getInstance().getServerDisplayName(server.getName()),
                         Storage.getInstance().getAdminMessageState(player),
-                        MessageHandler.stripColor(message)
+                    MessageHandler.serialize(formattedMessage),
+                    MessageHandler.stripColor(formattedMessage)
                 );
                 NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
                 NetworkJoinMessagesCore.getInstance()
@@ -122,8 +126,8 @@ public class CorePlayerListener {
                 return;
             }
 
-            Component message = MessageHandler.getInstance()
-                    .formatSwitchMessage(player, from, to);
+            String message = MessageHandler.getInstance()
+                    .parseSwitchMessage(player, from, to);
 
             // Silent
             if (Storage.getInstance().getAdminMessageState(player)) {
@@ -132,7 +136,7 @@ public class CorePlayerListener {
                 if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                     for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                         if (p.hasPermission("networkjoinmessages.silent")) {
-                            p.sendMessage(message.append(getSilentPrefix()));
+                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
                         }
                     }
                 }
@@ -141,13 +145,15 @@ public class CorePlayerListener {
                         .broadcastMessage(message, "switch", from, to);
             }
 
+            Component formattedMessage = MessageHandler.deserialize(message);
             // Call the custom ServerSwapEvent
             SwapServerEvent swapServerEvent = new SwapServerEvent(
                     player,
                     MessageHandler.getInstance().getServerDisplayName(from),
                     MessageHandler.getInstance().getServerDisplayName(to),
                     Storage.getInstance().getAdminMessageState(player),
-                    MessageHandler.stripColor(message)
+                MessageHandler.serialize(formattedMessage),
+                MessageHandler.stripColor(formattedMessage)
             );
             NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
             NetworkJoinMessagesCore.getInstance()
@@ -177,7 +183,7 @@ public class CorePlayerListener {
             return;
         }
 
-        Component message = MessageHandler.getInstance().formatQuitMessage(player);
+        String message = MessageHandler.getInstance().formatQuitMessage(player);
 
         // Silent
         if (Storage.getInstance().getAdminMessageState(player)) {
@@ -186,7 +192,7 @@ public class CorePlayerListener {
             if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                 for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        p.sendMessage(message.append(getSilentPrefix()));
+                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
                     }
                 }
             }
@@ -194,6 +200,7 @@ public class CorePlayerListener {
             MessageHandler.getInstance().broadcastMessage(message, "leave", player);
         }
 
+        Component formattedMessage = MessageHandler.deserialize(message);
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
             player,
@@ -202,7 +209,8 @@ public class CorePlayerListener {
                     player.getCurrentServer() != null ? player.getCurrentServer().getName() : "???"
                 ),
             Storage.getInstance().getAdminMessageState(player),
-            MessageHandler.stripColor(message)
+            MessageHandler.serialize(formattedMessage),
+            MessageHandler.stripColor(formattedMessage)
         );
         NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         NetworkJoinMessagesCore.getInstance()

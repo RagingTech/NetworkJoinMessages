@@ -11,17 +11,20 @@ public class NetworkJoinEvent {
     private final String serverJoined;
     private final boolean isSilenced;
     private final String message;
+    private final String cleanMessage;
 
     public NetworkJoinEvent(
         CorePlayer player,
         String serverJoined,
         boolean isSilenced,
-        String message
+        String message,
+        String cleanMessage
     ) {
         this.player = player;
         this.serverJoined = serverJoined;
         this.isSilenced = isSilenced;
         this.message = message;
+        this.cleanMessage = cleanMessage;
     }
 
     public CorePlayer getPlayer() {
@@ -38,5 +41,9 @@ public class NetworkJoinEvent {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getCleanMessage() {
+        return cleanMessage;
     }
 }
