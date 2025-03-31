@@ -7,18 +7,23 @@
   "authors": [
     "EarthCow"
   ],
-  "dependencies": {
-    "supervanish": {
+  "dependencies": [
+    {
+      "id": "supervanish",
       "optional": true
     },
-    "premiumvanish": {
+    {
+      "id": "premiumvanish",
       "optional": true
     },
-    "luckperms": {
+    {
+      "id": "luckperms",
       "optional": true
     },
-    "papiproxybridge": {
+    {
+      "id": "papiproxybridge",
       "optional": true
     }
-  }
+  ],
+  "main": "xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain"
 }
