@@ -103,15 +103,15 @@ public class MessageHandler {
     public MessageHandler() {
         try {
             luckPerms = LuckPermsProvider.get();
+            log("Successfully hooked into LuckPerms!");
         } catch (IllegalStateException | NoClassDefFoundError e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
 
         try {
             placeholderAPI = PlaceholderAPI.createInstance();
-            placeholderAPI.getServers();
-        } catch (NoClassDefFoundError | NullPointerException e) {
-            placeholderAPI = null;
+            log("Successfully hooked into PAPIProxyBridge!");
+        } catch (NoClassDefFoundError e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
     }
