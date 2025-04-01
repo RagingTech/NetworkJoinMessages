@@ -76,13 +76,10 @@ public class VelocityMain implements CorePlugin {
         proxy.getEventManager().fireAndForget(event);
     }
 
-    private boolean premiumVanish = false;
+    private PremiumVanish premiumVanish;
     @Override
     public PremiumVanish getVanishAPI() {
-        if (!premiumVanish) {
-            return null;
-        }
-        return new VelocityPremiumVanish();
+        return premiumVanish;
     }
 
     @Override
@@ -154,7 +151,8 @@ public class VelocityMain implements CorePlugin {
         );
 
         if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
-            this.premiumVanish = true;
+            this.premiumVanish = new VelocityPremiumVanish();
+            velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
     }
 }
