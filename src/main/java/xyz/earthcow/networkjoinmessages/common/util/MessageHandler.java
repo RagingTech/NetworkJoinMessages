@@ -12,6 +12,7 @@ import net.william278.papiproxybridge.api.PlaceholderAPI;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
@@ -259,13 +260,21 @@ public class MessageHandler {
     ) {
         String serverPlayerCount = "?";
         if (backendServer != null) {
-            List<CorePlayer> players = new ArrayList<>(backendServer.getPlayersConnected());
+            List<CorePlayer> players = backendServer.getPlayersConnected();
+
+            PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+
+            if (premiumVanish != null && ConfigManager.getPluginConfig()
+                .getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount")) {
+                List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
+                // Filter out vanished players
+                players = players.stream().filter(corePlayer -> !vanishedPlayers.contains(corePlayer.getUniqueId())).collect(Collectors.toList());
+            }
+
             int count = players.size();
 
-            // TODO Add vanish support
-
-            if (leaving && player != null) {
-                if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
+            if (player != null && leaving) {
+                if (players.stream().anyMatch(corePlayer -> corePlayer.getUniqueId().equals(player.getUniqueId()))) {
                     count--;
                 }
             }
@@ -280,7 +289,19 @@ public class MessageHandler {
             .getPlugin()
             .getAllPlayers();
         int count = players.size();
-        if (leaving && player != null) {
+
+        PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+
+        boolean vanished = false;
+        if (premiumVanish != null && ConfigManager.getPluginConfig()
+            .getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount")) {
+            count -= premiumVanish.getInvisiblePlayers().size();
+            if (player != null) {
+                vanished = premiumVanish.isVanished(player.getUniqueId());
+            }
+        }
+
+        if (player != null && !vanished && leaving) {
             if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
                 count--;
             }

@@ -2,8 +2,10 @@ package xyz.earthcow.networkjoinmessages.common.listeners;
 
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
@@ -15,6 +17,9 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 import java.util.stream.Collectors;
 
 public class CorePlayerListener {
+
+    @Nullable
+    private final PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
 
     private Component getSilentPrefix() {
         return MessageHandler.deserialize(ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix"));
@@ -32,6 +37,13 @@ public class CorePlayerListener {
 
     public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
         NetworkJoinMessagesCore.getInstance().getPlugin().runTaskAsync(() -> {
+            // PremiumVanish
+            if (premiumVanish != null) {
+                if (ConfigManager.getPluginConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
+                    Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
+                }
+            }
+
             if (!Storage.getInstance().isConnected(player)) {
                 // If the player is NOT already connected they have just joined the network
                 Storage.getInstance().setConnected(player, true);
@@ -62,8 +74,6 @@ public class CorePlayerListener {
                 if (Storage.getInstance().blacklistCheck(player)) {
                     return;
                 }
-
-                // TODO Add vanish support
 
                 String message = MessageHandler.getInstance().formatJoinMessage(player);
 
@@ -109,9 +119,10 @@ public class CorePlayerListener {
                         .fireEvent(networkJoinEvent);
                 return;
             }
+            // If the player IS already connected, then they have just switched servers
+
             player.setLastKnownConnectedServer(server);
 
-            // If the player IS already connected they have just switched servers
             if (!Storage.getInstance().isElsewhere(player)) {
                 return;
             }
@@ -181,6 +192,13 @@ public class CorePlayerListener {
         if (Storage.getInstance().blacklistCheck(player)) {
             player.setLastKnownConnectedServer(null);
             return;
+        }
+
+        // PremiumVanish
+        if (premiumVanish != null) {
+            if (ConfigManager.getPluginConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
+                Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
+            }
         }
 
         String message = MessageHandler.getInstance().formatQuitMessage(player);

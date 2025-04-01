@@ -136,7 +136,10 @@ Settings:
 
 OtherPlugins:
   PremiumVanish:
-    ToggleFakemessageWhenVanishing: true
+    # Vanished players will not trigger messages aside from
+    # silent messages sent to players with networkjoinmessages.silent permission
+    TreatVanishedPlayersAsSilent: true
+    # Vanished players will not be counted in the player count placeholders
     RemoveVanishedPlayersFromPlayerCount: true
 
 # Do not touch this
