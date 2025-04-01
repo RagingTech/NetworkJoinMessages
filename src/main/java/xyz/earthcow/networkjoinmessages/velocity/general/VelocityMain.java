@@ -14,6 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityLogger;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPremiumVanish;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
@@ -75,9 +76,13 @@ public class VelocityMain implements CorePlugin {
         proxy.getEventManager().fireAndForget(event);
     }
 
+    private boolean premiumVanish = false;
     @Override
-    public boolean getVanishAPI() {
-        return false;
+    public PremiumVanish getVanishAPI() {
+        if (!premiumVanish) {
+            return null;
+        }
+        return new VelocityPremiumVanish();
     }
 
     @Override
@@ -148,6 +153,8 @@ public class VelocityMain implements CorePlugin {
             new ToggleJoinCommand()
         );
 
-        // TODO Add vanish support
+        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
+            this.premiumVanish = true;
+        }
     }
 }
