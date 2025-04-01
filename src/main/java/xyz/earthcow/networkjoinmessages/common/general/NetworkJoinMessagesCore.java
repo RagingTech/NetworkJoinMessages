@@ -63,22 +63,18 @@ public class NetworkJoinMessagesCore {
      * @param to - Name of the server that is being moved to.
      */
     public void SilentEvent(String type, String name, String from, String to) {
-        String message = "";
+        String message;
         switch (type) {
             case "MOVE":
-                message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentMoveEvent");
-                message = message.replace("<to>", to);
-                message = message.replace("<from>", from);
+                message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentMoveEvent")
+                    .replace("<to>", to)
+                    .replace("<from>", from);
                 break;
             case "QUIT":
                 message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentQuitEvent");
                 break;
             case "JOIN":
                 message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentJoinEvent");
-                message = message == null || message.isEmpty()
-                    ? message =
-                        "&6Join Event was silenced. <player> joined the network."
-                    : message;
                 break;
             default:
                 return;
