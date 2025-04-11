@@ -11,17 +11,20 @@ public class NetworkQuitEvent {
     private final String serverLeft;
     private final boolean isSilenced;
     private final String message;
+    private final String cleanMessage;
 
     public NetworkQuitEvent(
         CorePlayer player,
         String serverLeft,
         boolean isSilenced,
-        String message
+        String message,
+        String cleanMessage
     ) {
         this.player = player;
         this.serverLeft = serverLeft;
         this.isSilenced = isSilenced;
         this.message = message;
+        this.cleanMessage = cleanMessage;
     }
 
     public CorePlayer getPlayer() {
@@ -38,5 +41,9 @@ public class NetworkQuitEvent {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getCleanMessage() {
+        return cleanMessage;
     }
 }

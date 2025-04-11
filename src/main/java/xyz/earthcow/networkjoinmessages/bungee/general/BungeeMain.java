@@ -1,11 +1,12 @@
 package xyz.earthcow.networkjoinmessages.bungee.general;
 
-import net.md_5.bungee.api.ProxyServer;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeLogger;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
+import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePremiumVanish;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeServer;
 import xyz.earthcow.networkjoinmessages.bungee.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
@@ -24,10 +25,14 @@ public class BungeeMain extends Plugin implements CorePlugin {
     private NetworkJoinMessagesCore core;
 
     private BungeeLogger bungeeLogger;
+    private BungeeAudiences audiences;
+
+    private PremiumVanish premiumVanish;
 
     @Override
     public void onEnable() {
         this.bungeeLogger = new BungeeLogger(getLogger());
+        this.audiences = BungeeAudiences.create(this);
         this.core = new NetworkJoinMessagesCore(this);
 
         instance = this;
@@ -36,15 +41,20 @@ public class BungeeMain extends Plugin implements CorePlugin {
             .getPluginManager()
             .registerListener(this, new PlayerListener());
 
-        ProxyServer.getInstance()
+        getProxy()
             .getPluginManager()
             .registerCommand(this, new FakeCommand());
-        ProxyServer.getInstance()
+        getProxy()
             .getPluginManager()
             .registerCommand(this, new ReloadCommand());
-        ProxyServer.getInstance()
+        getProxy()
             .getPluginManager()
             .registerCommand(this, new ToggleJoinCommand());
+
+        if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
+            this.premiumVanish = new BungeePremiumVanish();
+            bungeeLogger.info("Successfully hooked into PremiumVanish!");
+        }
 
     }
 
@@ -55,6 +65,10 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     public static BungeeMain getInstance() {
         return instance;
+    }
+
+    public BungeeAudiences getAudiences() {
+        return audiences;
     }
 
     @Override
@@ -92,8 +106,8 @@ public class BungeeMain extends Plugin implements CorePlugin {
     }
 
     @Override
-    public boolean getVanishAPI() {
-        return false;
+    public PremiumVanish getVanishAPI() {
+        return premiumVanish;
     }
 
     @Override

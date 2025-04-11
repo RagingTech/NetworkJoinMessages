@@ -8,7 +8,7 @@ public interface Command {
 
     void execute(CoreCommandSender coreCommandSender, String[] args);
 
-    String getRequiredPermssion();
+    String getRequiredPermission();
 
     List<String> getTabCompletion(CoreCommandSender coreCommandSender, String[] args);
 

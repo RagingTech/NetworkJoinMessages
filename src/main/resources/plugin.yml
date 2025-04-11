@@ -3,8 +3,8 @@ version: ${version}
 description: ${description}
 author: ${author}
 website: ${url}
-softdepend: [SuperVanish, PremiumVanish, LuckPerms]
-api-version: 1.20
+softdepend: [PremiumVanish, LuckPerms, PAPIProxyBridge]
+api-version: 1.21
 
 main: ${mainClass}
 
@@ -13,14 +13,14 @@ commands:
         description: Send a fake join or leave message from the proxy
         permission: networkjoinmessages.fakemessage
         usage: /<command>
-        aliases: [fmr]
+        aliases: [fm]
     networkjoinreload:
         description: reloads the configuration file
         permission: networkjoinmessages.reload
         usage: /<command>
         aliases: [njoinreload]
     togglejoinmessage:
-        description: Toggles incomming join messages.
+        description: Toggles incoming join messages.
         permission: networkjoinmessages.togglemessage
         usage: /<command>
         aliases: [njointoggle]

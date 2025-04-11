@@ -17,7 +17,7 @@ public interface CorePlugin {
 
     void fireEvent(Object event);
 
-    boolean getVanishAPI();
+    PremiumVanish getVanishAPI();
 
     void runTaskLater(Runnable task, int timeInSecondsLater);
     void runTaskAsync(Runnable task);

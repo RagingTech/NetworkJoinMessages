@@ -1,23 +1,28 @@
 package xyz.earthcow.networkjoinmessages.common.listeners;
 
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
-import xyz.earthcow.networkjoinmessages.common.util.HexChat;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.util.stream.Collectors;
 
 public class CorePlayerListener {
 
-    private String getSilentPrefix() {
-        return ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix");
+    @Nullable
+    private final PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+
+    private Component getSilentPrefix() {
+        return MessageHandler.deserialize(ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix"));
     }
 
     public void onPreConnect(CorePlayer player, String previousServerName) {
@@ -32,6 +37,13 @@ public class CorePlayerListener {
 
     public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
         NetworkJoinMessagesCore.getInstance().getPlugin().runTaskAsync(() -> {
+            // PremiumVanish
+            if (premiumVanish != null) {
+                if (ConfigManager.getPluginConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
+                    Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
+                }
+            }
+
             if (!Storage.getInstance().isConnected(player)) {
                 // If the player is NOT already connected they have just joined the network
                 Storage.getInstance().setConnected(player, true);
@@ -63,15 +75,17 @@ public class CorePlayerListener {
                     return;
                 }
 
-                // TODO Add vanish support
-
                 String message = MessageHandler.getInstance().formatJoinMessage(player);
 
                 if (Storage.getInstance().getAdminMessageState(player)) {
                     // Silent
                     if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                        String toggleNotif = ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification");
-                        player.sendMessage(HexChat.translateHexCodes(toggleNotif));
+                        MessageHandler.getInstance().sendMessage(player,
+                            MessageHandler.getInstance().formatMessage(
+                                ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
+                                player
+                            )
+                        );
                     }
 
                     // Send to console
@@ -81,21 +95,23 @@ public class CorePlayerListener {
                     if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                         for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
                                 .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).collect(Collectors.toList())) {
-                            p.sendMessage(HexChat.translateHexCodes(getSilentPrefix() + message));
+                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
                         }
                     }
                 } else {
                     // Not silent
-                    MessageHandler.getInstance().broadcastMessage(HexChat.translateHexCodes(message), "join", player);
+                    MessageHandler.getInstance().broadcastMessage(message, "join", player);
                 }
 
+                Component formattedMessage = MessageHandler.deserialize(message);
                 // All checks have passed to reach this point
                 // Call the custom NetworkJoinEvent
                 NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
                         player,
                         MessageHandler.getInstance().getServerDisplayName(server.getName()),
                         Storage.getInstance().getAdminMessageState(player),
-                        message
+                    MessageHandler.serialize(formattedMessage),
+                    MessageHandler.stripColor(formattedMessage)
                 );
                 NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
                 NetworkJoinMessagesCore.getInstance()
@@ -103,9 +119,10 @@ public class CorePlayerListener {
                         .fireEvent(networkJoinEvent);
                 return;
             }
+            // If the player IS already connected, then they have just switched servers
+
             player.setLastKnownConnectedServer(server);
 
-            // If the player IS already connected they have just switched servers
             if (!Storage.getInstance().isElsewhere(player)) {
                 return;
             }
@@ -121,7 +138,7 @@ public class CorePlayerListener {
             }
 
             String message = MessageHandler.getInstance()
-                    .formatSwitchMessage(player, from, to);
+                    .parseSwitchMessage(player, from, to);
 
             // Silent
             if (Storage.getInstance().getAdminMessageState(player)) {
@@ -130,22 +147,24 @@ public class CorePlayerListener {
                 if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                     for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                         if (p.hasPermission("networkjoinmessages.silent")) {
-                            p.sendMessage(HexChat.translateHexCodes(getSilentPrefix() + message));
+                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
                         }
                     }
                 }
             } else {
                 MessageHandler.getInstance()
-                        .broadcastMessage(HexChat.translateHexCodes(message), "switch", from, to);
+                        .broadcastMessage(message, "switch", from, to);
             }
 
+            Component formattedMessage = MessageHandler.deserialize(message);
             // Call the custom ServerSwapEvent
             SwapServerEvent swapServerEvent = new SwapServerEvent(
                     player,
                     MessageHandler.getInstance().getServerDisplayName(from),
                     MessageHandler.getInstance().getServerDisplayName(to),
                     Storage.getInstance().getAdminMessageState(player),
-                    message
+                MessageHandler.serialize(formattedMessage),
+                MessageHandler.stripColor(formattedMessage)
             );
             NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
             NetworkJoinMessagesCore.getInstance()
@@ -175,6 +194,13 @@ public class CorePlayerListener {
             return;
         }
 
+        // PremiumVanish
+        if (premiumVanish != null) {
+            if (ConfigManager.getPluginConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
+                Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
+            }
+        }
+
         String message = MessageHandler.getInstance().formatQuitMessage(player);
 
         // Silent
@@ -184,14 +210,15 @@ public class CorePlayerListener {
             if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                 for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        p.sendMessage(HexChat.translateHexCodes(getSilentPrefix() + message));
+                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
                     }
                 }
             }
         } else {
-            MessageHandler.getInstance().broadcastMessage(HexChat.translateHexCodes(message), "leave", player);
+            MessageHandler.getInstance().broadcastMessage(message, "leave", player);
         }
 
+        Component formattedMessage = MessageHandler.deserialize(message);
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
             player,
@@ -200,7 +227,8 @@ public class CorePlayerListener {
                     player.getCurrentServer() != null ? player.getCurrentServer().getName() : "???"
                 ),
             Storage.getInstance().getAdminMessageState(player),
-            message
+            MessageHandler.serialize(formattedMessage),
+            MessageHandler.stripColor(formattedMessage)
         );
         NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         NetworkJoinMessagesCore.getInstance()

@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -13,6 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityLogger;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPremiumVanish;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
@@ -31,7 +33,13 @@ import java.util.stream.Collectors;
     version = "2.1.0-SNAPSHOT",
     url = "https://github.com/RagingTech/NetworkJoinMessages",
     description = "A plugin handling join, leave and switch messages for proxy servers.",
-    authors = { "EarthCow" }
+    authors = { "EarthCow" },
+    dependencies = {
+        @Dependency(id = "supervanish", optional = true),
+        @Dependency(id = "premiumvanish", optional = true),
+        @Dependency(id = "luckperms", optional = true),
+        @Dependency(id = "papiproxybridge", optional = true)
+    }
 )
 public class VelocityMain implements CorePlugin {
 
@@ -68,9 +76,10 @@ public class VelocityMain implements CorePlugin {
         proxy.getEventManager().fireAndForget(event);
     }
 
+    private PremiumVanish premiumVanish;
     @Override
-    public boolean getVanishAPI() {
-        return false;
+    public PremiumVanish getVanishAPI() {
+        return premiumVanish;
     }
 
     @Override
@@ -119,7 +128,7 @@ public class VelocityMain implements CorePlugin {
         commandManager.register(
             commandManager
                 .metaBuilder("fakemessage")
-                .aliases("fmr")
+                .aliases("fm")
                 .plugin(this)
                 .build(),
             new FakeCommand()
@@ -141,6 +150,9 @@ public class VelocityMain implements CorePlugin {
             new ToggleJoinCommand()
         );
 
-        // TODO Add vanish support
+        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
+            this.premiumVanish = new VelocityPremiumVanish();
+            velocityLogger.info("Successfully hooked into PremiumVanish!");
+        }
     }
 }

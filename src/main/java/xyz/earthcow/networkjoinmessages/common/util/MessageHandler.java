@@ -1,24 +1,127 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import net.william278.papiproxybridge.api.PlaceholderAPI;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MessageHandler {
 
     private static MessageHandler instance;
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
+
+    private LuckPerms luckPerms = null;
+    private PlaceholderAPI placeholderAPI = null;
 
     public static MessageHandler getInstance() {
         if (instance == null) {
             instance = new MessageHandler();
         }
         return instance;
+    }
+
+    private static String translateLegacyCodes(String str) {
+        str = replaceEssentialsColorCodes(str);
+        return str
+            .replace('§', '&')
+            .replace("&0", convertToTag(NamedTextColor.BLACK.asHexString()))
+            .replace("&1", convertToTag(NamedTextColor.DARK_BLUE.asHexString()))
+            .replace("&2", convertToTag(NamedTextColor.DARK_GREEN.asHexString()))
+            .replace("&3", convertToTag(NamedTextColor.DARK_AQUA.asHexString()))
+            .replace("&4", convertToTag(NamedTextColor.DARK_RED.asHexString()))
+            .replace("&5", convertToTag(NamedTextColor.DARK_PURPLE.asHexString()))
+            .replace("&6", convertToTag(NamedTextColor.GOLD.asHexString()))
+            .replace("&7", convertToTag(NamedTextColor.GRAY.asHexString()))
+            .replace("&8", convertToTag(NamedTextColor.DARK_GRAY.asHexString()))
+            .replace("&9", convertToTag(NamedTextColor.BLUE.asHexString()))
+            .replace("&a", convertToTag(NamedTextColor.GREEN.asHexString()))
+            .replace("&b", convertToTag(NamedTextColor.AQUA.asHexString()))
+            .replace("&c", convertToTag(NamedTextColor.RED.asHexString()))
+            .replace("&d", convertToTag(NamedTextColor.LIGHT_PURPLE.asHexString()))
+            .replace("&e", convertToTag(NamedTextColor.YELLOW.asHexString()))
+            .replace("&f", convertToTag(NamedTextColor.WHITE.asHexString()))
+            .replace("&k", convertToTag("obfuscated"))
+            .replace("&l", convertToTag("bold"))
+            .replace("&m", convertToTag("strikethrough"))
+            .replace("&n", convertToTag("underlined"))
+            .replace("&o", convertToTag("italic"))
+            .replace("&r", convertToTag("reset"))
+            .replace("\\n", convertToTag("newline"))
+
+            // "&#FFC0CBHello! -> <#FFC0CB>Hello!
+            .replaceAll("&#([A-Fa-f0-9]{6})", "<#$1>");
+    }
+
+    private static String replaceEssentialsColorCodes(String str) {
+        // "§x§f§b§6§3§f§5Hello!" -> "&#fb63f5Hello!"
+        Matcher matcher = essentialsPattern.matcher(str);
+
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            String hexColor = matcher.group(0)
+                .replace("§x", "")
+                .replace("§", "");
+            matcher.appendReplacement(result, "&#" + hexColor);
+        }
+
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    private static String convertToTag(String str) {
+        return "<" + str + ">";
+    }
+
+    public static Component deserialize(String str) {
+        return miniMessage.deserialize(translateLegacyCodes(str));
+    }
+
+    public static String serialize(Component component) {
+        return miniMessage.serialize(component);
+    }
+
+    public MessageHandler() {
+        try {
+            luckPerms = LuckPermsProvider.get();
+            log("Successfully hooked into LuckPerms!");
+        } catch (IllegalStateException | NoClassDefFoundError e) {
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
+        }
+
+        try {
+            placeholderAPI = PlaceholderAPI.createInstance();
+            log("Successfully hooked into PAPIProxyBridge!");
+        } catch (NoClassDefFoundError e) {
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
+        }
+    }
+
+    public static String sanitize(String str) {
+        return stripColor(deserialize(str));
+    }
+
+    public static String stripColor(Component component) {
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
     String SwapServerMessage = "";
@@ -56,6 +159,19 @@ public class MessageHandler {
         return name;
     }
 
+    public void sendMessage(CoreCommandSender sender, String message) {
+        if (placeholderAPI != null && sender instanceof CorePlayer) {
+            CorePlayer player = (CorePlayer) sender;
+            placeholderAPI.formatPlaceholders(message, player.getUniqueId()).thenAccept(
+                formatted -> {
+                    sender.sendMessage(deserialize(formatted));
+                }
+            );
+            return;
+        }
+        sender.sendMessage(deserialize(message));
+    }
+
     /**
      * Send a message globally, based on the players current server.
      * @param text - The text to be displayed
@@ -64,58 +180,34 @@ public class MessageHandler {
      */
     public void broadcastMessage(String text, String type, CorePlayer player) {
         if (player.getCurrentServer() == null) {
-            //Fixes NPE when connecting to offline server.
-            MessageHandler.getInstance()
-                .log(
-                    "Broadcast Message of " +
-                    player.getName() +
-                    " halted as Server returned Null. #01"
-                );
-            //return;
+            MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
+            return;
         }
-        broadcastMessage(
-            text,
-            type,
-            player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(),
-            "???"
-        );
+        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???");
     }
 
     public void broadcastMessage(String text, String type, String from, String to) {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
-            receivers.addAll(
-                Storage.getInstance().getSwitchMessageReceivers(to, from)
-            );
+            receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
         } else if (type.equalsIgnoreCase("join")) {
-            receivers.addAll(
-                Storage.getInstance().getJoinMessageReceivers(from)
-            );
+            receivers.addAll(Storage.getInstance().getJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("leave")) {
-            receivers.addAll(
-                Storage.getInstance().getLeaveMessageReceivers(from)
-            );
+            receivers.addAll(Storage.getInstance().getLeaveMessageReceivers(from));
         } else {
-            receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
-            );
+            receivers.addAll(NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers());
         }
 
-        //Remove the players that have messages disabled
         List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(text);
+        log(sanitize(text));
 
-        //Add the players that are on ignored servers to the ignored list.
-        ignorePlayers.addAll(
-            Storage.getInstance().getIgnoredServerPlayers(type)
-        );
+        ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
-        //Parse through all receivers and ignore the ones that are on the ignore list.
         for (CorePlayer player : receivers) {
             if (ignorePlayers.contains(player.getUniqueId())) {
                 continue;
             }
-            player.sendMessage(text);
+            sendMessage(player, text);
         }
     }
 
@@ -168,13 +260,21 @@ public class MessageHandler {
     ) {
         String serverPlayerCount = "?";
         if (backendServer != null) {
-            List<CorePlayer> players = new ArrayList<>(backendServer.getPlayersConnected());
+            List<CorePlayer> players = backendServer.getPlayersConnected();
+
+            PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+
+            if (premiumVanish != null && ConfigManager.getPluginConfig()
+                .getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount")) {
+                List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
+                // Filter out vanished players
+                players = players.stream().filter(corePlayer -> !vanishedPlayers.contains(corePlayer.getUniqueId())).collect(Collectors.toList());
+            }
+
             int count = players.size();
 
-            // TODO Add vanish support
-
-            if (leaving && player != null) {
-                if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
+            if (player != null && leaving) {
+                if (players.stream().anyMatch(corePlayer -> corePlayer.getUniqueId().equals(player.getUniqueId()))) {
                     count--;
                 }
             }
@@ -189,7 +289,19 @@ public class MessageHandler {
             .getPlugin()
             .getAllPlayers();
         int count = players.size();
-        if (leaving && player != null) {
+
+        PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+
+        boolean vanished = false;
+        if (premiumVanish != null && ConfigManager.getPluginConfig()
+            .getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount")) {
+            count -= premiumVanish.getInvisiblePlayers().size();
+            if (player != null) {
+                vanished = premiumVanish.isVanished(player.getUniqueId());
+            }
+        }
+
+        if (player != null && !vanished && leaving) {
             if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
                 count--;
             }
@@ -197,64 +309,64 @@ public class MessageHandler {
         return count + "";
     }
 
-    public String formatMessage(String msg, CorePlayer player) {
-        String serverName = player.getCurrentServer() != null
-            ? getServerDisplayName(
-                player.getCurrentServer().getName()
-            )
-            : "???";
-        return msg
-            .replace("%player%", player.getName())
-            .replace("%displayname%", player.getName())
-            .replace("%server_name%", serverName)
-            .replace("%server_name_clean%", HexChat.removeColorCodes(serverName));
+    public String handleLpPlaceholders(String str, CorePlayer player) {
+        if (luckPerms == null) return str;
+        User lpUser = luckPerms.getUserManager().getUser(player.getUniqueId());
+        String prefix = "";
+        String suffix = "";
+        if (lpUser != null) {
+            if (lpUser.getCachedData().getMetaData().getPrefix() != null) {
+                prefix = lpUser.getCachedData().getMetaData().getPrefix();
+            }
+            if (lpUser.getCachedData().getMetaData().getSuffix() != null) {
+                suffix = lpUser.getCachedData().getMetaData().getSuffix();
+            }
+        }
+        return str
+                .replace("%player_prefix%", prefix)
+                .replace("%player_suffix%", suffix);
     }
 
-    public String formatSwitchMessage(
-        CorePlayer player,
-        String fromName,
-        String toName
-    ) {
+    public String formatMessage(String msg, CorePlayer player) {
+        String serverName = player.getCurrentServer() != null
+                ? getServerDisplayName(player.getCurrentServer().getName())
+                : "???";
+        return handleLpPlaceholders(msg, player)
+                .replace("%player%", player.getName())
+                .replace("%displayname%", player.getName())
+                .replace("%server_name%", serverName)
+                .replace("%server_name_clean%", sanitize(serverName));
+    }
+
+    public String parseSwitchMessage(CorePlayer player, String fromName, String toName) {
         String from = getServerDisplayName(fromName);
         String to = getServerDisplayName(toName);
-        return formatMessage(getSwapServerMessage(), player)
-            .replace("%to%", to)
-            .replace("%to_clean%", HexChat.removeColorCodes(to))
-            .replace("%from%", from)
-            .replace("%from_clean%", HexChat.removeColorCodes(from))
-            .replace(
-                "%playercount_from%",
-                getServerPlayerCount(fromName, true, player)
-            )
-            .replace(
-                "%playercount_to%",
-                getServerPlayerCount(toName, false, player)
-            )
-            .replace(
-                "%playercount_network%",
-                getNetworkPlayerCount(player, false)
-            );
+        return formatMessage(
+                getSwapServerMessage()
+                    .replace("%to%", to)
+                    .replace("%to_clean%", sanitize(to))
+                    .replace("%from%", from)
+                    .replace("%from_clean%", sanitize(from))
+                    .replace("%playercount_from%", getServerPlayerCount(fromName, true, player))
+                    .replace("%playercount_to%", getServerPlayerCount(toName, false, player))
+                    .replace("%playercount_network%", getNetworkPlayerCount(player, false))
+                , player);
     }
 
     public String formatJoinMessage(CorePlayer player) {
-        return formatMessage(getJoinNetworkMessage(), player)
-            .replace(
-                "%playercount_server%",
-                getServerPlayerCount(player, false)
-            )
-            .replace(
-                "%playercount_network%",
-                getNetworkPlayerCount(player, false)
-            );
+        return formatMessage(
+                getJoinNetworkMessage()
+                    .replace("%playercount_server%", getServerPlayerCount(player, false))
+                    .replace("%playercount_network%", getNetworkPlayerCount(player, false))
+                , player);
     }
 
     public String formatQuitMessage(CorePlayer player) {
-        return formatMessage(getLeaveNetworkMessage(), player)
-            .replace("%playercount_server%", getServerPlayerCount(player, true))
-            .replace(
-                "%playercount_network%",
-                getNetworkPlayerCount(player, true)
-            );
+        return formatMessage(
+                getLeaveNetworkMessage()
+                        .replace("%playercount_server%", getServerPlayerCount(player, true))
+                        .replace("%playercount_network%", getNetworkPlayerCount(player, true))
+                , player);
     }
 
     public void log(String string) {

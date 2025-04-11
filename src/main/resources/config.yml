@@ -1,4 +1,7 @@
-# Set server names
+# This configuration supports both legacy color codes and MiniMessage!
+# For documentation on MiniMessage visit https://docs.advntr.dev/minimessage/format.html
+
+# Set server aliases
 Servers:
   lobby: "&9Lobby"
   survival: "&6Survival Server"
@@ -6,30 +9,30 @@ Servers:
   staff: "&4Staff Server"
   ???: "&7Unknown Server"
 Messages:
-  # %player%              - The player's username
-  # %displayname%         - The custom name the player has according to bungee
-  # %to%                  - The server they are heading to
-  # %to_clean%            - The server they are heading to without color codes
-  # %from%                - The server they are coming from
-  # %from_clean%          - The server they are coming from without color codes
-  # %playercount_from%    - The amount of players where they are coming from
-  # %playercount_to%      - The amount of players where they are heading to
-  # %playercount_network% - The amount of players on the network
+  # These player placeholders work in any of the following three message types
+  # %player%              - Player username
+  # %displayname%         - Custom name the player has according to the proxy
+  # %player_prefix%       - Player prefix (requires LuckPerms on the proxy)
+  # %player_suffix%       - Player suffix (requires LuckPerms on the proxy)
+
+  # These placeholders are available for the switch network message
+  # %to%                  - Server they are heading to
+  # %to_clean%            - Server they are heading to without formatting
+  # %from%                - Server they are coming from
+  # %from_clean%          - Server they are coming from without formatting
+  # %playercount_from%    - Amount of players where they are coming from
+  # %playercount_to%      - Amount of players where they are heading to
+  # %playercount_network% - Amount of players on the network
   SwapServerMessage: "&6&l%player%&r &7[%from%&7] (%playercount_from%) -> [%to%&7] (%playercount_to%)"
-  # %player%              - The player's username
-  # %displayname%         - The custom name the player has according to bungee
-  # %server_name%         - The name of the server they connected to
-  # %server_name_clean%   - The name of the server they connected to without color codes
-  # %playercount_server%  - The playercount of the server they are on
-  # %playercount_network% - The amount of players on the network
+
+  # These placeholders are available for the join and leave network messages
+  # %server_name%         - Name of the server they connected to
+  # %server_name_clean%   - Name of the server they connected to without formatting
+  # %playercount_server%  - Amount of players on the sever they joined or left
+  # %playercount_network% - Amount of players on the network
   JoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network!"
-  # %player%              - The player's username
-  # %displayname%         - The custom name the player has according to bungee
-  # %server_name%         - The name of the server they connected to
-  # %server_name_clean%   - The name of the server they connected to without color codes
-  # %playercount_server%  - The playercount of the server they are on
-  # %playercount_network% - The amount of players on the network
   LeaveNetworkMessage: "&6%player% &6has disconnected from the network!"
+
   # Configurable Command Messages!
   Commands:
     NoMoreArgumentsNeeded: "No more arguments needed."
@@ -49,7 +52,7 @@ Messages:
       ToggleSilentNoPerm: "&cYou do not have the permission to join the server silently."
       ToggleSilent: "&eYour SilentMode has now been set to &6<state>"
       JoinNotification: |-
-        &7[BungeeJoin] You joined the server while silenced.
+        &7[NetworkJoin] You joined the server while silenced.
         &7To have messages automatically enabled for you until
         &7next reboot, use the command &f/fm toggle&7.
     ToggleJoin:
@@ -105,7 +108,7 @@ Settings:
     OtherServer: true
 
   # Servers in this list will not trigger messages.
-  # Servers listed here are case sensitive. Check your bungee config to see how you have them listed!
+  # Servers listed here are case-sensitive. Check your bungee config to see how you have them listed!
   ServerBlacklist:
     - SomeServerName
     - SomeOtherServerName
@@ -120,21 +123,24 @@ Settings:
   # New in 1.10.0
   # IgnoreJoinMessagesList - Players on these servers will not see a message when someone joins the network.
   # The global message will still be triggered if someone joins these servers directly.
-  # Case sensitive!
+  # Case-sensitive!
   IgnoreJoinMessagesList:
     - SomeServerNameThatShouldNotSeeJoinNetworkMessages
     - SomeOtherServerName
   # IgnoreLeaveMessagesList - Players on these servers will not see a message when someone leaves the network.
   # The global message will still be triggered if someone leaves these servers directly.
-  # Case sensitive!
+  # Case-sensitive!
   IgnoreLeaveMessagesList:
     - SomeServerNameThatShouldNotSeeLeaveNetworkMessages
     - SomeOtherServerName
 
 OtherPlugins:
   PremiumVanish:
-    ToggleFakemessageWhenVanishing: true
+    # Vanished players will not trigger messages aside from
+    # silent messages sent to players with networkjoinmessages.silent permission
+    TreatVanishedPlayersAsSilent: true
+    # Vanished players will not be counted in the player count placeholders
     RemoveVanishedPlayersFromPlayerCount: true
 
 # Do not touch this
-config-version: 3
+config-version: 4
