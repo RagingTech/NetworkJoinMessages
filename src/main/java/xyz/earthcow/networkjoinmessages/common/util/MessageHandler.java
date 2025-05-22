@@ -179,7 +179,7 @@ public class MessageHandler {
      * @param player - The player to fetch the server from.
      */
     public void broadcastMessage(String text, String type, CorePlayer player) {
-        if (player.getCurrentServer() == null) {
+        if (player.getCurrentServer() == null && !type.equalsIgnoreCase("leave")) {
             MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
             return;
         }
