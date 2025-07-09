@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -16,6 +17,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
+import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersSupport;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -30,6 +32,7 @@ public class MessageHandler {
 
     private LuckPerms luckPerms = null;
     private PlaceholderAPI placeholderAPI = null;
+    private static MiniPlaceholdersSupport miniPlaceholders = null;
 
     public static MessageHandler getInstance() {
         if (instance == null) {
@@ -93,6 +96,17 @@ public class MessageHandler {
     }
 
     public static Component deserialize(String str) {
+        return deserialize(str, null);
+    }
+
+    public static Component deserialize(String str, TagResolver tagResolver) {
+        if (miniPlaceholders == null) {
+            if (tagResolver == null) {
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
+            } else {
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver(), tagResolver);
+            }
+        }
         return miniMessage.deserialize(translateLegacyCodes(str));
     }
 
@@ -114,6 +128,11 @@ public class MessageHandler {
         } catch (NoClassDefFoundError e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
+
+        try {
+            miniPlaceholders = new MiniPlaceholdersSupport();
+            log("Successfully hooked into MiniPlaceholders!");
+        } catch (NoClassDefFoundError ignored) {}
     }
 
     public static String sanitize(String str) {
@@ -160,14 +179,24 @@ public class MessageHandler {
     }
 
     public void sendMessage(CoreCommandSender sender, String message) {
-        if (placeholderAPI != null && sender instanceof CorePlayer) {
+        if (sender instanceof CorePlayer) {
             CorePlayer player = (CorePlayer) sender;
-            placeholderAPI.formatPlaceholders(message, player.getUniqueId()).thenAccept(
-                formatted -> {
-                    sender.sendMessage(deserialize(formatted));
-                }
-            );
-            return;
+            if (placeholderAPI != null) {
+                placeholderAPI.formatPlaceholders(message, player.getUniqueId()).thenAccept(
+                    formatted -> {
+                        if (miniPlaceholders != null) {
+                            sender.sendMessage(deserialize(message, miniPlaceholders.getAudienceResolver(player.getAudience())));
+                        } else {
+                            sender.sendMessage(deserialize(formatted));
+                        }
+                    }
+                );
+                return;
+            }
+            if (miniPlaceholders != null) {
+                sender.sendMessage(deserialize(message, miniPlaceholders.getAudienceResolver(player.getAudience())));
+                return;
+            }
         }
         sender.sendMessage(deserialize(message));
     }
