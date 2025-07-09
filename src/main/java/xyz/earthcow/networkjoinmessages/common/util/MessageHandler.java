@@ -17,7 +17,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
-import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersSupport;
+import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -32,7 +32,7 @@ public class MessageHandler {
 
     private LuckPerms luckPerms = null;
     private PlaceholderAPI placeholderAPI = null;
-    private static MiniPlaceholdersSupport miniPlaceholders = null;
+    private static MiniPlaceholdersHook miniPlaceholders = null;
 
     public static MessageHandler getInstance() {
         if (instance == null) {
@@ -130,7 +130,7 @@ public class MessageHandler {
         }
 
         try {
-            miniPlaceholders = new MiniPlaceholdersSupport();
+            miniPlaceholders = new MiniPlaceholdersHook();
             log("Successfully hooked into MiniPlaceholders!");
         } catch (NoClassDefFoundError ignored) {}
     }
