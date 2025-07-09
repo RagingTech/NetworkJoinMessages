@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -14,11 +15,14 @@ import java.util.UUID;
 public class VelocityPlayer implements CorePlayer {
     private final Player velocityPlayer;
     private CoreBackendServer lastKnownConnectedServer;
+    private final Audience audience;
+
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
         if (velocityPlayer.getCurrentServer().isPresent()) {
             this.lastKnownConnectedServer = new VelocityServer(velocityPlayer.getCurrentServer().get().getServer());
         }
+        this.audience = Audience.audience(velocityPlayer);
     }
 
     @Override
@@ -63,5 +67,10 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public void setLastKnownConnectedServer(CoreBackendServer server) {
         lastKnownConnectedServer = server;
+    }
+
+    @Override
+    public @NotNull Audience getAudience() {
+        return audience;
     }
 }
