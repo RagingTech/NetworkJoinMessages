@@ -112,6 +112,13 @@
             <artifactId>adventure-text-minimessage</artifactId>
             <version>4.19.0</version>
         </dependency>
+        <!-- MiniPlaceholders -->
+        <dependency>
+            <groupId>io.github.miniplaceholders</groupId>
+            <artifactId>miniplaceholders-api</artifactId>
+            <version>2.3.0</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Plain Text Serializer -->
         <dependency>
             <groupId>net.kyori</groupId>
@@ -146,14 +153,15 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>9</source>
-                    <target>9</target>
+                    <source>21</source>
+                    <target>21</target>
+                    <release>21</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.6.0</version>
                 <configuration>
                     <relocations>
                         <relocation>
@@ -161,6 +169,11 @@
                             <shadedPattern>xyz.earthcow.networkjoinmessages.libs.boostedyaml</shadedPattern>
                         </relocation>
                     </relocations>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>io.github.miniplaceholders:miniplaceholders-api</exclude>
+                        </excludes>
+                    </artifactSet>
                 </configuration>
                 <executions>
                     <execution>
