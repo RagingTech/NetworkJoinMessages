@@ -66,7 +66,7 @@ public class CoreFakeCommand implements Command {
                 String toName = args[2];
 
                 message = MessageHandler.getInstance().parseSwitchMessage(player, fromName, toName);
-                MessageHandler.getInstance().broadcastMessage(message, "switch", fromName, toName);
+                MessageHandler.getInstance().broadcastMessage(message, "switch", fromName, toName, player);
                 return;
             case "toggle":
                 if (!player.hasPermission("networkjoinmessages.silent")) {

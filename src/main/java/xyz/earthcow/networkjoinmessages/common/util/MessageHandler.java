@@ -99,12 +99,12 @@ public class MessageHandler {
         return deserialize(str, null);
     }
 
-    public static Component deserialize(String str, TagResolver tagResolver) {
+    public static Component deserialize(String str, CorePlayer parseTarget) {
         if (miniPlaceholders != null) {
-            if (tagResolver == null) {
+            if (parseTarget == null) {
                 return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
             } else {
-                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver(), tagResolver);
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver(), miniPlaceholders.getAudienceResolver(parseTarget.getAudience()));
             }
         }
         return miniMessage.deserialize(translateLegacyCodes(str));
@@ -179,13 +179,16 @@ public class MessageHandler {
     }
 
     public void sendMessage(CoreCommandSender sender, String message) {
-        if (sender instanceof CorePlayer) {
-            CorePlayer player = (CorePlayer) sender;
+        sendMessage(sender, message, null);
+    }
+
+    public void sendMessage(CoreCommandSender sender, String message, CorePlayer parseTarget) {
+        if (parseTarget != null) {
             if (placeholderAPI != null) {
-                placeholderAPI.formatPlaceholders(message, player.getUniqueId()).thenAccept(
+                placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(
                     formatted -> {
                         if (miniPlaceholders != null) {
-                            sender.sendMessage(deserialize(message, miniPlaceholders.getAudienceResolver(player.getAudience())));
+                            sender.sendMessage(deserialize(message, parseTarget));
                         } else {
                             sender.sendMessage(deserialize(formatted));
                         }
@@ -194,7 +197,7 @@ public class MessageHandler {
                 return;
             }
             if (miniPlaceholders != null) {
-                sender.sendMessage(deserialize(message, miniPlaceholders.getAudienceResolver(player.getAudience())));
+                sender.sendMessage(deserialize(message, parseTarget));
                 return;
             }
         }
@@ -212,10 +215,10 @@ public class MessageHandler {
             MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
             return;
         }
-        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???");
+        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???", player);
     }
 
-    public void broadcastMessage(String text, String type, String from, String to) {
+    public void broadcastMessage(String text, String type, String from, String to, CorePlayer parseTarget) {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
             receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
@@ -236,7 +239,7 @@ public class MessageHandler {
             if (ignorePlayers.contains(player.getUniqueId())) {
                 continue;
             }
-            sendMessage(player, text);
+            sendMessage(player, text, parseTarget);
         }
     }
 

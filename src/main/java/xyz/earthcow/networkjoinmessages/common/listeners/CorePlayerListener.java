@@ -153,7 +153,7 @@ public class CorePlayerListener {
                 }
             } else {
                 MessageHandler.getInstance()
-                        .broadcastMessage(message, "switch", from, to);
+                        .broadcastMessage(message, "switch", from, to, player);
             }
 
             Component formattedMessage = MessageHandler.deserialize(message);
