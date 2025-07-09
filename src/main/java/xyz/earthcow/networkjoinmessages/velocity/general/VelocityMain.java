@@ -38,7 +38,8 @@ import java.util.stream.Collectors;
         @Dependency(id = "supervanish", optional = true),
         @Dependency(id = "premiumvanish", optional = true),
         @Dependency(id = "luckperms", optional = true),
-        @Dependency(id = "papiproxybridge", optional = true)
+        @Dependency(id = "papiproxybridge", optional = true),
+        @Dependency(id = "miniplaceholders", optional = true)
     }
 )
 public class VelocityMain implements CorePlugin {
