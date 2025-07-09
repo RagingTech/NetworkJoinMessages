@@ -100,7 +100,7 @@ public class MessageHandler {
     }
 
     public static Component deserialize(String str, TagResolver tagResolver) {
-        if (miniPlaceholders == null) {
+        if (miniPlaceholders != null) {
             if (tagResolver == null) {
                 return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
             } else {
