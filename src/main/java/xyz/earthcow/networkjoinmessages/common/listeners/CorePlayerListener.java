@@ -95,7 +95,7 @@ public class CorePlayerListener {
                     if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                         for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
                                 .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).collect(Collectors.toList())) {
-                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
+                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
                         }
                     }
                 } else {
@@ -147,7 +147,7 @@ public class CorePlayerListener {
                 if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                     for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                         if (p.hasPermission("networkjoinmessages.silent")) {
-                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
+                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
                         }
                     }
                 }
@@ -210,7 +210,7 @@ public class CorePlayerListener {
             if (Storage.getInstance().notifyAdminsOnSilentMove()) {
                 for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message);
+                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
                     }
                 }
             }
