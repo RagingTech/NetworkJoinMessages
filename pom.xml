@@ -79,6 +79,12 @@
             <version>16.0.1</version>
             <scope>compile</scope>
         </dependency>
+        <!-- SQLite -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.50.2.0</version>
+        </dependency>
         <!-- PremiumVanishAPI -->
         <dependency>
     		<groupId>com.github.LeonMangler</groupId>
