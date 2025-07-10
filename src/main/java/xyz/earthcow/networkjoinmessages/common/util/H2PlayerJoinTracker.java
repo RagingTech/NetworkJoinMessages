@@ -3,12 +3,15 @@ package xyz.earthcow.networkjoinmessages.common.util;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 
 import java.sql.*;
+import java.util.Enumeration;
 import java.util.UUID;
 
 public class H2PlayerJoinTracker implements AutoCloseable {
     private final Connection connection;
 
     public H2PlayerJoinTracker(String dbPath) throws SQLException {
+        registerDriverIfNeeded();
+
         this.connection = DriverManager.getConnection("jdbc:h2:" + dbPath);
 
         try (Statement stmt = connection.createStatement()) {
@@ -46,6 +49,28 @@ public class H2PlayerJoinTracker implements AutoCloseable {
         } catch (SQLException e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
                 "SQL Failure: Failed to mark player joined for player " + playerName);
+        }
+    }
+
+    private static void registerDriverIfNeeded() {
+        boolean alreadyRegistered = false;
+        try {
+            Enumeration<Driver> drivers = DriverManager.getDrivers();
+            while (drivers.hasMoreElements()) {
+                if (drivers.nextElement().getClass().getName().equals("org.h2.Driver")) {
+                    alreadyRegistered = true;
+                    break;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                Class<?> clazz = Class.forName("org.h2.Driver", true, H2PlayerJoinTracker.class.getClassLoader());
+                Driver realDriver = (Driver) clazz.getDeclaredConstructor().newInstance();
+                DriverManager.registerDriver(new DriverShim(realDriver));
+            }
+        } catch (Exception e) {
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
+                "Failed to manually register H2 JDBC driver");
         }
     }
 }

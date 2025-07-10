@@ -41,7 +41,7 @@ public class NetworkJoinMessagesCore {
         discordWebhookIntegration = new DiscordWebhookIntegration();
 
         try {
-            firstJoinTracker = new H2PlayerJoinTracker(plugin.getDataFolder().getPath() + "/joined.mv.db");
+            firstJoinTracker = new H2PlayerJoinTracker("file:./" + plugin.getDataFolder().getPath() + "/joined");
         } catch (Exception ex) {
             plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
         }
