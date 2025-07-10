@@ -67,7 +67,7 @@ public class CorePlayerListener {
                 }
                 player.setLastKnownConnectedServer(server);
 
-                boolean firstJoin = NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
+                boolean firstJoin = !NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
 
                 if (!firstJoin && !Storage.getInstance().isJoinNetworkMessageEnabled()) {
                     return;
