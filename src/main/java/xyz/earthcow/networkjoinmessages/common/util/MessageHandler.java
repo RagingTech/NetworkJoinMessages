@@ -178,10 +178,30 @@ public class MessageHandler {
         return name;
     }
 
+    /**
+     * Sends a message to the specified command sender.
+     * If the command sender is a CorePlayer object
+     * then it will be used to parse PAPI and MiniPlaceholders.
+     * Designed for self invoked messages such as command responses.
+     * @param sender The CoreCommandSender that will receive the message
+     * @param message The message to be sent
+     */
     public void sendMessage(CoreCommandSender sender, String message) {
-        sendMessage(sender, message, null);
+        if (sender instanceof CorePlayer parseTarget) {
+            sendMessage(sender, message, parseTarget);
+        } else {
+            sendMessage(sender, message, null);
+        }
     }
 
+    /**
+     * Sends a message to the specified command sender.
+     * Parses PAPI and MiniPlaceholders against the specified parse target
+     * Designed for broadcast messages.
+     * @param sender The CoreCommandSender that will receive the message
+     * @param message The message to be sent
+     * @param parseTarget The CorePlayer that will be the target for PAPI and MiniPlaceholders
+     */
     public void sendMessage(CoreCommandSender sender, String message, CorePlayer parseTarget) {
         if (parseTarget != null) {
             if (placeholderAPI != null) {
