@@ -30,6 +30,7 @@ Messages:
   # %server_name_clean%   - Name of the server they connected to without formatting
   # %playercount_server%  - Amount of players on the sever they joined or left
   # %playercount_network% - Amount of players on the network
+  FirstJoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network for the first time!!"
   JoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network!"
   LeaveNetworkMessage: "&6%player% &6has disconnected from the network!"
 
@@ -78,6 +79,7 @@ Settings:
   SilentJoinDefaultState: true
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true
+  FirstJoinNetworkMessageEnabled: true
   JoinNetworkMessageEnabled: true
   LeaveNetworkMessageEnabled: true
   # Should other players with the networkjoinmessages.silent permission be notified of players moving silently?
@@ -93,7 +95,12 @@ Settings:
 
     # Should the swap server message be seen by the other servers?
     OtherServer: true
-  # New in 1.10.0
+  FirstJoinNetworkMessageViewableBy:
+    # Should the Join Network message be seen by the server they Joined?
+    ServerJoined: true
+
+    # Should theJoin Network message be seen by the other servers?
+    OtherServer: true
   JoinNetworkMessageViewableBy:
     # Should the Join Network message be seen by the server they Joined?
     ServerJoined: true
@@ -120,7 +127,12 @@ Settings:
   #                                     WhitelistMode will only allow it if the joined server is in the list.
   # IF set to ANY or both, ANY of them must be blacklisted/whitelisted, or BOTH of them must ble blacklisted/whitelisted.
   SwapServerMessageRequires: ANY
-  # New in 1.10.0
+  # IgnoreFirstJoinMessagesList - Players on these servers will not see a message when someone joins the network for the first time.
+  # The global message will still be triggered if someone joins these servers directly.
+  # Case-sensitive!
+  IgnoreFirstJoinMessagesList:
+    - SomeServerNameThatShouldNotSeeFirstJoinNetworkMessages
+    - SomeOtherServerName
   # IgnoreJoinMessagesList - Players on these servers will not see a message when someone joins the network.
   # The global message will still be triggered if someone joins these servers directly.
   # Case-sensitive!
@@ -143,4 +155,4 @@ OtherPlugins:
     RemoveVanishedPlayersFromPlayerCount: true
 
 # Do not touch this
-config-version: 4
+config-version: 4.5
