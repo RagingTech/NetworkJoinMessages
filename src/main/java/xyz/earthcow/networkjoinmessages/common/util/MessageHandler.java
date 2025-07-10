@@ -207,7 +207,7 @@ public class MessageHandler {
                 placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(
                     formatted -> {
                         if (miniPlaceholders != null) {
-                            sender.sendMessage(deserialize(message, parseTarget));
+                            sender.sendMessage(deserialize(formatted, parseTarget));
                         } else {
                             sender.sendMessage(deserialize(formatted));
                         }
