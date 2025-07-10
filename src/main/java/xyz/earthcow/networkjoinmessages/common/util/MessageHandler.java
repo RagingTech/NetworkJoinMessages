@@ -4,7 +4,6 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -129,12 +128,10 @@ public class MessageHandler {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
 
-        try {
-            if (NetworkJoinMessagesCore.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
-                miniPlaceholders = new MiniPlaceholdersHook();
-                log("Successfully hooked into MiniPlaceholders!");
-            }
-        } catch (NoClassDefFoundError ignored) {}
+        if (NetworkJoinMessagesCore.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
+            miniPlaceholders = new MiniPlaceholdersHook();
+            log("Successfully hooked into MiniPlaceholders!");
+        }
     }
 
     public static String sanitize(String str) {
