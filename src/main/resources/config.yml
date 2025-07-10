@@ -155,4 +155,4 @@ OtherPlugins:
     RemoveVanishedPlayersFromPlayerCount: true
 
 # Do not touch this
-config-version: 4.5
+config-version: 5
