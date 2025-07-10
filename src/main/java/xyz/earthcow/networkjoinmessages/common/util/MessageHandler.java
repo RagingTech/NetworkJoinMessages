@@ -130,8 +130,10 @@ public class MessageHandler {
         }
 
         try {
-            miniPlaceholders = new MiniPlaceholdersHook();
-            log("Successfully hooked into MiniPlaceholders!");
+            if (NetworkJoinMessagesCore.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
+                miniPlaceholders = new MiniPlaceholdersHook();
+                log("Successfully hooked into MiniPlaceholders!");
+            }
         } catch (NoClassDefFoundError ignored) {}
     }
 

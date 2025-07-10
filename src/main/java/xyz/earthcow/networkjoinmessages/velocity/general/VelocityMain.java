@@ -112,7 +112,7 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public boolean isPluginLoaded(String pluginName) {
-        return proxy.getPluginManager().isLoaded(pluginName);
+        return proxy.getPluginManager().isLoaded(pluginName.toLowerCase());
     }
 
     @Inject
