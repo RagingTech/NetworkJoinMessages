@@ -6,6 +6,7 @@ import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.util.SQLitePlayerJoinTracker;
 
 public class NetworkJoinMessagesCore {
     private static NetworkJoinMessagesCore instance;
@@ -21,6 +22,7 @@ public class NetworkJoinMessagesCore {
     }
 
     private final DiscordWebhookIntegration discordWebhookIntegration;
+    private SQLitePlayerJoinTracker firstJoinTracker;
 
     public DiscordWebhookIntegration getDiscordWebhookIntegration() {
         return discordWebhookIntegration;
@@ -37,6 +39,12 @@ public class NetworkJoinMessagesCore {
 
         loadConfig();
         discordWebhookIntegration = new DiscordWebhookIntegration();
+
+        try {
+            firstJoinTracker = new SQLitePlayerJoinTracker(plugin.getDataFolder().getPath() + "/joined.db");
+        } catch (Exception ex) {
+            plugin.getCoreLogger().severe("Failed to load SQLite first join tracker!");
+        }
 
     }
 
@@ -81,5 +89,9 @@ public class NetworkJoinMessagesCore {
         }
         message = message.replace("<player>", name);
         plugin.getCoreLogger().info(message);
+    }
+
+    public SQLitePlayerJoinTracker getFirstJoinTracker() {
+        return firstJoinTracker;
     }
 }

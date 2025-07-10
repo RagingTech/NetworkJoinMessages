@@ -66,8 +66,18 @@ public class CorePlayerListener {
                     return;
                 }
                 player.setLastKnownConnectedServer(server);
-                if (!Storage.getInstance().isJoinNetworkMessageEnabled()) {
+
+                boolean firstJoin = NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
+
+                if (!firstJoin && !Storage.getInstance().isJoinNetworkMessageEnabled()) {
                     return;
+                }
+
+                if (firstJoin) {
+                    NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
+                    if (!Storage.getInstance().isFirstJoinNetworkMessageEnabled()) {
+                        return;
+                    }
                 }
 
                 // Blacklist Check
@@ -75,7 +85,7 @@ public class CorePlayerListener {
                     return;
                 }
 
-                String message = MessageHandler.getInstance().formatJoinMessage(player);
+                String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
 
                 if (Storage.getInstance().getAdminMessageState(player)) {
                     // Silent
@@ -100,7 +110,7 @@ public class CorePlayerListener {
                     }
                 } else {
                     // Not silent
-                    MessageHandler.getInstance().broadcastMessage(message, "join", player);
+                    MessageHandler.getInstance().broadcastMessage(message, firstJoin ? "first-join" : "join", player);
                 }
 
                 Component formattedMessage = MessageHandler.deserialize(message);

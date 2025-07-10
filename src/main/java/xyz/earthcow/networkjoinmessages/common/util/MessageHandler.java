@@ -143,15 +143,15 @@ public class MessageHandler {
     }
 
     String SwapServerMessage = "";
+    String FirstJoinNetworkMessage = "";
     String JoinNetworkMessage = "";
     String LeaveNetworkMessage = "";
     HashMap<String, String> serverNames;
 
-    //String FirstTimeJoinMessage = "";
-
     public void setupConfigMessages() {
         YamlDocument config = ConfigManager.getPluginConfig();
         SwapServerMessage = config.getString("Messages.SwapServerMessage");
+        FirstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage");
         JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage");
         LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage");
 
@@ -242,6 +242,8 @@ public class MessageHandler {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
             receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
+        } else if (type.equalsIgnoreCase("first-join")) {
+            receivers.addAll(Storage.getInstance().getFirstJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("join")) {
             receivers.addAll(Storage.getInstance().getJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("leave")) {
@@ -253,7 +255,7 @@ public class MessageHandler {
         // Send message to console
         sendMessage(NetworkJoinMessagesCore.getInstance().getPlugin().getConsole(), text, parseTarget);
 
-        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
+        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type.equalsIgnoreCase("first-join") ? "join" : type);
         ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
         for (CorePlayer player : receivers) {
@@ -264,6 +266,9 @@ public class MessageHandler {
         }
     }
 
+    public String getFirstJoinNetworkMessage() {
+        return FirstJoinNetworkMessage;
+    }
     public String getJoinNetworkMessage() {
         return JoinNetworkMessage;
     }
@@ -404,6 +409,14 @@ public class MessageHandler {
                     .replace("%playercount_to%", getServerPlayerCount(toName, false, player))
                     .replace("%playercount_network%", getNetworkPlayerCount(player, false))
                 , player);
+    }
+
+    public String formatFirstJoinMessage(CorePlayer player) {
+        return formatMessage(
+            getFirstJoinNetworkMessage()
+                .replace("%playercount_server%", getServerPlayerCount(player, false))
+                .replace("%playercount_network%", getNetworkPlayerCount(player, false))
+            , player);
     }
 
     public String formatJoinMessage(CorePlayer player) {
