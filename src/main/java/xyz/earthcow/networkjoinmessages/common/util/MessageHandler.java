@@ -231,8 +231,9 @@ public class MessageHandler {
      */
     public void broadcastMessage(String text, String type, CorePlayer player) {
         if (player.getCurrentServer() == null) {
-            MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
-            return;
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn(
+                "Broadcast message of type: '" + type + "' for player: " + player.getName() + " failed to parse server name placeholders as " + player.getName() + "'s current server returned null."
+            );
         }
         broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???", player);
     }
