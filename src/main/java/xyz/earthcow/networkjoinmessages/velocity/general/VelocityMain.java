@@ -110,6 +110,11 @@ public class VelocityMain implements CorePlugin {
         return ServerType.VELOCITY;
     }
 
+    @Override
+    public boolean isPluginLoaded(String pluginName) {
+        return proxy.getPluginManager().isLoaded(pluginName);
+    }
+
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
         this.proxy = proxy;

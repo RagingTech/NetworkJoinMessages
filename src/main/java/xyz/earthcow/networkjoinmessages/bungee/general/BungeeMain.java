@@ -119,4 +119,9 @@ public class BungeeMain extends Plugin implements CorePlugin {
     public void runTaskAsync(Runnable task) {
         getProxy().getScheduler().runAsync(this, task);
     }
+
+    @Override
+    public boolean isPluginLoaded(String pluginName) {
+        return getProxy().getPluginManager().getPlugin(pluginName) != null;
+    }
 }
