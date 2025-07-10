@@ -5,8 +5,8 @@ import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
-import xyz.earthcow.networkjoinmessages.common.util.SQLitePlayerJoinTracker;
 
 public class NetworkJoinMessagesCore {
     private static NetworkJoinMessagesCore instance;
@@ -22,7 +22,7 @@ public class NetworkJoinMessagesCore {
     }
 
     private final DiscordWebhookIntegration discordWebhookIntegration;
-    private SQLitePlayerJoinTracker firstJoinTracker;
+    private H2PlayerJoinTracker firstJoinTracker;
 
     public DiscordWebhookIntegration getDiscordWebhookIntegration() {
         return discordWebhookIntegration;
@@ -41,9 +41,9 @@ public class NetworkJoinMessagesCore {
         discordWebhookIntegration = new DiscordWebhookIntegration();
 
         try {
-            firstJoinTracker = new SQLitePlayerJoinTracker(plugin.getDataFolder().getPath() + "/joined.db");
+            firstJoinTracker = new H2PlayerJoinTracker(plugin.getDataFolder().getPath() + "/joined.mv.db");
         } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load SQLite first join tracker!");
+            plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
         }
 
     }
@@ -91,7 +91,7 @@ public class NetworkJoinMessagesCore {
         plugin.getCoreLogger().info(message);
     }
 
-    public SQLitePlayerJoinTracker getFirstJoinTracker() {
+    public H2PlayerJoinTracker getFirstJoinTracker() {
         return firstJoinTracker;
     }
 }

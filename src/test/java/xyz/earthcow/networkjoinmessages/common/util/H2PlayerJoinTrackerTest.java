@@ -1,30 +1,20 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SQLitePlayerJoinTrackerTest {
+class H2PlayerJoinTrackerTest {
 
-    private File tempDbFile;
-    private SQLitePlayerJoinTracker tracker;
+    private H2PlayerJoinTracker tracker;
 
     @BeforeEach
     void setUp() throws Exception {
-        tempDbFile = Files.createTempFile("testdb", ".sqlite").toFile();
-        tracker = new SQLitePlayerJoinTracker(tempDbFile.getAbsolutePath());
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        if (tempDbFile.exists()) tempDbFile.delete();
+        tracker = new H2PlayerJoinTracker("mem:testdb;DB_CLOSE_DELAY=-1");
     }
 
     @Test
