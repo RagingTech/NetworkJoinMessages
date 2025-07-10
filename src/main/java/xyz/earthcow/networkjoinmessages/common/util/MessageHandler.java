@@ -250,9 +250,10 @@ public class MessageHandler {
             receivers.addAll(NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers());
         }
 
-        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        log(sanitize(text));
+        // Send message to console
+        sendMessage(NetworkJoinMessagesCore.getInstance().getPlugin().getConsole(), text, parseTarget);
 
+        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
         ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
         for (CorePlayer player : receivers) {

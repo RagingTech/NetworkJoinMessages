@@ -23,4 +23,6 @@ public interface CorePlugin {
     void runTaskAsync(Runnable task);
 
     boolean isPluginLoaded(String pluginName);
+
+    CoreCommandSender getConsole();
 }

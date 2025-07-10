@@ -12,10 +12,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityLogger;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPremiumVanish;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
@@ -115,6 +112,12 @@ public class VelocityMain implements CorePlugin {
         return proxy.getPluginManager().isLoaded(pluginName.toLowerCase());
     }
 
+    private VelocityCommandSender console;
+    @Override
+    public CoreCommandSender getConsole() {
+        return console;
+    }
+
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
         this.proxy = proxy;
@@ -127,6 +130,7 @@ public class VelocityMain implements CorePlugin {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         this.core = new NetworkJoinMessagesCore(this);
+        this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
         proxy.getEventManager().register(this, new PlayerListener());
 
