@@ -32,7 +32,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
         connection.close();
     }
 
-    public boolean isConnectionInvalid() {
+    public synchronized boolean isConnectionInvalid() {
         try {
             if (connection == null || connection.isClosed() || !connection.isValid(2)) {
                 setUpConnection();
@@ -45,7 +45,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
         }
     }
 
-    public boolean hasJoined(UUID playerUuid) {
+    public synchronized boolean hasJoined(UUID playerUuid) {
         if (isConnectionInvalid()) {
             return false;
         }
@@ -62,7 +62,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
         }
     }
 
-    public void markAsJoined(UUID playerUuid, String playerName) {
+    public synchronized void markAsJoined(UUID playerUuid, String playerName) {
         if (isConnectionInvalid()) {
             return;
         }
