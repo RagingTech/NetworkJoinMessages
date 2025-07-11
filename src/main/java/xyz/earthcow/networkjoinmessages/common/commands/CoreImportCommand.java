@@ -7,7 +7,7 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 
 import java.util.List;
 
-public class CoreImportUserCacheCommand implements Command {
+public class CoreImportCommand implements Command {
 
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
