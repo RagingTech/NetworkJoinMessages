@@ -1,8 +1,11 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,11 +13,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class H2PlayerJoinTrackerTest {
 
+    private File tempDbFile;
     private H2PlayerJoinTracker tracker;
 
     @BeforeEach
     void setUp() throws Exception {
-        tracker = new H2PlayerJoinTracker("mem:testdb;DB_CLOSE_DELAY=-1");
+        tempDbFile = Files.createTempFile("testdb", ".mv.db").toFile();
+        tracker = new H2PlayerJoinTracker(tempDbFile.getAbsolutePath());
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (tempDbFile.exists()) tempDbFile.delete();
     }
 
     @Test

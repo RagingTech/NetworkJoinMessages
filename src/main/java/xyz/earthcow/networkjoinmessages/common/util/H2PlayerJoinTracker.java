@@ -18,7 +18,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
     }
 
     private void setUpConnection() throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:h2:" + dbPath);
+        this.connection = DriverManager.getConnection("jdbc:h2:file:" + dbPath);
 
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("CREATE TABLE IF NOT EXISTS players_joined (" +
