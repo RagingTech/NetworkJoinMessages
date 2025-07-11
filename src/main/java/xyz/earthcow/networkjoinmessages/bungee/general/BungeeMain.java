@@ -6,6 +6,7 @@ import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.*;
 import xyz.earthcow.networkjoinmessages.bungee.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
@@ -40,6 +41,9 @@ public class BungeeMain extends Plugin implements CorePlugin {
             .getPluginManager()
             .registerListener(this, new PlayerListener());
 
+        getProxy()
+            .getPluginManager()
+            .registerCommand(this, new ImportCommand());
         getProxy()
             .getPluginManager()
             .registerCommand(this, new FakeCommand());
