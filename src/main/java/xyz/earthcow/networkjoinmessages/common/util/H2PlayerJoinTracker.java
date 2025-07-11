@@ -7,11 +7,17 @@ import java.util.Enumeration;
 import java.util.UUID;
 
 public class H2PlayerJoinTracker implements AutoCloseable {
-    private final Connection connection;
+    private final String dbPath;
+    private Connection connection;
 
     public H2PlayerJoinTracker(String dbPath) throws SQLException {
         registerDriverIfNeeded();
 
+        this.dbPath = dbPath;
+        setUpConnection();
+    }
+
+    private void setUpConnection() throws SQLException {
         this.connection = DriverManager.getConnection("jdbc:h2:" + dbPath);
 
         try (Statement stmt = connection.createStatement()) {
@@ -26,7 +32,23 @@ public class H2PlayerJoinTracker implements AutoCloseable {
         connection.close();
     }
 
+    public boolean isConnectionInvalid() {
+        try {
+            if (connection == null || connection.isClosed() || !connection.isValid(2)) {
+                setUpConnection();
+            }
+            return false;
+        } catch (SQLException e) {
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
+                "Cannot access joined database! Does the file exist?");
+            return true;
+        }
+    }
+
     public boolean hasJoined(UUID playerUuid) {
+        if (isConnectionInvalid()) {
+            return false;
+        }
         try (PreparedStatement ps = connection.prepareStatement(
             "SELECT 1 FROM players_joined WHERE player_uuid = ?")) {
             ps.setString(1, playerUuid.toString());
@@ -41,6 +63,9 @@ public class H2PlayerJoinTracker implements AutoCloseable {
     }
 
     public void markAsJoined(UUID playerUuid, String playerName) {
+        if (isConnectionInvalid()) {
+            return;
+        }
         try (PreparedStatement ps = connection.prepareStatement(
             "MERGE INTO players_joined (player_uuid, player_name) KEY(player_uuid) VALUES (?, ?)")) {
             ps.setString(1, playerUuid.toString());
