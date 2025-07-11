@@ -14,6 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
@@ -135,6 +136,13 @@ public class VelocityMain implements CorePlugin {
         proxy.getEventManager().register(this, new PlayerListener());
 
         CommandManager commandManager = proxy.getCommandManager();
+        commandManager.register(
+            commandManager
+                .metaBuilder("njoinimport")
+                .plugin(this)
+                .build(),
+            new ImportCommand()
+        );
         commandManager.register(
             commandManager
                 .metaBuilder("fakemessage")

@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.common.general;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
@@ -28,6 +29,7 @@ public class NetworkJoinMessagesCore {
         return discordWebhookIntegration;
     }
 
+    public final CoreImportCommand coreImportCommand = new CoreImportCommand();
     public final CoreFakeCommand coreFakeCommand = new CoreFakeCommand();
     public final CoreReloadCommand coreReloadCommand = new CoreReloadCommand();
     public final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
