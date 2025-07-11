@@ -23,6 +23,10 @@
     {
       "id": "papiproxybridge",
       "optional": true
+    },
+    {
+      "id": "miniplaceholders",
+      "optional": true
     }
   ],
   "main": "xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain"
