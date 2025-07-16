@@ -44,82 +44,12 @@ import java.util.stream.Collectors;
 public class VelocityMain implements CorePlugin {
 
     private static VelocityMain instance;
-    public static VelocityMain getInstance() {
-        return instance;
-    }
-
     private final ProxyServer proxy;
-    public ProxyServer getProxy() {
-        return proxy;
-    }
-
     private final VelocityLogger velocityLogger;
-    @Override
-    public CoreLogger getCoreLogger() {
-        return velocityLogger;
-    }
-
-    @Override
-    public List<CorePlayer> getAllPlayers() {
-        return proxy.getAllPlayers().stream().map(VelocityPlayer::new).collect(Collectors.toList());
-    }
-
-    @Override
-    public CoreBackendServer getServer(String serverName) {
-        RegisteredServer registeredServer = proxy.getServer(serverName).orElse(null);
-        if (registeredServer == null) return null;
-        return new VelocityServer(registeredServer);
-    }
-
-    @Override
-    public void fireEvent(Object event) {
-        proxy.getEventManager().fireAndForget(event);
-    }
-
-    private PremiumVanish premiumVanish;
-    @Override
-    public PremiumVanish getVanishAPI() {
-        return premiumVanish;
-    }
-
-    @Override
-    public void runTaskLater(Runnable task, int timeInSecondsLater) {
-        proxy.getScheduler().buildTask(this, task).delay(timeInSecondsLater, TimeUnit.SECONDS).schedule();
-    }
-
-    @Override
-    public void runTaskAsync(Runnable task) {
-        proxy.getScheduler().buildTask(this, task).schedule();
-    }
-
     private final File dataFolder;
-    @Override
-    public File getDataFolder() {
-        return dataFolder;
-    }
-
+    private PremiumVanish premiumVanish;
     private NetworkJoinMessagesCore core;
-    @Override
-    public NetworkJoinMessagesCore getCore() {
-        return core;
-    }
-
-    @Override
-    public ServerType getServerType() {
-        return ServerType.VELOCITY;
-    }
-
-    @Override
-    public boolean isPluginLoaded(String pluginName) {
-        return proxy.getPluginManager().isLoaded(pluginName.toLowerCase());
-    }
-
     private VelocityCommandSender console;
-    @Override
-    public CoreCommandSender getConsole() {
-        return console;
-    }
-
     private final Metrics.Factory metricsFactory;
 
     @Inject
@@ -180,5 +110,77 @@ public class VelocityMain implements CorePlugin {
             this.premiumVanish = new VelocityPremiumVanish();
             velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
+    }
+
+    @Override
+    public void fireEvent(Object event) {
+        proxy.getEventManager().fireAndForget(event);
+    }
+
+    @Override
+    public void runTaskLater(Runnable task, int timeInSecondsLater) {
+        proxy.getScheduler().buildTask(this, task).delay(timeInSecondsLater, TimeUnit.SECONDS).schedule();
+    }
+
+    @Override
+    public void runTaskAsync(Runnable task) {
+        proxy.getScheduler().buildTask(this, task).schedule();
+    }
+
+    @Override
+    public boolean isPluginLoaded(String pluginName) {
+        return proxy.getPluginManager().isLoaded(pluginName.toLowerCase());
+    }
+
+    // Getters
+
+    public static VelocityMain getInstance() {
+        return instance;
+    }
+
+    public ProxyServer getProxy() {
+        return proxy;
+    }
+
+    @Override
+    public CoreLogger getCoreLogger() {
+        return velocityLogger;
+    }
+
+    @Override
+    public File getDataFolder() {
+        return dataFolder;
+    }
+
+    @Override
+    public PremiumVanish getVanishAPI() {
+        return premiumVanish;
+    }
+
+    @Override
+    public ServerType getServerType() {
+        return ServerType.VELOCITY;
+    }
+
+    @Override
+    public NetworkJoinMessagesCore getCore() {
+        return core;
+    }
+
+    @Override
+    public CoreCommandSender getConsole() {
+        return console;
+    }
+
+    @Override
+    public List<CorePlayer> getAllPlayers() {
+        return proxy.getAllPlayers().stream().map(VelocityPlayer::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public CoreBackendServer getServer(String serverName) {
+        RegisteredServer registeredServer = proxy.getServer(serverName).orElse(null);
+        if (registeredServer == null) return null;
+        return new VelocityServer(registeredServer);
     }
 }
