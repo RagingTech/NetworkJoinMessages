@@ -61,6 +61,19 @@
     </repositories>
 
     <dependencies>
+        <!-- bStats -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bungeecord</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-velocity</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
@@ -193,6 +206,10 @@
                 <version>3.6.0</version>
                 <configuration>
                     <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>xyz.earthcow.networkjoinmessages.libs.bstats</shadedPattern>
+                        </relocation>
                         <relocation>
                             <pattern>dev.dejvokep.boostedyaml</pattern>
                             <shadedPattern>xyz.earthcow.networkjoinmessages.libs.boostedyaml</shadedPattern>
