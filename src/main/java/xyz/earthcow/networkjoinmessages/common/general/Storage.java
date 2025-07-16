@@ -48,6 +48,11 @@ public class Storage {
     boolean useBlacklistAsWhitelist;
     String SwapServerMessageRequires = "ANY";
 
+    // Other plugins
+    boolean shouldSuppressLimboSwap = true;
+    boolean shouldSuppressLimboJoin = false;
+    boolean shouldSuppressLimboLeave = false;
+
     /**
      * Get current instance. Make new if there is none.
      * @return instance of the storage.
@@ -132,6 +137,16 @@ public class Storage {
         this.ServerLeaveMessageDisabled = ConfigManager
                 .getPluginConfig()
                 .getStringList("Settings.IgnoreLeaveMessagesList");
+
+        this.shouldSuppressLimboSwap = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressSwapMessages");
+        this.shouldSuppressLimboJoin = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressJoinMessages");
+        this.shouldSuppressLimboLeave = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressLeaveMessages");
 
         //Verify Swap Server Message
         switch (SwapServerMessageRequires) {
@@ -536,5 +551,17 @@ public class Storage {
             }
         }
         return ignored;
+    }
+
+    public boolean shouldSuppressLimboSwap() {
+        return shouldSuppressLimboSwap;
+    }
+
+    public boolean shouldSuppressLimboJoin() {
+        return shouldSuppressLimboJoin;
+    }
+
+    public boolean shouldSuppressLimboLeave() {
+        return shouldSuppressLimboLeave;
     }
 }

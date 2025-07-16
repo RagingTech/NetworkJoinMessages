@@ -153,6 +153,17 @@ OtherPlugins:
     TreatVanishedPlayersAsSilent: true
     # Vanished players will not be counted in the player count placeholders
     RemoveVanishedPlayersFromPlayerCount: true
+  LimboReconnect:
+    # WARNING
+    # Detecting whether a server is a limbo server is done via the naming convention LimboReconnect uses (limbo-0000)
+    # If any of your servers are prefixed with 'limbo-' they will be treated as a limbo server
+
+    # No swap messages for players swapping to or from LimboReconnect servers
+    SuppressSwapMessages: true
+    # No join messages for players joining LimboReconnect servers
+    SuppressJoinMessages: false
+    # No leave messages for players leaving from LimboReconnect servers
+    SuppressLeaveMessages: false
 
 # Do not touch this
-config-version: 5
+config-version: 6

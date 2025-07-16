@@ -1,6 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common.listeners;
 
 import net.kyori.adventure.text.Component;
+import org.h2.mvstore.db.Store;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
@@ -39,7 +40,7 @@ public class CorePlayerListener {
         NetworkJoinMessagesCore.getInstance().getPlugin().runTaskAsync(() -> {
             // PremiumVanish
             if (premiumVanish != null) {
-                if (ConfigManager.getPluginConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
+                if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
                     Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
                 }
             }
@@ -82,6 +83,10 @@ public class CorePlayerListener {
 
                 // Blacklist Check
                 if (Storage.getInstance().blacklistCheck(player)) {
+                    return;
+                }
+
+                if (Storage.getInstance().shouldSuppressLimboJoin() && server.getName().startsWith("limbo-")) {
                     return;
                 }
 
@@ -147,6 +152,10 @@ public class CorePlayerListener {
                 return;
             }
 
+            if (Storage.getInstance().shouldSuppressLimboSwap() && (to.startsWith("limbo-") || from.startsWith("limbo-"))) {
+                return;
+            }
+
             String message = MessageHandler.getInstance()
                     .parseSwitchMessage(player, from, to);
 
@@ -204,9 +213,14 @@ public class CorePlayerListener {
             return;
         }
 
+        if (Storage.getInstance().shouldSuppressLimboLeave() && player.getLastKnownConnectedServer().getName().startsWith("limbo-")) {
+            player.setLastKnownConnectedServer(null);
+            return;
+        }
+
         // PremiumVanish
         if (premiumVanish != null) {
-            if (ConfigManager.getPluginConfig().getBoolean("OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
+            if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
                 Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
             }
         }
