@@ -15,7 +15,7 @@ Messages:
   # %player_prefix%       - Player prefix (requires LuckPerms on the proxy)
   # %player_suffix%       - Player suffix (requires LuckPerms on the proxy)
 
-  # These placeholders are available for the switch network message
+  # These placeholders are available for the swap server message
   # %to%                  - Server they are heading to
   # %to_clean%            - Server they are heading to without formatting
   # %from%                - Server they are coming from
@@ -23,16 +23,53 @@ Messages:
   # %playercount_from%    - Amount of players where they are coming from
   # %playercount_to%      - Amount of players where they are heading to
   # %playercount_network% - Amount of players on the network
+
+  # Message sent when a player swaps servers - leave blank to use the list of messages defined below
   SwapServerMessage: "&6&l%player%&r &7[%from%&7] (%playercount_from%) -> [%to%&7] (%playercount_to%)"
+
+  # A list of swap messages to be selected at random each time a player swaps servers
+  # IMPORTANT - SwapServerMessage (directly above) must be empty to enable this option
+  SwapServerMessages:
+    - "&6&l%player%&r &7[%from%&7] (%playercount_from%) -> [%to%&7] (%playercount_to%)"
+    - "&6&l%player%&r &7[%from%&7] -> [%to%&7]"
+    - "&6&l%player%&r just went from &7[%from%&7] to [%to%&7]!!!"
 
   # These placeholders are available for the join and leave network messages
   # %server_name%         - Name of the server they connected to
   # %server_name_clean%   - Name of the server they connected to without formatting
   # %playercount_server%  - Amount of players on the sever they joined or left
   # %playercount_network% - Amount of players on the network
+
+  # Message sent when a player joins the network for the first time - leave blank to use the list of messages defined below
   FirstJoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network for the first time!!"
+
+  # A list of first join messages to be selected at random each time a player joins for the first time
+  # IMPORTANT - FirstJoinNetworkMessage (directly above) must be empty to enable this option
+  FirstJoinNetworkMessages:
+    - "&6%displayname% &7(%player%&7) &6has connected to the network for the first time!!"
+    - "&6Everyone welcome &7(%player%&7) &6to the network!!"
+    - "&6(%player%&6) is new here!!"
+
+  # Message sent when a player joins the network - leave blank to use the list of messages defined below
   JoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network!"
+
+  # A list of join messages to be selected at random each time a player joins
+  # IMPORTANT - JoinNetworkMessage (directly above) must be empty to enable this option
+  JoinNetworkMessages:
+    - "&6%displayname% &7(%player%&7) &6has connected to the network!"
+    - "&6%displayname% &6just landed!"
+    - "&6%displayname% &6joined us on the network!"
+
+  # Message sent when a player leaves the network - leave blank to use the list of messages defined below
   LeaveNetworkMessage: "&6%player% &6has disconnected from the network!"
+
+  # A list of leave messages to be selected at random each time a player leaves
+  # IMPORTANT - LeaveNetworkMessage (directly above) must be empty to enable this option
+  LeaveNetworkMessages:
+    - "&6%player% &6has disconnected from the network!"
+    - "&6%player% &6decided to stop playing :("
+    - "&6%player% &6quit"
+    - "&6%player% &6went to do something else"
 
   # Configurable Command Messages!
   Commands:
@@ -155,4 +192,4 @@ OtherPlugins:
     RemoveVanishedPlayersFromPlayerCount: true
 
 # Do not touch this
-config-version: 5
+config-version: 6
