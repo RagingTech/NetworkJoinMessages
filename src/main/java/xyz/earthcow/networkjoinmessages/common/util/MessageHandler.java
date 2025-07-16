@@ -156,10 +156,10 @@ public class MessageHandler {
 
     public void setupConfigMessages() {
         YamlDocument config = ConfigManager.getPluginConfig();
-        SwapServerMessage = config.getString("Messages.SwapServerMessage");
-        FirstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage");
-        JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage");
-        LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage");
+        SwapServerMessage = config.getString("Messages.SwapServerMessage", "");
+        FirstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage", "");
+        JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage", "");
+        LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage", "");
 
         swapMessages = config.getStringList("Messages.SwapServerMessages");
         firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
