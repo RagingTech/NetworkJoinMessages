@@ -4,6 +4,7 @@ import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.bstats.bungeecord.Metrics;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.*;
 import xyz.earthcow.networkjoinmessages.bungee.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
@@ -30,6 +31,10 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     @Override
     public void onEnable() {
+        // Anonymous usage data via bStats (https://bstats.org/plugin/bungeecord/NetworkJoinMessages/26527)
+        final int PLUGIN_ID = 26527;
+        Metrics metrics = new Metrics(this, PLUGIN_ID);
+
         this.bungeeLogger = new BungeeLogger(getLogger());
         this.audiences = BungeeAudiences.create(this);
         this.core = new NetworkJoinMessagesCore(this);

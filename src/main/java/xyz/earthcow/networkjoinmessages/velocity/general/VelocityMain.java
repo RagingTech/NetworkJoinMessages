@@ -9,6 +9,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
@@ -119,17 +120,24 @@ public class VelocityMain implements CorePlugin {
         return console;
     }
 
+    private final Metrics.Factory metricsFactory;
+
     @Inject
-    public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
+    public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
         this.proxy = proxy;
         this.velocityLogger = new VelocityLogger(logger);
         this.dataFolder = dataDirectory.toFile();
+        this.metricsFactory = metricsFactory;
 
         instance = this;
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        // Anonymous usage data via bStats (https://bstats.org/plugin/velocity/NetworkJoinMessages/26526)
+        final int PLUGIN_ID = 26526;
+        Metrics metrics = metricsFactory.make(this, PLUGIN_ID);
+
         this.core = new NetworkJoinMessagesCore(this);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
