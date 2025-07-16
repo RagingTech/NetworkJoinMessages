@@ -146,6 +146,12 @@ public class MessageHandler {
     String FirstJoinNetworkMessage = "";
     String JoinNetworkMessage = "";
     String LeaveNetworkMessage = "";
+
+    List<String> swapMessages = new ArrayList<>();
+    List<String> firstJoinMessages = new ArrayList<>();
+    List<String> joinMessages = new ArrayList<>();
+    List<String> leaveMessages = new ArrayList<>();
+
     HashMap<String, String> serverNames;
 
     public void setupConfigMessages() {
@@ -154,6 +160,11 @@ public class MessageHandler {
         FirstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage");
         JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage");
         LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage");
+
+        swapMessages = config.getStringList("Messages.SwapServerMessages");
+        firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
+        joinMessages = config.getStringList("Messages.JoinNetworkMessages");
+        leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
 
         HashMap<String, String> serverNames = new HashMap<String, String>();
 
@@ -267,18 +278,41 @@ public class MessageHandler {
     }
 
     public String getFirstJoinNetworkMessage() {
-        return FirstJoinNetworkMessage;
+        if (!FirstJoinNetworkMessage.isEmpty()) {
+            return FirstJoinNetworkMessage;
+        }
+        return getRandomMessage(firstJoinMessages);
     }
     public String getJoinNetworkMessage() {
-        return JoinNetworkMessage;
+        if (!JoinNetworkMessage.isEmpty()) {
+            return JoinNetworkMessage;
+        }
+        return getRandomMessage(joinMessages);
     }
 
     public String getLeaveNetworkMessage() {
-        return LeaveNetworkMessage;
+        if (!LeaveNetworkMessage.isEmpty()) {
+            return LeaveNetworkMessage;
+        }
+        return getRandomMessage(leaveMessages);
     }
 
     public String getSwapServerMessage() {
-        return SwapServerMessage;
+        if (!SwapServerMessage.isEmpty()) {
+            return SwapServerMessage;
+        }
+        return getRandomMessage(swapMessages);
+    }
+
+    private String getRandomMessage(List<String> messageList) {
+        if (messageList.isEmpty()) {
+            return "";
+        } else if (messageList.size() == 1) {
+            return messageList.get(0);
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(messageList.size());
+        return messageList.get(randomIndex);
     }
 
     public List<String> getServerNames() {
