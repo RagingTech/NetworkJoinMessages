@@ -9,6 +9,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.william278.papiproxybridge.api.PlaceholderAPI;
+import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -19,6 +20,7 @@ import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -188,6 +190,17 @@ public class MessageHandler {
         return name;
     }
 
+    public void parsePlaceholdersAndThen(@NotNull String message, @NotNull CorePlayer parseTarget, Consumer<String> then) {
+        if (miniPlaceholders != null) {
+            message = serialize(deserialize(message, parseTarget));
+        }
+        if (placeholderAPI != null) {
+            placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(then);
+        } else {
+            then.accept(message);
+        }
+    }
+
     /**
      * Sends a message to the specified command sender.
      * If the command sender is a CorePlayer object
@@ -214,22 +227,10 @@ public class MessageHandler {
      */
     public void sendMessage(CoreCommandSender sender, String message, CorePlayer parseTarget) {
         if (parseTarget != null) {
-            if (placeholderAPI != null) {
-                placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(
-                    formatted -> {
-                        if (miniPlaceholders != null) {
-                            sender.sendMessage(deserialize(formatted, parseTarget));
-                        } else {
-                            sender.sendMessage(deserialize(formatted));
-                        }
-                    }
-                );
-                return;
-            }
-            if (miniPlaceholders != null) {
-                sender.sendMessage(deserialize(message, parseTarget));
-                return;
-            }
+            parsePlaceholdersAndThen(message, parseTarget, formatted -> {
+                sender.sendMessage(deserialize(formatted));
+            });
+            return;
         }
         sender.sendMessage(deserialize(message));
     }

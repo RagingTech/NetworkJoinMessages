@@ -41,10 +41,11 @@ public class DiscordWebhookIntegration {
         corePlugin.getCoreLogger().info("Discord Integration is enabled!");
     }
 
-    private void executeWebhook(DiscordWebhook webhook) {
-        corePlugin.runTaskAsync(() -> {
+    private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
+        MessageHandler.getInstance().parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
+            corePlugin.runTaskAsync(() -> {
                 try {
-                    webhook.execute();
+                    webhook.execute(formatted);
                 } catch (Exception e) {
                     corePlugin
                         .getCoreLogger()
@@ -53,6 +54,7 @@ public class DiscordWebhookIntegration {
                         );
                 }
             });
+        });
     }
 
     // Event handlers
@@ -113,7 +115,7 @@ public class DiscordWebhookIntegration {
                     )
             );
         }
-        executeWebhook(discordWebhook);
+        executeWebhook(discordWebhook, player);
     }
 
     public void onNetworkJoin(NetworkJoinEvent event) {
@@ -165,7 +167,7 @@ public class DiscordWebhookIntegration {
                     )
             );
         }
-        executeWebhook(discordWebhook);
+        executeWebhook(discordWebhook, player);
     }
 
     public void onNetworkQuit(NetworkQuitEvent event) {
@@ -221,7 +223,7 @@ public class DiscordWebhookIntegration {
                     )
             );
         }
-        executeWebhook(discordWebhook);
+        executeWebhook(discordWebhook, player);
     }
 
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
