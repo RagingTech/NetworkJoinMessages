@@ -54,6 +54,9 @@ public class NetworkJoinMessagesCore {
         ConfigManager.setupConfig(plugin.getCoreLogger(), plugin.getDataFolder());
         MessageHandler.getInstance().setupConfigMessages();
         Storage.getInstance().setUpDefaultValuesFromConfig();
+        if (discordWebhookIntegration != null) {
+            discordWebhookIntegration.loadVariables();
+        }
     }
 
     /**
