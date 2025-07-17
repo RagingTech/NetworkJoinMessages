@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
 
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ public class VelocityPlayer implements CorePlayer {
     private final Player velocityPlayer;
     private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
+    private boolean previousServerWasLimbo = false;
 
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
@@ -72,5 +75,23 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public @NotNull Audience getAudience() {
         return audience;
+    }
+
+    @Override
+    public boolean getPreviousServerWasLimbo() {
+        return previousServerWasLimbo;
+    }
+
+    @Override
+    public void setPreviousServerWasLimbo(boolean value) {
+        previousServerWasLimbo = value;
+    }
+
+    @Override
+    public boolean isInLimbo() {
+        if (!VelocityMain.getInstance().getIsLimboAPIAvailable()) {
+            return false;
+        }
+        return ((ConnectedPlayer) velocityPlayer).getConnection().getState().name() == null;
     }
 }

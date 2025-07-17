@@ -73,4 +73,19 @@ public class BungeePlayer implements CorePlayer {
     public @NotNull Audience getAudience() {
         return audience;
     }
+
+    @Override
+    public boolean getPreviousServerWasLimbo() {
+        return false;
+    }
+
+    @Override
+    public void setPreviousServerWasLimbo(boolean value) {
+
+    }
+
+    @Override
+    public boolean isInLimbo() {
+        return false;
+    }
 }

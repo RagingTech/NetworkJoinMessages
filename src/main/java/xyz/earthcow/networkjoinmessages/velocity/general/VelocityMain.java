@@ -51,6 +51,7 @@ public class VelocityMain implements CorePlugin {
     private NetworkJoinMessagesCore core;
     private VelocityCommandSender console;
     private final Metrics.Factory metricsFactory;
+    private boolean isLimboAPIAvailable = false;
 
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -110,6 +111,11 @@ public class VelocityMain implements CorePlugin {
             this.premiumVanish = new VelocityPremiumVanish();
             velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
+
+        if (isPluginLoaded("limboapi")) {
+            this.isLimboAPIAvailable = true;
+            velocityLogger.info("Successfully hooked into LimboAPI!");
+        }
     }
 
     @Override
@@ -140,6 +146,10 @@ public class VelocityMain implements CorePlugin {
 
     public ProxyServer getProxy() {
         return proxy;
+    }
+
+    public boolean getIsLimboAPIAvailable() {
+        return isLimboAPIAvailable;
     }
 
     @Override

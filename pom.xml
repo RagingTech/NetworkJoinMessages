@@ -58,6 +58,10 @@
             <name>William278</name>
             <url>https://repo.william278.net/releases/</url>
         </repository>
+        <repository>
+            <id>elytrium-repo</id>
+            <url>https://maven.elytrium.net/repo/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -85,6 +89,19 @@
             <artifactId>velocity-api</artifactId>
             <version>3.4.0-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Velocity for LimboAPI -->
+        <dependency>
+            <groupId>com.velocitypowered</groupId>
+            <artifactId>velocity-proxy</artifactId>
+            <version>3.4.0-SNAPSHOT</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.velocitypowered</groupId>
+                    <artifactId>velocity-proxy-log4j2-plugin</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

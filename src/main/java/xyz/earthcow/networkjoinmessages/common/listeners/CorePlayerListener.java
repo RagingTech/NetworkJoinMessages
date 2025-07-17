@@ -67,6 +67,7 @@ public class CorePlayerListener {
                     return;
                 }
                 player.setLastKnownConnectedServer(server);
+                player.setPreviousServerWasLimbo(player.isInLimbo());
 
                 boolean firstJoin = !NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
 
@@ -86,7 +87,7 @@ public class CorePlayerListener {
                     return;
                 }
 
-                if (Storage.getInstance().shouldSuppressLimboJoin() && server.getName().startsWith("limbo-")) {
+                if (Storage.getInstance().shouldSuppressLimboJoin() && player.isInLimbo()) {
                     return;
                 }
 
@@ -138,6 +139,13 @@ public class CorePlayerListener {
 
             player.setLastKnownConnectedServer(server);
 
+            if (Storage.getInstance().shouldSuppressLimboSwap() && (player.isInLimbo() || player.getPreviousServerWasLimbo())) {
+                player.setPreviousServerWasLimbo(player.isInLimbo());
+                return;
+            }
+
+            player.setPreviousServerWasLimbo(player.isInLimbo());
+
             if (!Storage.getInstance().isElsewhere(player)) {
                 return;
             }
@@ -149,10 +157,6 @@ public class CorePlayerListener {
             }
 
             if (Storage.getInstance().blacklistCheck(from, to)) {
-                return;
-            }
-
-            if (Storage.getInstance().shouldSuppressLimboSwap() && (to.startsWith("limbo-") || from.startsWith("limbo-"))) {
                 return;
             }
 
@@ -213,7 +217,7 @@ public class CorePlayerListener {
             return;
         }
 
-        if (Storage.getInstance().shouldSuppressLimboLeave() && player.getLastKnownConnectedServer().getName().startsWith("limbo-")) {
+        if (Storage.getInstance().shouldSuppressLimboLeave() && player.isInLimbo()) {
             player.setLastKnownConnectedServer(null);
             return;
         }
