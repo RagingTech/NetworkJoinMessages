@@ -297,17 +297,21 @@ public class DiscordWebhookIntegration {
                 .replace("%player%", player.getName());
     }
 
-    private String generalFormat(String key, CorePlayer player, String... args) {
+    private String generalConfigFormat(String key, CorePlayer player, String... args) {
+        return generalFormat(discordConfig.getString(key), player, args);
+    }
+
+    private String generalFormat(String txt, CorePlayer player, String... args) {
         if (args.length == 2) {
             return replacePlaceholdersSwap(
-                discordConfig.getString(key),
+                txt,
                 player,
                 args[0],
                 args[1]
             );
         }
         return replacePlaceholdersJoinLeave(
-            discordConfig.getString(key),
+            txt,
             player,
             Boolean.parseBoolean(args[0])
         );
@@ -350,7 +354,7 @@ public class DiscordWebhookIntegration {
 
         // Set the author
         if (discordConfig.get(key + ".Author", null) != null) {
-            String authorName = generalFormat(
+            String authorName = generalConfigFormat(
                 key + ".Author.Name",
                 player,
                 formatterArgs
@@ -358,12 +362,12 @@ public class DiscordWebhookIntegration {
             if (!authorName.isEmpty()) {
                 embed.setAuthor(
                     authorName,
-                    generalFormat(
+                    generalConfigFormat(
                         key + ".Author.Url",
                         player,
                         formatterArgs
                     ),
-                    generalFormat(
+                    generalConfigFormat(
                         key + ".Author.ImageUrl",
                         player,
                         formatterArgs
@@ -381,14 +385,14 @@ public class DiscordWebhookIntegration {
         if (discordConfig.get(key + ".Title", null) != null) {
             if (!discordConfig.getString(key + ".Title.Text").isEmpty()) {
                 embed.setTitle(
-                    generalFormat(
+                    generalConfigFormat(
                         key + ".Title.Text",
                         player,
                         formatterArgs
                     )
                 );
                 embed.setUrl(
-                    generalFormat(
+                    generalConfigFormat(
                         key + ".Title.Url",
                         player,
                         formatterArgs
@@ -400,7 +404,7 @@ public class DiscordWebhookIntegration {
         // Set the description
         if (!discordConfig.getString(key + ".Description").isEmpty()) {
             embed.setDescription(
-                generalFormat(
+                generalConfigFormat(
                     key + ".Description",
                     player,
                     formatterArgs
@@ -443,7 +447,7 @@ public class DiscordWebhookIntegration {
         // Set the image url
         if (!discordConfig.getString(key + ".ImageUrl").isEmpty()) {
             embed.setImage(
-                generalFormat(
+                generalConfigFormat(
                     key + ".ImageUrl",
                     player,
                     formatterArgs
@@ -455,12 +459,12 @@ public class DiscordWebhookIntegration {
         if (discordConfig.get(key + ".Footer", null) != null) {
             if (!discordConfig.getString(key + ".Footer.Text").isEmpty()) {
                 embed.setFooter(
-                    generalFormat(
+                    generalConfigFormat(
                         key + ".Footer.Text",
                         player,
                         formatterArgs
                     ),
-                    generalFormat(
+                    generalConfigFormat(
                         key + ".Footer.IconUrl",
                         player,
                         formatterArgs
