@@ -122,48 +122,44 @@ public class DiscordWebhookIntegration {
         }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
+        // Determine the key by checking if this is the first time the player joined
+        String key = event.isFirstJoin() ? "Messages.FirstJoinNetwork" : "Messages.JoinNetwork";
         // Ignore if the message is disabled
-        if (!discordConfig.getBoolean("Messages.JoinNetwork.Enabled")) return;
+        if (!discordConfig.getBoolean(key + ".Enabled")) return;
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
         CorePlayer player = event.getPlayer();
         // Check if custom webhook is enabled
-        if (
-                discordConfig.getBoolean(
-                        "Messages.JoinNetwork.CustomWebhook.Enabled"
-                )
-        ) {
+        if (discordConfig.getBoolean(key + ".CustomWebhook.Enabled")) {
             discordWebhook.setUsername(
                     getJoinLeaveConfigValue(
-                            "Messages.JoinNetwork.CustomWebhook.Name",
+                        key + ".CustomWebhook.Name",
                             player,
                             false
                     )
             );
             discordWebhook.setAvatarUrl(
                     getJoinLeaveConfigValue(
-                            "Messages.JoinNetwork.CustomWebhook.AvatarUrl",
+                        key + ".CustomWebhook.AvatarUrl",
                             player,
                             false
                     )
             );
         }
-        if (discordConfig.getBoolean("Messages.JoinNetwork.Embed.Enabled")) {
+        if (discordConfig.getBoolean(key + ".Embed.Enabled")) {
             discordWebhook.addEmbed(
                     getEmbedFromConfig(
-                            "Messages.JoinNetwork.Embed",
+                        key + ".Embed",
                             player,
                             "false"
                     )
             );
         }
-        if (
-                !discordConfig.getString("Messages.JoinNetwork.Content").isEmpty()
-        ) {
+        if (!discordConfig.getString(key + ".Content").isEmpty()) {
             discordWebhook.setContent(
                     getJoinLeaveConfigValue(
-                            "Messages.JoinNetwork.Content",
+                        key + ".Content",
                             player,
                             false
                     )
