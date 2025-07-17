@@ -126,6 +126,7 @@ public class CorePlayerListener {
                         player,
                         MessageHandler.getInstance().getServerDisplayName(server.getName()),
                         Storage.getInstance().getAdminMessageState(player),
+                    firstJoin,
                     MessageHandler.serialize(formattedMessage),
                     MessageHandler.stripColor(formattedMessage)
                 );
