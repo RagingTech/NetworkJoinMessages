@@ -2,9 +2,11 @@ package xyz.earthcow.networkjoinmessages.common.general;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 public class NetworkJoinMessagesCore {
@@ -21,11 +23,13 @@ public class NetworkJoinMessagesCore {
     }
 
     private final DiscordWebhookIntegration discordWebhookIntegration;
+    private H2PlayerJoinTracker firstJoinTracker;
 
     public DiscordWebhookIntegration getDiscordWebhookIntegration() {
         return discordWebhookIntegration;
     }
 
+    public final CoreImportCommand coreImportCommand = new CoreImportCommand();
     public final CoreFakeCommand coreFakeCommand = new CoreFakeCommand();
     public final CoreReloadCommand coreReloadCommand = new CoreReloadCommand();
     public final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
@@ -38,12 +42,21 @@ public class NetworkJoinMessagesCore {
         loadConfig();
         discordWebhookIntegration = new DiscordWebhookIntegration();
 
+        try {
+            firstJoinTracker = new H2PlayerJoinTracker("./" + plugin.getDataFolder().getPath() + "/joined");
+        } catch (Exception ex) {
+            plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
+        }
+
     }
 
     public void loadConfig() {
         ConfigManager.setupConfig(plugin.getCoreLogger(), plugin.getDataFolder());
         MessageHandler.getInstance().setupConfigMessages();
         Storage.getInstance().setUpDefaultValuesFromConfig();
+        if (discordWebhookIntegration != null) {
+            discordWebhookIntegration.loadVariables();
+        }
     }
 
     /**
@@ -81,5 +94,9 @@ public class NetworkJoinMessagesCore {
         }
         message = message.replace("<player>", name);
         plugin.getCoreLogger().info(message);
+    }
+
+    public H2PlayerJoinTracker getFirstJoinTracker() {
+        return firstJoinTracker;
     }
 }

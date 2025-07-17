@@ -41,10 +41,11 @@ public class DiscordWebhookIntegration {
         corePlugin.getCoreLogger().info("Discord Integration is enabled!");
     }
 
-    private void executeWebhook(DiscordWebhook webhook) {
-        corePlugin.runTaskAsync(() -> {
+    private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
+        MessageHandler.getInstance().parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
+            corePlugin.runTaskAsync(() -> {
                 try {
-                    webhook.execute();
+                    webhook.execute(formatted);
                 } catch (Exception e) {
                     corePlugin
                         .getCoreLogger()
@@ -53,6 +54,7 @@ public class DiscordWebhookIntegration {
                         );
                 }
             });
+        });
     }
 
     // Event handlers
@@ -95,7 +97,7 @@ public class DiscordWebhookIntegration {
         }
         if (discordConfig.getBoolean("Messages.SwapServer.Embed.Enabled")) {
             discordWebhook.addEmbed(
-                    getEmbedFromConfigSwap(
+                    getEmbedFromConfig(
                             "Messages.SwapServer.Embed",
                             player,
                             toServer,
@@ -113,7 +115,7 @@ public class DiscordWebhookIntegration {
                     )
             );
         }
-        executeWebhook(discordWebhook);
+        executeWebhook(discordWebhook, player);
     }
 
     public void onNetworkJoin(NetworkJoinEvent event) {
@@ -122,54 +124,50 @@ public class DiscordWebhookIntegration {
         }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
+        // Determine the key by checking if this is the first time the player joined
+        String key = event.isFirstJoin() ? "Messages.FirstJoinNetwork" : "Messages.JoinNetwork";
         // Ignore if the message is disabled
-        if (!discordConfig.getBoolean("Messages.JoinNetwork.Enabled")) return;
+        if (!discordConfig.getBoolean(key + ".Enabled")) return;
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
         CorePlayer player = event.getPlayer();
         // Check if custom webhook is enabled
-        if (
-                discordConfig.getBoolean(
-                        "Messages.JoinNetwork.CustomWebhook.Enabled"
-                )
-        ) {
+        if (discordConfig.getBoolean(key + ".CustomWebhook.Enabled")) {
             discordWebhook.setUsername(
                     getJoinLeaveConfigValue(
-                            "Messages.JoinNetwork.CustomWebhook.Name",
+                        key + ".CustomWebhook.Name",
                             player,
                             false
                     )
             );
             discordWebhook.setAvatarUrl(
                     getJoinLeaveConfigValue(
-                            "Messages.JoinNetwork.CustomWebhook.AvatarUrl",
+                        key + ".CustomWebhook.AvatarUrl",
                             player,
                             false
                     )
             );
         }
-        if (discordConfig.getBoolean("Messages.JoinNetwork.Embed.Enabled")) {
+        if (discordConfig.getBoolean(key + ".Embed.Enabled")) {
             discordWebhook.addEmbed(
-                    getEmbedFromConfigJoinLeave(
-                            "Messages.JoinNetwork.Embed",
+                    getEmbedFromConfig(
+                        key + ".Embed",
                             player,
-                            false
+                            "false"
                     )
             );
         }
-        if (
-                !discordConfig.getString("Messages.JoinNetwork.Content").isEmpty()
-        ) {
+        if (!discordConfig.getString(key + ".Content").isEmpty()) {
             discordWebhook.setContent(
                     getJoinLeaveConfigValue(
-                            "Messages.JoinNetwork.Content",
+                        key + ".Content",
                             player,
                             false
                     )
             );
         }
-        executeWebhook(discordWebhook);
+        executeWebhook(discordWebhook, player);
     }
 
     public void onNetworkQuit(NetworkQuitEvent event) {
@@ -207,10 +205,10 @@ public class DiscordWebhookIntegration {
         }
         if (discordConfig.getBoolean("Messages.LeaveNetwork.Embed.Enabled")) {
             discordWebhook.addEmbed(
-                    getEmbedFromConfigJoinLeave(
+                    getEmbedFromConfig(
                             "Messages.LeaveNetwork.Embed",
                             player,
-                            true
+                            "true"
                     )
             );
         }
@@ -225,7 +223,7 @@ public class DiscordWebhookIntegration {
                     )
             );
         }
-        executeWebhook(discordWebhook);
+        executeWebhook(discordWebhook, player);
     }
 
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
@@ -255,12 +253,7 @@ public class DiscordWebhookIntegration {
                     );
     }
 
-    private String getSwapConfigValue(
-            String key,
-            CorePlayer player,
-            String toServer,
-            String fromServer
-    ) {
+    private String getSwapConfigValue(String key, CorePlayer player, String toServer, String fromServer) {
         return replacePlaceholdersSwap(
                 discordConfig.getString(key),
                 player,
@@ -269,11 +262,7 @@ public class DiscordWebhookIntegration {
         );
     }
 
-    private String replacePlaceholdersJoinLeave(
-            String txt,
-            CorePlayer player,
-            boolean leaving
-    ) {
+    private String replacePlaceholdersJoinLeave(String txt, CorePlayer player, boolean leaving) {
         return
             MessageHandler.sanitize(
                     MessageHandler.getInstance()
@@ -295,11 +284,7 @@ public class DiscordWebhookIntegration {
                     );
     }
 
-    private String getJoinLeaveConfigValue(
-            String key,
-            CorePlayer player,
-            boolean leaving
-    ) {
+    private String getJoinLeaveConfigValue(String key, CorePlayer player, boolean leaving) {
         return replacePlaceholdersJoinLeave(
                 discordConfig.getString(key),
                 player,
@@ -314,12 +299,31 @@ public class DiscordWebhookIntegration {
                 .replace("%player%", player.getName());
     }
 
+    private String generalConfigFormat(String key, CorePlayer player, String... args) {
+        return generalFormat(discordConfig.getString(key), player, args);
+    }
+
+    private String generalFormat(String txt, CorePlayer player, String... args) {
+        if (args.length == 2) {
+            return replacePlaceholdersSwap(
+                txt,
+                player,
+                args[0],
+                args[1]
+            );
+        }
+        return replacePlaceholdersJoinLeave(
+            txt,
+            player,
+            Boolean.parseBoolean(args[0])
+        );
+    }
+
     @Nullable
-    private DiscordWebhook.EmbedObject getEmbedFromConfigSwap(
-            @NotNull String key,
-            @NotNull CorePlayer player,
-            @NotNull String toServer,
-            @NotNull String fromServer
+    private DiscordWebhook.EmbedObject getEmbedFromConfig(
+        @NotNull String key,
+        @NotNull CorePlayer player,
+        @NotNull String... formatterArgs
     ) {
         if (discordConfig.get(key) == null) {
             return null;
@@ -331,8 +335,8 @@ public class DiscordWebhookIntegration {
 
         if (hexColor.isEmpty()) {
             corePlugin
-                    .getCoreLogger()
-                    .warn("A color was missing from embed config!");
+                .getCoreLogger()
+                .warn("A color was missing from embed config!");
             hexColor = "#000000";
         }
 
@@ -342,8 +346,8 @@ public class DiscordWebhookIntegration {
         }
         if (hexColor.length() != 7) {
             corePlugin
-                    .getCoreLogger()
-                    .warn("An invalid color: " + hexColor + " was provided!");
+                .getCoreLogger()
+                .warn("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";
         }
 
@@ -352,27 +356,24 @@ public class DiscordWebhookIntegration {
 
         // Set the author
         if (discordConfig.get(key + ".Author", null) != null) {
-            String authorName = getSwapConfigValue(
-                    key + ".Author.Name",
-                    player,
-                    toServer,
-                    fromServer
+            String authorName = generalConfigFormat(
+                key + ".Author.Name",
+                player,
+                formatterArgs
             );
             if (!authorName.isEmpty()) {
                 embed.setAuthor(
-                        authorName,
-                        getSwapConfigValue(
-                                key + ".Author.Url",
-                                player,
-                                toServer,
-                                fromServer
-                        ),
-                        getSwapConfigValue(
-                                key + ".Author.ImageUrl",
-                                player,
-                                toServer,
-                                fromServer
-                        )
+                    authorName,
+                    generalConfigFormat(
+                        key + ".Author.Url",
+                        player,
+                        formatterArgs
+                    ),
+                    generalConfigFormat(
+                        key + ".Author.ImageUrl",
+                        player,
+                        formatterArgs
+                    )
                 );
             }
         }
@@ -386,20 +387,18 @@ public class DiscordWebhookIntegration {
         if (discordConfig.get(key + ".Title", null) != null) {
             if (!discordConfig.getString(key + ".Title.Text").isEmpty()) {
                 embed.setTitle(
-                        getSwapConfigValue(
-                                key + ".Title.Text",
-                                player,
-                                toServer,
-                                fromServer
-                        )
+                    generalConfigFormat(
+                        key + ".Title.Text",
+                        player,
+                        formatterArgs
+                    )
                 );
                 embed.setUrl(
-                        getSwapConfigValue(
-                                key + ".Title.Url",
-                                player,
-                                toServer,
-                                fromServer
-                        )
+                    generalConfigFormat(
+                        key + ".Title.Url",
+                        player,
+                        formatterArgs
+                    )
                 );
             }
         }
@@ -407,175 +406,11 @@ public class DiscordWebhookIntegration {
         // Set the description
         if (!discordConfig.getString(key + ".Description").isEmpty()) {
             embed.setDescription(
-                    getSwapConfigValue(
-                            key + ".Description",
-                            player,
-                            toServer,
-                            fromServer
-                    )
-            );
-        }
-
-        // Set the fields
-        List<String> fields = discordConfig.getStringList(key + ".Fields");
-        if (!fields.isEmpty()) {
-            for (String field : fields) {
-                if (field.contains(";")) {
-                    String[] parts = field.split(";");
-                    if (parts.length < 2) {
-                        continue;
-                    }
-
-                    boolean inline =
-                            parts.length < 3 || Boolean.parseBoolean(parts[2]);
-                    embed.addField(
-                            replacePlaceholdersSwap(
-                                    parts[0],
-                                    player,
-                                    toServer,
-                                    fromServer
-                            ),
-                            replacePlaceholdersSwap(
-                                    parts[1],
-                                    player,
-                                    toServer,
-                                    fromServer
-                            ),
-                            inline
-                    );
-                } else {
-                    boolean inline = Boolean.parseBoolean(field);
-                    embed.addField("\u200e", "\u200e", inline);
-                }
-            }
-        }
-
-        // Set the image url
-        if (!discordConfig.getString(key + ".ImageUrl").isEmpty()) {
-            embed.setImage(
-                    getSwapConfigValue(
-                            key + ".ImageUrl",
-                            player,
-                            toServer,
-                            fromServer
-                    )
-            );
-        }
-
-        // Set the footer
-        if (discordConfig.get(key + ".Footer", null) != null) {
-            if (!discordConfig.getString(key + ".Footer.Text").isEmpty()) {
-                embed.setFooter(
-                        getSwapConfigValue(
-                                key + ".Footer.Text",
-                                player,
-                                toServer,
-                                fromServer
-                        ),
-                        getSwapConfigValue(
-                                key + ".Footer.IconUrl",
-                                player,
-                                toServer,
-                                fromServer
-                        )
-                );
-            }
-        }
-
-        // Set the timestamp
-        if (discordConfig.getBoolean(key + ".Timestamp")) {
-            embed.setTimestamp((new Date()).toInstant());
-        }
-
-        return embed;
-    }
-
-    @Nullable
-    private DiscordWebhook.EmbedObject getEmbedFromConfigJoinLeave(
-            @NotNull String key,
-            @NotNull CorePlayer player,
-            boolean leaving
-    ) {
-        if (discordConfig.get(key) == null) {
-            return null;
-        }
-
-        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-
-        String hexColor = discordConfig.getString(key + ".Color");
-
-        if (hexColor.isEmpty()) {
-            corePlugin
-                    .getCoreLogger()
-                    .warn("A color was missing from embed config!");
-            hexColor = "#000000";
-        }
-
-        hexColor = hexColor.trim();
-        if (!hexColor.startsWith("#")) {
-            hexColor = "#" + hexColor;
-        }
-        if (hexColor.length() != 7) {
-            corePlugin
-                    .getCoreLogger()
-                    .warn("An invalid color: " + hexColor + " was provided!");
-            hexColor = "#000000";
-        }
-
-        // Set the color
-        embed.setColor(Color.decode(hexColor));
-
-        // Set the author
-        if (discordConfig.get(key + ".Author", null) != null) {
-            String authorName = getJoinLeaveConfigValue(
-                    key + ".Author.Name",
+                generalConfigFormat(
+                    key + ".Description",
                     player,
-                    leaving
-            );
-            if (!authorName.isEmpty()) {
-                embed.setAuthor(
-                        authorName,
-                        getJoinLeaveConfigValue(
-                                key + ".Author.Url",
-                                player,
-                                leaving
-                        ),
-                        getJoinLeaveConfigValue(
-                                key + ".Author.ImageUrl",
-                                player,
-                                leaving
-                        )
-                );
-            }
-        }
-
-        // Set the thumbnail url
-        if (!discordConfig.getString(key + ".ThumbnailUrl").isEmpty()) {
-            embed.setThumbnail(
-                    getJoinLeaveConfigValue(key + ".ThumbnailUrl", player, leaving)
-            );
-        }
-
-        // Set the title
-        if (discordConfig.get(key + ".Title", null) != null) {
-            if (!discordConfig.getString(key + ".Title.Text").isEmpty()) {
-                embed.setTitle(
-                        getJoinLeaveConfigValue(
-                                key + ".Title.Text",
-                                player,
-                                leaving
-                        )
-                );
-                embed.setUrl(
-                        getJoinLeaveConfigValue(key + ".Title.Url", player, leaving)
-                );
-            }
-        }
-
-        // Set the description
-        if (!discordConfig.getString(key + ".Description").isEmpty()) {
-            embed.setDescription(
-                    getJoinLeaveConfigValue(key + ".Description", player, leaving)
+                    formatterArgs
+                )
             );
         }
 
@@ -590,11 +425,19 @@ public class DiscordWebhookIntegration {
                     }
 
                     boolean inline =
-                            parts.length < 3 || Boolean.parseBoolean(parts[2]);
+                        parts.length < 3 || Boolean.parseBoolean(parts[2]);
                     embed.addField(
-                            replacePlaceholdersJoinLeave(parts[0], player, leaving),
-                            replacePlaceholdersJoinLeave(parts[1], player, leaving),
-                            inline
+                        generalFormat(
+                            parts[0],
+                            player,
+                            formatterArgs
+                        ),
+                        generalFormat(
+                            parts[1],
+                            player,
+                            formatterArgs
+                        ),
+                        inline
                     );
                 } else {
                     boolean inline = Boolean.parseBoolean(field);
@@ -606,7 +449,11 @@ public class DiscordWebhookIntegration {
         // Set the image url
         if (!discordConfig.getString(key + ".ImageUrl").isEmpty()) {
             embed.setImage(
-                    getJoinLeaveConfigValue(key + ".ImageUrl", player, leaving)
+                generalConfigFormat(
+                    key + ".ImageUrl",
+                    player,
+                    formatterArgs
+                )
             );
         }
 
@@ -614,16 +461,16 @@ public class DiscordWebhookIntegration {
         if (discordConfig.get(key + ".Footer", null) != null) {
             if (!discordConfig.getString(key + ".Footer.Text").isEmpty()) {
                 embed.setFooter(
-                        getJoinLeaveConfigValue(
-                                key + ".Footer.Text",
-                                player,
-                                leaving
-                        ),
-                        getJoinLeaveConfigValue(
-                                key + ".Footer.Icon",
-                                player,
-                                leaving
-                        )
+                    generalConfigFormat(
+                        key + ".Footer.Text",
+                        player,
+                        formatterArgs
+                    ),
+                    generalConfigFormat(
+                        key + ".Footer.IconUrl",
+                        player,
+                        formatterArgs
+                    )
                 );
             }
         }
@@ -635,4 +482,5 @@ public class DiscordWebhookIntegration {
 
         return embed;
     }
+
 }

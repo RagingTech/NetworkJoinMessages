@@ -21,6 +21,7 @@ public class Storage {
     List<UUID> noSwitchMessage = new ArrayList<>();
 
     boolean SwapServerMessageEnabled = true;
+    boolean FirstJoinNetworkMessageEnabled = true;
     boolean JoinNetworkMessageEnabled = true;
     boolean LeaveNetworkMessageEnabled = true;
     boolean NotifyAdminsOnSilentMove = true;
@@ -29,12 +30,16 @@ public class Storage {
     boolean SwapViewableByLeft = true;
     boolean SwapViewableByOther = true;
 
+    boolean FirstJoinViewableByJoined = true;
+    boolean FirstJoinViewableByOther = true;
+
     boolean JoinViewableByJoined = true;
     boolean JoinViewableByOther = true;
 
     boolean LeftViewableByLeft = true;
     boolean LeftViewableByOther = true;
 
+    List<String> ServerFirstJoinMessageDisabled = new ArrayList<>();
     List<String> ServerJoinMessageDisabled = new ArrayList<>();
     List<String> ServerLeaveMessageDisabled = new ArrayList<>();
 
@@ -42,6 +47,11 @@ public class Storage {
     List<String> BlacklistedServers = new ArrayList<>();
     boolean useBlacklistAsWhitelist;
     String SwapServerMessageRequires = "ANY";
+
+    // Other plugins
+    boolean shouldSuppressLimboSwap = true;
+    boolean shouldSuppressLimboJoin = false;
+    boolean shouldSuppressLimboLeave = false;
 
     /**
      * Get current instance. Make new if there is none.
@@ -62,6 +72,9 @@ public class Storage {
         this.SwapServerMessageEnabled = ConfigManager
                 .getPluginConfig()
                 .getBoolean("Settings.SwapServerMessageEnabled");
+        this.FirstJoinNetworkMessageEnabled = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.FirstJoinNetworkMessageEnabled");
         this.JoinNetworkMessageEnabled = ConfigManager
                 .getPluginConfig()
                 .getBoolean("Settings.JoinNetworkMessageEnabled");
@@ -81,6 +94,13 @@ public class Storage {
         this.SwapViewableByOther = ConfigManager
                 .getPluginConfig()
                 .getBoolean("Settings.SwapServerMessageViewableBy.OtherServer");
+
+        this.FirstJoinViewableByJoined = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.FirstJoinNetworkMessageViewableBy.ServerJoined");
+        this.FirstJoinViewableByOther = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.FirstJoinNetworkMessageViewableBy.OtherServer");
 
         this.JoinViewableByJoined = ConfigManager
                 .getPluginConfig()
@@ -108,12 +128,25 @@ public class Storage {
                 .getString("Settings.SwapServerMessageRequires")
                 .toUpperCase();
 
+        this.ServerFirstJoinMessageDisabled = ConfigManager
+            .getPluginConfig()
+            .getStringList("Settings.IgnoreFirstJoinMessagesList");
         this.ServerJoinMessageDisabled = ConfigManager
                 .getPluginConfig()
                 .getStringList("Settings.IgnoreJoinMessagesList");
         this.ServerLeaveMessageDisabled = ConfigManager
                 .getPluginConfig()
                 .getStringList("Settings.IgnoreLeaveMessagesList");
+
+        this.shouldSuppressLimboSwap = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressSwapMessages");
+        this.shouldSuppressLimboJoin = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressJoinMessages");
+        this.shouldSuppressLimboLeave = ConfigManager
+            .getPluginConfig()
+            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressLeaveMessages");
 
         //Verify Swap Server Message
         switch (SwapServerMessageRequires) {
@@ -136,6 +169,10 @@ public class Storage {
 
     public boolean isSwapServerMessageEnabled() {
         return SwapServerMessageEnabled;
+    }
+
+    public boolean isFirstJoinNetworkMessageEnabled() {
+        return FirstJoinNetworkMessageEnabled;
     }
 
     public boolean isJoinNetworkMessageEnabled() {
@@ -307,6 +344,30 @@ public class Storage {
         }
     }
 
+    public List<CorePlayer> getFirstJoinMessageReceivers(String server) {
+        List<CorePlayer> receivers = new ArrayList<>();
+        //If all are true, add all players:
+        if (FirstJoinViewableByJoined && FirstJoinViewableByOther) {
+            receivers.addAll(
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+            );
+            return receivers;
+        }
+        //Other server is true, but atleast one of the to or from are set to false:
+        else if (FirstJoinViewableByOther) {
+            receivers.addAll(
+                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+            );
+            receivers.removeAll(getServerPlayers(server));
+            return receivers;
+        } else {
+            if (FirstJoinViewableByJoined) {
+                receivers.addAll(getServerPlayers(server));
+            }
+            return receivers;
+        }
+    }
+
     public List<CorePlayer> getJoinMessageReceivers(String server) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
@@ -458,7 +519,17 @@ public class Storage {
 
     public List<UUID> getIgnoredServerPlayers(String type) {
         List<UUID> ignored = new ArrayList<UUID>();
-        if (type.equalsIgnoreCase("join")) {
+        if (type.equalsIgnoreCase("first-join")) {
+            for (String s : ServerFirstJoinMessageDisabled) {
+                CoreBackendServer backendServer =
+                    NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                if (backendServer != null) {
+                    for (CorePlayer p : backendServer.getPlayersConnected()) {
+                        ignored.add(p.getUniqueId());
+                    }
+                }
+            }
+        } else if (type.equalsIgnoreCase("join")) {
             for (String s : ServerJoinMessageDisabled) {
                 CoreBackendServer backendServer =
                     NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
@@ -480,5 +551,17 @@ public class Storage {
             }
         }
         return ignored;
+    }
+
+    public boolean shouldSuppressLimboSwap() {
+        return shouldSuppressLimboSwap;
+    }
+
+    public boolean shouldSuppressLimboJoin() {
+        return shouldSuppressLimboJoin;
+    }
+
+    public boolean shouldSuppressLimboLeave() {
+        return shouldSuppressLimboLeave;
     }
 }

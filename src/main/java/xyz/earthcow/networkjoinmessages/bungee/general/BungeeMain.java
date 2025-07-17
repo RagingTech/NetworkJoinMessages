@@ -4,11 +4,10 @@ import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeLogger;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePremiumVanish;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeServer;
+import org.bstats.bungeecord.Metrics;
+import xyz.earthcow.networkjoinmessages.bungee.abstraction.*;
 import xyz.earthcow.networkjoinmessages.bungee.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
@@ -23,6 +22,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     private static BungeeMain instance;
     private NetworkJoinMessagesCore core;
+    private CoreCommandSender console;
 
     private BungeeLogger bungeeLogger;
     private BungeeAudiences audiences;
@@ -31,9 +31,14 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     @Override
     public void onEnable() {
+        // Anonymous usage data via bStats (https://bstats.org/plugin/bungeecord/NetworkJoinMessages/26527)
+        final int PLUGIN_ID = 26527;
+        Metrics metrics = new Metrics(this, PLUGIN_ID);
+
         this.bungeeLogger = new BungeeLogger(getLogger());
         this.audiences = BungeeAudiences.create(this);
         this.core = new NetworkJoinMessagesCore(this);
+        this.console = new BungeeCommandSender(getProxy().getConsole());
 
         instance = this;
 
@@ -41,6 +46,9 @@ public class BungeeMain extends Plugin implements CorePlugin {
             .getPluginManager()
             .registerListener(this, new PlayerListener());
 
+        getProxy()
+            .getPluginManager()
+            .registerCommand(this, new ImportCommand());
         getProxy()
             .getPluginManager()
             .registerCommand(this, new FakeCommand());
@@ -65,6 +73,11 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     public static BungeeMain getInstance() {
         return instance;
+    }
+
+    @Override
+    public CoreCommandSender getConsole() {
+        return console;
     }
 
     public BungeeAudiences getAudiences() {
@@ -118,5 +131,10 @@ public class BungeeMain extends Plugin implements CorePlugin {
     @Override
     public void runTaskAsync(Runnable task) {
         getProxy().getScheduler().runAsync(this, task);
+    }
+
+    @Override
+    public boolean isPluginLoaded(String pluginName) {
+        return getProxy().getPluginManager().getPlugin(pluginName) != null;
     }
 }

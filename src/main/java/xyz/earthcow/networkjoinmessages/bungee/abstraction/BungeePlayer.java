@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -16,9 +17,12 @@ import java.util.UUID;
 public class BungeePlayer implements CorePlayer {
     private final ProxiedPlayer bungeePlayer;
     private CoreBackendServer lastKnownConnectedServer;
+    private final Audience audience;
+
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
         this.bungeePlayer = bungeePlayer;
         this.lastKnownConnectedServer = new BungeeServer(bungeePlayer.getServer().getInfo());
+        this.audience = BungeeMain.getInstance().getAudiences().player(bungeePlayer);
     }
 
     @Override
@@ -33,7 +37,7 @@ public class BungeePlayer implements CorePlayer {
 
     @Override
     public void sendMessage(Component component) {
-        BungeeMain.getInstance().getAudiences().player(bungeePlayer).sendMessage(component);
+        audience.sendMessage(component);
     }
 
     @Override
@@ -63,5 +67,25 @@ public class BungeePlayer implements CorePlayer {
     @Override
     public void setLastKnownConnectedServer(CoreBackendServer server) {
         lastKnownConnectedServer = server;
+    }
+
+    @Override
+    public @NotNull Audience getAudience() {
+        return audience;
+    }
+
+    @Override
+    public boolean getPreviousServerWasLimbo() {
+        return false;
+    }
+
+    @Override
+    public void setPreviousServerWasLimbo(boolean value) {
+
+    }
+
+    @Override
+    public boolean isInLimbo() {
+        return false;
     }
 }

@@ -9,6 +9,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.william278.papiproxybridge.api.PlaceholderAPI;
+import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -16,8 +17,10 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
+import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,6 +33,7 @@ public class MessageHandler {
 
     private LuckPerms luckPerms = null;
     private PlaceholderAPI placeholderAPI = null;
+    private static MiniPlaceholdersHook miniPlaceholders = null;
 
     public static MessageHandler getInstance() {
         if (instance == null) {
@@ -93,6 +97,17 @@ public class MessageHandler {
     }
 
     public static Component deserialize(String str) {
+        return deserialize(str, null);
+    }
+
+    public static Component deserialize(String str, CorePlayer parseTarget) {
+        if (miniPlaceholders != null) {
+            if (parseTarget == null) {
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
+            } else {
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver(), miniPlaceholders.getAudienceResolver(parseTarget.getAudience()));
+            }
+        }
         return miniMessage.deserialize(translateLegacyCodes(str));
     }
 
@@ -114,6 +129,11 @@ public class MessageHandler {
         } catch (NoClassDefFoundError e) {
             NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
+
+        if (NetworkJoinMessagesCore.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
+            miniPlaceholders = new MiniPlaceholdersHook();
+            log("Successfully hooked into MiniPlaceholders!");
+        }
     }
 
     public static String sanitize(String str) {
@@ -125,17 +145,28 @@ public class MessageHandler {
     }
 
     String SwapServerMessage = "";
+    String FirstJoinNetworkMessage = "";
     String JoinNetworkMessage = "";
     String LeaveNetworkMessage = "";
-    HashMap<String, String> serverNames;
 
-    //String FirstTimeJoinMessage = "";
+    List<String> swapMessages = new ArrayList<>();
+    List<String> firstJoinMessages = new ArrayList<>();
+    List<String> joinMessages = new ArrayList<>();
+    List<String> leaveMessages = new ArrayList<>();
+
+    HashMap<String, String> serverNames;
 
     public void setupConfigMessages() {
         YamlDocument config = ConfigManager.getPluginConfig();
-        SwapServerMessage = config.getString("Messages.SwapServerMessage");
-        JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage");
-        LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage");
+        SwapServerMessage = config.getString("Messages.SwapServerMessage", "");
+        FirstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage", "");
+        JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage", "");
+        LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage", "");
+
+        swapMessages = config.getStringList("Messages.SwapServerMessages");
+        firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
+        joinMessages = config.getStringList("Messages.JoinNetworkMessages");
+        leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
 
         HashMap<String, String> serverNames = new HashMap<String, String>();
 
@@ -159,14 +190,46 @@ public class MessageHandler {
         return name;
     }
 
+    public void parsePlaceholdersAndThen(@NotNull String message, @NotNull CorePlayer parseTarget, Consumer<String> then) {
+        if (miniPlaceholders != null) {
+            message = serialize(deserialize(message, parseTarget));
+        }
+        if (placeholderAPI != null) {
+            placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(then);
+        } else {
+            then.accept(message);
+        }
+    }
+
+    /**
+     * Sends a message to the specified command sender.
+     * If the command sender is a CorePlayer object
+     * then it will be used to parse PAPI and MiniPlaceholders.
+     * Designed for self invoked messages such as command responses.
+     * @param sender The CoreCommandSender that will receive the message
+     * @param message The message to be sent
+     */
     public void sendMessage(CoreCommandSender sender, String message) {
-        if (placeholderAPI != null && sender instanceof CorePlayer) {
-            CorePlayer player = (CorePlayer) sender;
-            placeholderAPI.formatPlaceholders(message, player.getUniqueId()).thenAccept(
-                formatted -> {
-                    sender.sendMessage(deserialize(formatted));
-                }
-            );
+        if (sender instanceof CorePlayer parseTarget) {
+            sendMessage(sender, message, parseTarget);
+        } else {
+            sendMessage(sender, message, null);
+        }
+    }
+
+    /**
+     * Sends a message to the specified command sender.
+     * Parses PAPI and MiniPlaceholders against the specified parse target
+     * Designed for broadcast messages.
+     * @param sender The CoreCommandSender that will receive the message
+     * @param message The message to be sent
+     * @param parseTarget The CorePlayer that will be the target for PAPI and MiniPlaceholders
+     */
+    public void sendMessage(CoreCommandSender sender, String message, CorePlayer parseTarget) {
+        if (parseTarget != null) {
+            parsePlaceholdersAndThen(message, parseTarget, formatted -> {
+                sender.sendMessage(deserialize(formatted));
+            });
             return;
         }
         sender.sendMessage(deserialize(message));
@@ -180,16 +243,19 @@ public class MessageHandler {
      */
     public void broadcastMessage(String text, String type, CorePlayer player) {
         if (player.getCurrentServer() == null) {
-            MessageHandler.getInstance().log("Broadcast Message of " + player.getName() + " halted as Server returned Null. #01");
-            return;
+            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn(
+                "Broadcast message of type: '" + type + "' for player: " + player.getName() + " failed to parse server name placeholders as " + player.getName() + "'s current server returned null."
+            );
         }
-        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???");
+        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???", player);
     }
 
-    public void broadcastMessage(String text, String type, String from, String to) {
+    public void broadcastMessage(String text, String type, String from, String to, CorePlayer parseTarget) {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
             receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
+        } else if (type.equalsIgnoreCase("first-join")) {
+            receivers.addAll(Storage.getInstance().getFirstJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("join")) {
             receivers.addAll(Storage.getInstance().getJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("leave")) {
@@ -198,29 +264,56 @@ public class MessageHandler {
             receivers.addAll(NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers());
         }
 
-        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type);
-        log(sanitize(text));
+        // Send message to console
+        sendMessage(NetworkJoinMessagesCore.getInstance().getPlugin().getConsole(), text, parseTarget);
 
+        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type.equalsIgnoreCase("first-join") ? "join" : type);
         ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
 
         for (CorePlayer player : receivers) {
             if (ignorePlayers.contains(player.getUniqueId())) {
                 continue;
             }
-            sendMessage(player, text);
+            sendMessage(player, text, parseTarget);
         }
     }
 
+    public String getFirstJoinNetworkMessage() {
+        if (!FirstJoinNetworkMessage.isEmpty()) {
+            return FirstJoinNetworkMessage;
+        }
+        return getRandomMessage(firstJoinMessages);
+    }
     public String getJoinNetworkMessage() {
-        return JoinNetworkMessage;
+        if (!JoinNetworkMessage.isEmpty()) {
+            return JoinNetworkMessage;
+        }
+        return getRandomMessage(joinMessages);
     }
 
     public String getLeaveNetworkMessage() {
-        return LeaveNetworkMessage;
+        if (!LeaveNetworkMessage.isEmpty()) {
+            return LeaveNetworkMessage;
+        }
+        return getRandomMessage(leaveMessages);
     }
 
     public String getSwapServerMessage() {
-        return SwapServerMessage;
+        if (!SwapServerMessage.isEmpty()) {
+            return SwapServerMessage;
+        }
+        return getRandomMessage(swapMessages);
+    }
+
+    private String getRandomMessage(List<String> messageList) {
+        if (messageList.isEmpty()) {
+            return "";
+        } else if (messageList.size() == 1) {
+            return messageList.get(0);
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(messageList.size());
+        return messageList.get(randomIndex);
     }
 
     public List<String> getServerNames() {
@@ -351,6 +444,14 @@ public class MessageHandler {
                     .replace("%playercount_to%", getServerPlayerCount(toName, false, player))
                     .replace("%playercount_network%", getNetworkPlayerCount(player, false))
                 , player);
+    }
+
+    public String formatFirstJoinMessage(CorePlayer player) {
+        return formatMessage(
+            getFirstJoinNetworkMessage()
+                .replace("%playercount_server%", getServerPlayerCount(player, false))
+                .replace("%playercount_network%", getNetworkPlayerCount(player, false))
+            , player);
     }
 
     public String formatJoinMessage(CorePlayer player) {

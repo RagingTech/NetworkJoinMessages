@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
+import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,4 +14,11 @@ public interface CorePlayer extends CoreCommandSender {
     @Nullable
     CoreBackendServer getLastKnownConnectedServer();
     void setLastKnownConnectedServer(CoreBackendServer server);
+
+    @NotNull
+    Audience getAudience();
+
+    boolean getPreviousServerWasLimbo();
+    void setPreviousServerWasLimbo(boolean value);
+    boolean isInLimbo();
 }
