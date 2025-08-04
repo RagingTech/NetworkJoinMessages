@@ -3,7 +3,8 @@
     <groupId>xyz.earthcow.networkjoinmessages</groupId>
     <artifactId>NetworkJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
-    <version>2.3.0</version>
+    <!-- <version>2.3.0</version> -->
+    <version>dev+${git.commit.id.describe-short}</version>
     <packaging>jar</packaging>
 
     <!-- Plugin Information -->
@@ -197,6 +198,23 @@
             </resource>
         </resources>
         <plugins>
+            <!-- Git information plugin -->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Surefire Plugin for Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -207,6 +225,7 @@
                     </includes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -217,6 +236,8 @@
                     <release>21</release>
                 </configuration>
             </plugin>
+
+            <!-- Shade Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -247,6 +268,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>
