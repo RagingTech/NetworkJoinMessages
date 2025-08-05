@@ -140,13 +140,13 @@ public class Storage {
 
         this.shouldSuppressLimboSwap = ConfigManager
             .getPluginConfig()
-            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressSwapMessages");
+            .getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         this.shouldSuppressLimboJoin = ConfigManager
             .getPluginConfig()
-            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressJoinMessages");
+            .getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
         this.shouldSuppressLimboLeave = ConfigManager
             .getPluginConfig()
-            .getBoolean("Settings.OtherPlugins.LimboReconnect.SuppressLeaveMessages");
+            .getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
 
         //Verify Swap Server Message
         switch (SwapServerMessageRequires) {
