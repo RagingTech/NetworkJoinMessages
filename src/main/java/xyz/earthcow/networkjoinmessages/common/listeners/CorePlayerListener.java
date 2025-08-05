@@ -26,6 +26,136 @@ public class CorePlayerListener {
         return MessageHandler.deserialize(ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix"));
     }
 
+    private void handlePlayerJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
+        Storage.getInstance().setConnected(player, true);
+        player.setLastKnownConnectedServer(server);
+        player.setPreviousServerWasLimbo(player.isInLimbo());
+
+        boolean firstJoin = !NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
+
+        if (!firstJoin && !Storage.getInstance().isJoinNetworkMessageEnabled()) {
+            return;
+        }
+
+        if (firstJoin) {
+            NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
+            if (!Storage.getInstance().isFirstJoinNetworkMessageEnabled()) {
+                return;
+            }
+        }
+
+        // Blacklist Check
+        if (Storage.getInstance().blacklistCheck(player)) {
+            return;
+        }
+
+        if (Storage.getInstance().shouldSuppressLimboJoin() && player.isInLimbo()) {
+            return;
+        }
+
+        String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
+
+        if (Storage.getInstance().getAdminMessageState(player)) {
+            // Silent
+            if (player.hasPermission("networkjoinmessages.fakemessage")) {
+                MessageHandler.getInstance().sendMessage(player,
+                    MessageHandler.getInstance().formatMessage(
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
+                        player
+                    )
+                );
+            }
+
+            // Send to console
+            NetworkJoinMessagesCore.getInstance().SilentEvent("JOIN", player.getName());
+
+            // Send to admin players
+            if (Storage.getInstance().notifyAdminsOnSilentMove()) {
+                for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                    .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).toList()) {
+                    MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
+                }
+            }
+        } else {
+            // Not silent
+            MessageHandler.getInstance().broadcastMessage(message, firstJoin ? "first-join" : "join", player);
+        }
+
+        Component formattedMessage = MessageHandler.deserialize(message);
+        // All checks have passed to reach this point
+        // Call the custom NetworkJoinEvent
+        NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
+            player,
+            MessageHandler.getInstance().getServerDisplayName(server.getName()),
+            Storage.getInstance().getAdminMessageState(player),
+            firstJoin,
+            MessageHandler.serialize(formattedMessage),
+            MessageHandler.stripColor(formattedMessage)
+        );
+        NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
+        NetworkJoinMessagesCore.getInstance()
+            .getPlugin()
+            .fireEvent(networkJoinEvent);
+    }
+
+    private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
+        player.setLastKnownConnectedServer(server);
+
+        if (Storage.getInstance().shouldSuppressLimboSwap() && (player.isInLimbo() || player.getPreviousServerWasLimbo())) {
+            player.setPreviousServerWasLimbo(player.isInLimbo());
+            return;
+        }
+
+        player.setPreviousServerWasLimbo(player.isInLimbo());
+
+        if (!Storage.getInstance().isElsewhere(player)) {
+            return;
+        }
+        String to = server.getName();
+        String from = Storage.getInstance().getFrom(player);
+
+        if (!Storage.getInstance().isSwapServerMessageEnabled()) {
+            return;
+        }
+
+        if (Storage.getInstance().blacklistCheck(from, to)) {
+            return;
+        }
+
+        String message = MessageHandler.getInstance()
+            .parseSwitchMessage(player, from, to);
+
+        // Silent
+        if (Storage.getInstance().getAdminMessageState(player)) {
+            NetworkJoinMessagesCore.getInstance()
+                .SilentEvent("MOVE", player.getName(), from, to);
+            if (Storage.getInstance().notifyAdminsOnSilentMove()) {
+                for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
+                    if (p.hasPermission("networkjoinmessages.silent")) {
+                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
+                    }
+                }
+            }
+        } else {
+            MessageHandler.getInstance()
+                .broadcastMessage(message, "switch", from, to, player);
+        }
+
+        Component formattedMessage = MessageHandler.deserialize(message);
+        // Call the custom ServerSwapEvent
+        SwapServerEvent swapServerEvent = new SwapServerEvent(
+            player,
+            MessageHandler.getInstance().getServerDisplayName(from),
+            MessageHandler.getInstance().getServerDisplayName(to),
+            Storage.getInstance().getAdminMessageState(player),
+            MessageHandler.serialize(formattedMessage),
+            MessageHandler.stripColor(formattedMessage)
+        );
+        NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
+        NetworkJoinMessagesCore.getInstance()
+            .getPlugin().fireEvent(swapServerEvent);
+    }
+
     public void onPreConnect(CorePlayer player, String previousServerName) {
         if (player == null) {
             return;
@@ -47,152 +177,11 @@ public class CorePlayerListener {
 
             if (!Storage.getInstance().isConnected(player)) {
                 // If the player is NOT already connected they have just joined the network
-                Storage.getInstance().setConnected(player, true);
-                int count = 0;
-                while (player.getCurrentServer() == null && count < 120) {
-                    if (count % 5 == 0 && count != 0) {
-                        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Waiting for non-null server: waited for half a second " + count + " times");
-                    }
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ignored) {
-
-                    }
-                    count++;
-                }
-                if (player.getCurrentServer() == null) {
-                    NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger()
-                            .severe(player.getName() + "'s server was still null after persistent checks! " +
-                            "Please report this to the developer at https://github.com/RagingTech/NetworkJoinMessages/issues");
-                    return;
-                }
-                player.setLastKnownConnectedServer(server);
-                player.setPreviousServerWasLimbo(player.isInLimbo());
-
-                boolean firstJoin = !NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
-
-                if (!firstJoin && !Storage.getInstance().isJoinNetworkMessageEnabled()) {
-                    return;
-                }
-
-                if (firstJoin) {
-                    NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
-                    if (!Storage.getInstance().isFirstJoinNetworkMessageEnabled()) {
-                        return;
-                    }
-                }
-
-                // Blacklist Check
-                if (Storage.getInstance().blacklistCheck(player)) {
-                    return;
-                }
-
-                if (Storage.getInstance().shouldSuppressLimboJoin() && player.isInLimbo()) {
-                    return;
-                }
-
-                String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
-
-                if (Storage.getInstance().getAdminMessageState(player)) {
-                    // Silent
-                    if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                        MessageHandler.getInstance().sendMessage(player,
-                            MessageHandler.getInstance().formatMessage(
-                                ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
-                                player
-                            )
-                        );
-                    }
-
-                    // Send to console
-                    NetworkJoinMessagesCore.getInstance().SilentEvent("JOIN", player.getName());
-
-                    // Send to admin players
-                    if (Storage.getInstance().notifyAdminsOnSilentMove()) {
-                        for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
-                                .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).collect(Collectors.toList())) {
-                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
-                        }
-                    }
-                } else {
-                    // Not silent
-                    MessageHandler.getInstance().broadcastMessage(message, firstJoin ? "first-join" : "join", player);
-                }
-
-                Component formattedMessage = MessageHandler.deserialize(message);
-                // All checks have passed to reach this point
-                // Call the custom NetworkJoinEvent
-                NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
-                        player,
-                        MessageHandler.getInstance().getServerDisplayName(server.getName()),
-                        Storage.getInstance().getAdminMessageState(player),
-                    firstJoin,
-                    MessageHandler.serialize(formattedMessage),
-                    MessageHandler.stripColor(formattedMessage)
-                );
-                NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
-                NetworkJoinMessagesCore.getInstance()
-                        .getPlugin()
-                        .fireEvent(networkJoinEvent);
+                handlePlayerJoin(player, server);
                 return;
             }
             // If the player IS already connected, then they have just switched servers
-
-            player.setLastKnownConnectedServer(server);
-
-            if (Storage.getInstance().shouldSuppressLimboSwap() && (player.isInLimbo() || player.getPreviousServerWasLimbo())) {
-                player.setPreviousServerWasLimbo(player.isInLimbo());
-                return;
-            }
-
-            player.setPreviousServerWasLimbo(player.isInLimbo());
-
-            if (!Storage.getInstance().isElsewhere(player)) {
-                return;
-            }
-            String to = server.getName();
-            String from = Storage.getInstance().getFrom(player);
-
-            if (!Storage.getInstance().isSwapServerMessageEnabled()) {
-                return;
-            }
-
-            if (Storage.getInstance().blacklistCheck(from, to)) {
-                return;
-            }
-
-            String message = MessageHandler.getInstance()
-                    .parseSwitchMessage(player, from, to);
-
-            // Silent
-            if (Storage.getInstance().getAdminMessageState(player)) {
-                NetworkJoinMessagesCore.getInstance()
-                        .SilentEvent("MOVE", player.getName(), from, to);
-                if (Storage.getInstance().notifyAdminsOnSilentMove()) {
-                    for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
-                        if (p.hasPermission("networkjoinmessages.silent")) {
-                            MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
-                        }
-                    }
-                }
-            } else {
-                MessageHandler.getInstance()
-                        .broadcastMessage(message, "switch", from, to, player);
-            }
-
-            Component formattedMessage = MessageHandler.deserialize(message);
-            // Call the custom ServerSwapEvent
-            SwapServerEvent swapServerEvent = new SwapServerEvent(
-                    player,
-                    MessageHandler.getInstance().getServerDisplayName(from),
-                    MessageHandler.getInstance().getServerDisplayName(to),
-                    Storage.getInstance().getAdminMessageState(player),
-                MessageHandler.serialize(formattedMessage),
-                MessageHandler.stripColor(formattedMessage)
-            );
-            NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
-            NetworkJoinMessagesCore.getInstance()
-                    .getPlugin().fireEvent(swapServerEvent);
+            handlePlayerSwap(player, server);
         });
     }
 
