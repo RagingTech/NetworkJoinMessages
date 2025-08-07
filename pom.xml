@@ -4,7 +4,7 @@
     <artifactId>NetworkJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
     <!-- <version>2.3.0</version> -->
-    <version>dev+${git.commit.id.describe-short}</version>
+    <version>dev+${revision}</version>
     <packaging>jar</packaging>
 
     <!-- Plugin Information -->
@@ -39,6 +39,8 @@
         <author>Tirco and EarthCow</author>
         <mainClass>xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <revision>${git.commit.id.describe-short}</revision>
     </properties>
 
     <repositories>
