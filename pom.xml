@@ -4,7 +4,7 @@
     <artifactId>NetworkJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
     <!-- <version>2.3.0</version> -->
-    <version>dev+${revision}</version>
+    <version>dev+${revision}</version><!-- To be used with (replace x's) mvn clean package -Drevision=xxx -->
     <packaging>jar</packaging>
 
     <!-- Plugin Information -->
@@ -40,7 +40,7 @@
         <mainClass>xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <revision>${git.commit.id.describe-short}</revision>
+        <revision>SNAPSHOT</revision>
     </properties>
 
     <repositories>
@@ -200,22 +200,6 @@
             </resource>
         </resources>
         <plugins>
-            <!-- Git information plugin -->
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.9.10</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                        <phase>validate</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Surefire Plugin for Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
