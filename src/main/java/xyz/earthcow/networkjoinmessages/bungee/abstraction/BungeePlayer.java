@@ -75,16 +75,6 @@ public class BungeePlayer implements CorePlayer {
     }
 
     @Override
-    public boolean getPreviousServerWasLimbo() {
-        return false;
-    }
-
-    @Override
-    public void setPreviousServerWasLimbo(boolean value) {
-
-    }
-
-    @Override
     public boolean isInLimbo() {
         return false;
     }

@@ -18,7 +18,6 @@ public class VelocityPlayer implements CorePlayer {
     private final Player velocityPlayer;
     private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
-    private boolean previousServerWasLimbo = false;
 
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
@@ -75,16 +74,6 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public @NotNull Audience getAudience() {
         return audience;
-    }
-
-    @Override
-    public boolean getPreviousServerWasLimbo() {
-        return previousServerWasLimbo;
-    }
-
-    @Override
-    public void setPreviousServerWasLimbo(boolean value) {
-        previousServerWasLimbo = value;
     }
 
     @Override

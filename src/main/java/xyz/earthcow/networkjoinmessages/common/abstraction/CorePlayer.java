@@ -18,7 +18,5 @@ public interface CorePlayer extends CoreCommandSender {
     @NotNull
     Audience getAudience();
 
-    boolean getPreviousServerWasLimbo();
-    void setPreviousServerWasLimbo(boolean value);
     boolean isInLimbo();
 }

@@ -1,7 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.listeners;
 
 import net.kyori.adventure.text.Component;
-import org.h2.mvstore.db.Store;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
@@ -16,8 +15,6 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
-import java.util.stream.Collectors;
-
 public class CorePlayerListener {
 
     @Nullable
@@ -30,7 +27,6 @@ public class CorePlayerListener {
     private void handlePlayerJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
         Storage.getInstance().setConnected(player, true);
         player.setLastKnownConnectedServer(server);
-        player.setPreviousServerWasLimbo(player.isInLimbo());
 
         boolean firstJoin = !NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
 
@@ -103,11 +99,8 @@ public class CorePlayerListener {
         player.setLastKnownConnectedServer(server);
 
         if (Storage.getInstance().shouldSuppressLimboSwap() && fromLimbo) {
-            player.setPreviousServerWasLimbo(player.isInLimbo());
             return;
         }
-
-        player.setPreviousServerWasLimbo(player.isInLimbo());
 
         if (!Storage.getInstance().isElsewhere(player)) {
             return;
