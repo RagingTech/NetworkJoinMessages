@@ -14,8 +14,11 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 public class CorePlayerListener {
 
+    private final NetworkJoinMessagesCore core = NetworkJoinMessagesCore.getInstance();
+    private final CorePlugin plugin = core.getPlugin();
+
     @Nullable
-    private final PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+    private final PremiumVanish premiumVanish = plugin.getVanishAPI();
 
     private String getSilentPrefix() {
         return ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix");
@@ -25,14 +28,14 @@ public class CorePlayerListener {
         Storage.getInstance().setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
-        boolean firstJoin = !NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().hasJoined(player.getUniqueId());
+        boolean firstJoin = !core.getFirstJoinTracker().hasJoined(player.getUniqueId());
 
         if (!firstJoin && !Storage.getInstance().isJoinNetworkMessageEnabled()) {
             return;
         }
 
         if (firstJoin) {
-            NetworkJoinMessagesCore.getInstance().getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
+            core.getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
             if (!Storage.getInstance().isFirstJoinNetworkMessageEnabled()) {
                 return;
             }
@@ -61,11 +64,11 @@ public class CorePlayerListener {
             }
 
             // Send to console
-            NetworkJoinMessagesCore.getInstance().SilentEvent("JOIN", player.getName());
+            core.SilentEvent("JOIN", player.getName());
 
             // Send to admin players
             if (Storage.getInstance().notifyAdminsOnSilentMove()) {
-                for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                for (CorePlayer p : plugin.getAllPlayers()
                     .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).toList()) {
                     MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
                 }
@@ -86,10 +89,8 @@ public class CorePlayerListener {
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
         );
-        NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
-        NetworkJoinMessagesCore.getInstance()
-            .getPlugin()
-            .fireEvent(networkJoinEvent);
+        core.getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
+        plugin.fireEvent(networkJoinEvent);
     }
 
     private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
@@ -121,7 +122,7 @@ public class CorePlayerListener {
             NetworkJoinMessagesCore.getInstance()
                 .SilentEvent("MOVE", player.getName(), from, to);
             if (Storage.getInstance().notifyAdminsOnSilentMove()) {
-                for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
+                for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
                         MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
                     }
@@ -142,9 +143,8 @@ public class CorePlayerListener {
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
         );
-        NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
-        NetworkJoinMessagesCore.getInstance()
-            .getPlugin().fireEvent(swapServerEvent);
+        core.getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
+        plugin.fireEvent(swapServerEvent);
     }
 
     public void onPreConnect(CorePlayer player, String previousServerName) {
@@ -158,7 +158,7 @@ public class CorePlayerListener {
     }
 
     public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server, @Nullable CoreBackendServer previousServer) {
-        NetworkJoinMessagesCore.getInstance().getPlugin().runTaskAsync(() -> {
+        plugin.runTaskAsync(() -> {
             // PremiumVanish
             if (premiumVanish != null) {
                 if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
@@ -174,7 +174,7 @@ public class CorePlayerListener {
             // If the player IS already connected, then they have just switched servers
 
             // If the server type is Velocity and the previous server is null then the player MUST have come from a LimboAPI server
-            boolean fromLimbo = NetworkJoinMessagesCore.getInstance().getPlugin().getServerType().equals(ServerType.VELOCITY) && previousServer == null;
+            boolean fromLimbo = plugin.getServerType().equals(ServerType.VELOCITY) && previousServer == null;
             handlePlayerSwap(player, server, fromLimbo);
         });
     }
@@ -185,24 +185,24 @@ public class CorePlayerListener {
         }
 
         if (!Storage.getInstance().isConnected(player)) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
+            plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
         Storage.getInstance().setConnected(player, false);
 
         if (!Storage.getInstance().isLeaveNetworkMessageEnabled()) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
+            plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
         if (Storage.getInstance().blacklistCheck(player)) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
+            plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
         if (Storage.getInstance().shouldSuppressLimboLeave() && player.isInLimbo()) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
+            plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
@@ -217,10 +217,9 @@ public class CorePlayerListener {
 
         // Silent
         if (Storage.getInstance().getAdminMessageState(player)) {
-            NetworkJoinMessagesCore.getInstance()
-                .SilentEvent("QUIT", player.getName());
+            core.SilentEvent("QUIT", player.getName());
             if (Storage.getInstance().notifyAdminsOnSilentMove()) {
-                for (CorePlayer p : NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()) {
+                for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
                         MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
                     }
@@ -242,10 +241,9 @@ public class CorePlayerListener {
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
         );
-        NetworkJoinMessagesCore.getInstance().getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
-        NetworkJoinMessagesCore.getInstance()
-            .getPlugin().fireEvent(networkQuitEvent);
+        core.getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
+        plugin.fireEvent(networkQuitEvent);
 
-        NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
+        plugin.getPlayerManager().removePlayer(player.getUniqueId());
     }
 }
