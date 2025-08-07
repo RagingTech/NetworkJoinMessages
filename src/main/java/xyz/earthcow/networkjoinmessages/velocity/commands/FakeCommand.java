@@ -5,7 +5,7 @@ import com.velocitypowered.api.proxy.Player;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
+import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class FakeCommand implements SimpleCommand {
         coreFakeCommand.execute(
             invocation.source() instanceof Player ?
                 // If the CommandSource is a Player
-                new VelocityPlayer((Player) invocation.source())
+                VelocityMain.getInstance().getOrCreatePlayer(((Player) invocation.source()).getUniqueId())
                 :
                 // If the CommandSource is not a Player
                 new VelocityCommandSender(invocation.source()),
@@ -36,7 +36,7 @@ public class FakeCommand implements SimpleCommand {
     public List<String> suggest(final Invocation invocation) {
         return coreFakeCommand.getTabCompletion(
             invocation.source() instanceof Player ?
-                new VelocityPlayer((Player) invocation.source())
+                VelocityMain.getInstance().getOrCreatePlayer(((Player) invocation.source()).getUniqueId())
                 :
                 new VelocityCommandSender(invocation.source()),
             invocation.arguments());

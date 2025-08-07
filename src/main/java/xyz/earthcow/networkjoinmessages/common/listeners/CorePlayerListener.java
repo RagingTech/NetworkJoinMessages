@@ -3,10 +3,7 @@ package xyz.earthcow.networkjoinmessages.common.listeners;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
-import xyz.earthcow.networkjoinmessages.common.abstraction.ServerType;
+import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
@@ -188,24 +185,24 @@ public class CorePlayerListener {
         }
 
         if (!Storage.getInstance().isConnected(player)) {
-            player.setLastKnownConnectedServer(null);
+            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
         Storage.getInstance().setConnected(player, false);
 
         if (!Storage.getInstance().isLeaveNetworkMessageEnabled()) {
-            player.setLastKnownConnectedServer(null);
+            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
         if (Storage.getInstance().blacklistCheck(player)) {
-            player.setLastKnownConnectedServer(null);
+            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
         if (Storage.getInstance().shouldSuppressLimboLeave() && player.isInLimbo()) {
-            player.setLastKnownConnectedServer(null);
+            NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
@@ -249,6 +246,6 @@ public class CorePlayerListener {
         NetworkJoinMessagesCore.getInstance()
             .getPlugin().fireEvent(networkQuitEvent);
 
-        player.setLastKnownConnectedServer(null);
+        NetworkJoinMessagesCore.getInstance().getPlugin().getPlayerManager().removePlayer(player.getUniqueId());
     }
 }

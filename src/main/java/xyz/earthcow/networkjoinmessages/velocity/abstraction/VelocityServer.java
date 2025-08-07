@@ -3,6 +3,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,6 @@ public class VelocityServer implements CoreBackendServer {
         if (velocityServer == null) {
             return null;
         }
-        return velocityServer.getPlayersConnected().stream().map(VelocityPlayer::new).collect(Collectors.toList());
+        return velocityServer.getPlayersConnected().stream().map(player -> VelocityMain.getInstance().getOrCreatePlayer(player.getUniqueId())).collect(Collectors.toList());
     }
 }

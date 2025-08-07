@@ -1,6 +1,7 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
 import net.md_5.bungee.api.config.ServerInfo;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 
@@ -27,6 +28,6 @@ public class BungeeServer implements CoreBackendServer {
         if (bungeeServer == null) {
             return null;
         }
-        return bungeeServer.getPlayers().stream().map(BungeePlayer::new).collect(Collectors.toList());
+        return bungeeServer.getPlayers().stream().map(proxiedPlayer -> BungeeMain.getInstance().getOrCreatePlayer(proxiedPlayer.getUniqueId())).collect(Collectors.toList());
     }
 }

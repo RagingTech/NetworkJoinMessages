@@ -4,6 +4,7 @@ import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 public interface CorePlugin {
     NetworkJoinMessagesCore getCore();
@@ -25,4 +26,18 @@ public interface CorePlugin {
     boolean isPluginLoaded(String pluginName);
 
     CoreCommandSender getConsole();
+
+    PlayerManager getPlayerManager();
+
+    default CorePlayer getOrCreatePlayer(UUID uuid) {
+        PlayerManager manager = getPlayerManager();
+        CorePlayer player = manager.getPlayer(uuid);
+        if (player == null) {
+            player = createPlayer(uuid);
+            manager.addPlayer(player);
+        }
+        return player;
+    }
+
+    CorePlayer createPlayer(UUID uuid);
 }

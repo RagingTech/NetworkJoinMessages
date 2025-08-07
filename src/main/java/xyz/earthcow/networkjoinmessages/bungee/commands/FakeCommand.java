@@ -5,7 +5,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 
@@ -21,7 +21,7 @@ public class FakeCommand extends Command implements TabExecutor {
     public void execute(CommandSender commandSender, String[] args) {
         coreFakeCommand.execute(
             commandSender instanceof ProxiedPlayer ?
-                new BungeePlayer((ProxiedPlayer) commandSender)
+                BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) commandSender).getUniqueId())
                 :
                 new BungeeCommandSender(commandSender),
             args);
@@ -31,7 +31,7 @@ public class FakeCommand extends Command implements TabExecutor {
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         return coreFakeCommand.getTabCompletion(
             sender instanceof ProxiedPlayer ?
-                new BungeePlayer((ProxiedPlayer) sender)
+                BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) sender).getUniqueId())
                 :
                 new BungeeCommandSender(sender)
             , args);

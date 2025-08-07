@@ -7,8 +7,8 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeServer;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 
 public class PlayerListener implements Listener {
@@ -24,17 +24,17 @@ public class PlayerListener implements Listener {
 
         Server server = player.getServer();
         if (server != null) {
-            corePlayerListener.onPreConnect(new BungeePlayer(player), server.getInfo().getName());
+            corePlayerListener.onPreConnect(BungeeMain.getInstance().getOrCreatePlayer(player.getUniqueId()), server.getInfo().getName());
         }
     }
 
     @EventHandler
     public void onPlayerSwitchServer(ServerConnectedEvent e) {
-        corePlayerListener.onServerConnected(new BungeePlayer(e.getPlayer()), new BungeeServer(e.getServer().getInfo()), null);
+        corePlayerListener.onServerConnected(BungeeMain.getInstance().getOrCreatePlayer(e.getPlayer().getUniqueId()), new BungeeServer(e.getServer().getInfo()), null);
     }
 
     @EventHandler
     public void onPostQuit(PlayerDisconnectEvent event) {
-        corePlayerListener.onDisconnect(new BungeePlayer(event.getPlayer()));
+        corePlayerListener.onDisconnect(BungeeMain.getInstance().getOrCreatePlayer(event.getPlayer().getUniqueId()));
     }
 }
