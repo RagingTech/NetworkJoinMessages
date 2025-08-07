@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
+import xyz.earthcow.networkjoinmessages.common.abstraction.ServerType;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
@@ -98,10 +99,10 @@ public class CorePlayerListener {
             .fireEvent(networkJoinEvent);
     }
 
-    private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
+    private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
         player.setLastKnownConnectedServer(server);
 
-        if (Storage.getInstance().shouldSuppressLimboSwap() && (player.isInLimbo() || player.getPreviousServerWasLimbo())) {
+        if (Storage.getInstance().shouldSuppressLimboSwap() && fromLimbo) {
             player.setPreviousServerWasLimbo(player.isInLimbo());
             return;
         }
@@ -166,7 +167,7 @@ public class CorePlayerListener {
         }
     }
 
-    public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
+    public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server, @Nullable CoreBackendServer previousServer) {
         NetworkJoinMessagesCore.getInstance().getPlugin().runTaskAsync(() -> {
             // PremiumVanish
             if (premiumVanish != null) {
@@ -181,7 +182,10 @@ public class CorePlayerListener {
                 return;
             }
             // If the player IS already connected, then they have just switched servers
-            handlePlayerSwap(player, server);
+
+            // If the server type is Velocity and the previous server is null then the player MUST have come from a LimboAPI server
+            boolean fromLimbo = NetworkJoinMessagesCore.getInstance().getPlugin().getServerType().equals(ServerType.VELOCITY) && previousServer == null;
+            handlePlayerSwap(player, server, fromLimbo);
         });
     }
 

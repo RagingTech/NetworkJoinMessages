@@ -23,7 +23,8 @@ public class PlayerListener {
 
     @Subscribe
     public void onServerConnected(ServerConnectedEvent event) {
-        corePlayerListener.onServerConnected(new VelocityPlayer(event.getPlayer()), new VelocityServer(event.getServer()));
+        VelocityServer previousServer = event.getPreviousServer().isPresent() ? new VelocityServer(event.getPreviousServer().get()) : null;
+        corePlayerListener.onServerConnected(new VelocityPlayer(event.getPlayer()), new VelocityServer(event.getServer()), previousServer);
     }
 
     @Subscribe

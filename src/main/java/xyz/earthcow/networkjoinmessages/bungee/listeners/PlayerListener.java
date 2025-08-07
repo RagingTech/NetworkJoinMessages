@@ -30,7 +30,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerSwitchServer(ServerConnectedEvent e) {
-        corePlayerListener.onServerConnected(new BungeePlayer(e.getPlayer()), new BungeeServer(e.getServer().getInfo()));
+        corePlayerListener.onServerConnected(new BungeePlayer(e.getPlayer()), new BungeeServer(e.getServer().getInfo()), null);
     }
 
     @EventHandler
