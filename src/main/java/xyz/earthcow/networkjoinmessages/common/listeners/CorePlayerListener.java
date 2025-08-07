@@ -22,8 +22,8 @@ public class CorePlayerListener {
     @Nullable
     private final PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
 
-    private Component getSilentPrefix() {
-        return MessageHandler.deserialize(ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix"));
+    private String getSilentPrefix() {
+        return ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix");
     }
 
     private void handlePlayerJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
