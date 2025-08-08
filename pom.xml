@@ -3,8 +3,8 @@
     <groupId>xyz.earthcow.networkjoinmessages</groupId>
     <artifactId>NetworkJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
-    <!-- <version>2.3.0</version> -->
-    <version>dev+${revision}</version><!-- To be used with (replace x's) mvn clean package -Drevision=xxx -->
+     <version>2.3.1</version>
+    <!--<version>dev+${revision}</version>--><!-- To be used with (replace x's) mvn clean package -Drevision=xxx -->
     <packaging>jar</packaging>
 
     <!-- Plugin Information -->
