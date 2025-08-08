@@ -198,19 +198,19 @@ public class Storage {
                 return state;
             }
         } else {
-            return false; //Is not silent by default as they don't have silent perm..
+            return false;
         }
     }
 
-    public void setAdminMessageState(CorePlayer player, Boolean state) {
+    public void setAdminMessageState(CorePlayer player, boolean state) {
         messageState.put(player.getUniqueId(), state);
     }
 
-    public Boolean isConnected(CorePlayer p) {
+    public boolean isConnected(CorePlayer p) {
         return onlinePlayers.contains(p.getUniqueId());
     }
 
-    public void setConnected(CorePlayer p, Boolean state) {
+    public void setConnected(CorePlayer p, boolean state) {
         if (state) {
             if (!isConnected(p)) {
                 onlinePlayers.add(p.getUniqueId());
