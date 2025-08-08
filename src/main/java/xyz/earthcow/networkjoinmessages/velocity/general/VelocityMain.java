@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.bstats.velocity.Metrics;
@@ -23,13 +24,15 @@ import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Plugin(
     id = "networkjoinmessages",
     name = "NetworkJoinMessages",
-    version = "2.3.0",
+    version = "2.3.1",
     url = "https://github.com/RagingTech/NetworkJoinMessages",
     description = "A plugin handling join, leave and switch messages for proxy servers.",
     authors = { "EarthCow" },
@@ -45,6 +48,7 @@ import java.util.stream.Collectors;
 public class VelocityMain implements CorePlugin {
 
     private static VelocityMain instance;
+    private final PlayerManager manager = new PlayerManager();
     private final ProxyServer proxy;
     private final VelocityLogger velocityLogger;
     private final File dataFolder;
@@ -139,10 +143,21 @@ public class VelocityMain implements CorePlugin {
         return proxy.getPluginManager().isLoaded(pluginName.toLowerCase());
     }
 
+    @Override
+    public CorePlayer createPlayer(UUID uuid) {
+        Optional<Player> player = proxy.getPlayer(uuid);
+        return player.map(VelocityPlayer::new).orElse(null);
+    }
+
     // Getters
 
     public static VelocityMain getInstance() {
         return instance;
+    }
+
+    @Override
+    public PlayerManager getPlayerManager(){
+        return manager;
     }
 
     public ProxyServer getProxy() {
@@ -185,7 +200,7 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public List<CorePlayer> getAllPlayers() {
-        return proxy.getAllPlayers().stream().map(VelocityPlayer::new).collect(Collectors.toList());
+        return proxy.getAllPlayers().stream().map(player -> getOrCreatePlayer(player.getUniqueId())).collect(Collectors.toList());
     }
 
     @Override

@@ -3,7 +3,8 @@
     <groupId>xyz.earthcow.networkjoinmessages</groupId>
     <artifactId>NetworkJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
-    <version>2.3.0</version>
+     <version>2.3.1</version>
+    <!--<version>dev+${revision}</version>--><!-- To be used with (replace x's) mvn clean package -Drevision=xxx -->
     <packaging>jar</packaging>
 
     <!-- Plugin Information -->
@@ -38,6 +39,8 @@
         <author>Tirco and EarthCow</author>
         <mainClass>xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <revision>SNAPSHOT</revision>
     </properties>
 
     <repositories>
@@ -197,6 +200,7 @@
             </resource>
         </resources>
         <plugins>
+            <!-- Surefire Plugin for Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -207,6 +211,7 @@
                     </includes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -217,6 +222,8 @@
                     <release>21</release>
                 </configuration>
             </plugin>
+
+            <!-- Shade Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -247,6 +254,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>

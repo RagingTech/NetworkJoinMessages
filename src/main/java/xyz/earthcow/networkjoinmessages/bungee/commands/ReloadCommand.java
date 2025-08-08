@@ -4,7 +4,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
+import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 
 public class ReloadCommand extends Command {
@@ -17,7 +17,7 @@ public class ReloadCommand extends Command {
     public void execute(CommandSender sender, String[] args) {
         NetworkJoinMessagesCore.getInstance().coreReloadCommand.execute(
             sender instanceof ProxiedPlayer ?
-                new BungeePlayer((ProxiedPlayer) sender)
+                BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) sender).getUniqueId())
                 :
                 new BungeeCommandSender(sender)
             , args);

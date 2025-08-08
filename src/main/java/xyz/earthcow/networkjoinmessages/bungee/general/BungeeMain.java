@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.bungee.general;
 
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
@@ -15,12 +16,15 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class BungeeMain extends Plugin implements CorePlugin {
 
     private static BungeeMain instance;
+    private PlayerManager manager = new PlayerManager();
+
     private NetworkJoinMessagesCore core;
     private CoreCommandSender console;
 
@@ -76,6 +80,17 @@ public class BungeeMain extends Plugin implements CorePlugin {
     }
 
     @Override
+    public PlayerManager getPlayerManager(){
+        return manager;
+    }
+
+    @Override
+    public CorePlayer createPlayer(UUID uuid) {
+        ProxiedPlayer proxiedPlayer = getProxy().getPlayer(uuid);
+        return new BungeePlayer(proxiedPlayer);
+    }
+
+    @Override
     public CoreCommandSender getConsole() {
         return console;
     }
@@ -101,7 +116,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     @Override
     public List<CorePlayer> getAllPlayers() {
-        return getProxy().getPlayers().stream().map(BungeePlayer::new).collect(Collectors.toList());
+        return getProxy().getPlayers().stream().map(proxiedPlayer -> getOrCreatePlayer(proxiedPlayer.getUniqueId())).collect(Collectors.toList());
     }
 
     @Override
