@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
 import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
 
@@ -18,17 +19,17 @@ public class PlayerListener {
             return;
         }
 
-        corePlayerListener.onPreConnect(VelocityMain.getInstance().getOrCreatePlayer(event.getPlayer().getUniqueId()), event.getPreviousServer().getServerInfo().getName());
+        corePlayerListener.onPreConnect(VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer())), event.getPreviousServer().getServerInfo().getName());
     }
 
     @Subscribe
     public void onServerConnected(ServerConnectedEvent event) {
         VelocityServer previousServer = event.getPreviousServer().isPresent() ? new VelocityServer(event.getPreviousServer().get()) : null;
-        corePlayerListener.onServerConnected(VelocityMain.getInstance().getOrCreatePlayer(event.getPlayer().getUniqueId()), new VelocityServer(event.getServer()), previousServer);
+        corePlayerListener.onServerConnected(VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer())), new VelocityServer(event.getServer()), previousServer);
     }
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        corePlayerListener.onDisconnect(VelocityMain.getInstance().getOrCreatePlayer(event.getPlayer().getUniqueId()));
+        corePlayerListener.onDisconnect(VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer())));
     }
 }
