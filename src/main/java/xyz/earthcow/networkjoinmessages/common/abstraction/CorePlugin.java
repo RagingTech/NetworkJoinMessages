@@ -29,6 +29,16 @@ public interface CorePlugin {
 
     PlayerManager getPlayerManager();
 
+    default CorePlayer getOrPutPlayer(CorePlayer player) {
+        PlayerManager manager = getPlayerManager();
+        CorePlayer managerPlayer = manager.getPlayer(player.getUniqueId());
+        if (managerPlayer == null) {
+            manager.addPlayer(player);
+            return player;
+        }
+        return managerPlayer;
+    }
+
     default CorePlayer getOrCreatePlayer(UUID uuid) {
         PlayerManager manager = getPlayerManager();
         CorePlayer player = manager.getPlayer(uuid);
