@@ -10,6 +10,7 @@ import net.md_5.bungee.event.EventHandler;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeServer;
 import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 
 public class PlayerListener implements Listener {
@@ -36,6 +37,13 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPostQuit(PlayerDisconnectEvent event) {
-        corePlayerListener.onDisconnect(BungeeMain.getInstance().getOrPutPlayer(new BungeePlayer(event.getPlayer())));
+        // Check that the player disconnected is not a duplicate user session (the same account tries to join the server while already joined)
+        CorePlayer corePlayer = BungeeMain.getInstance().getOrCreatePlayer(event.getPlayer().getUniqueId());
+        if (corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
+            // TODO: Debug message here
+            return;
+        }
+
+        corePlayerListener.onDisconnect(corePlayer);
     }
 }

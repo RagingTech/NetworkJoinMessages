@@ -51,6 +51,12 @@ public class BungeePlayer implements CorePlayer {
     }
 
     @Override
+    public int getConnectionIdentity() {
+        // Bungee player objects are unique to each session/connection
+        return System.identityHashCode(bungeePlayer);
+    }
+
+    @Override
     public @Nullable CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {

@@ -53,6 +53,12 @@ public class VelocityPlayer implements CorePlayer {
     }
 
     @Override
+    public int getConnectionIdentity() {
+        // Velocity player objects are unique to each session/connection
+        return System.identityHashCode(velocityPlayer);
+    }
+
+    @Override
     public @Nullable CoreBackendServer getCurrentServer() {
         ServerConnection serverConnection = velocityPlayer.getCurrentServer().orElse(null);
         if (serverConnection == null) {
