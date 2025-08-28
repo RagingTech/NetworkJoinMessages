@@ -39,7 +39,7 @@ public class NetworkJoinMessagesCore {
 
         instance = this;
 
-        loadConfig();
+        loadConfigs();
         discordWebhookIntegration = new DiscordWebhookIntegration();
 
         try {
@@ -50,8 +50,8 @@ public class NetworkJoinMessagesCore {
 
     }
 
-    public void loadConfig() {
-        ConfigManager.setupConfig(plugin.getCoreLogger(), plugin.getDataFolder());
+    public void loadConfigs() {
+        ConfigManager.setupConfigs(plugin);
         MessageHandler.getInstance().setupConfigMessages();
         Storage.getInstance().setUpDefaultValuesFromConfig();
         if (discordWebhookIntegration != null) {

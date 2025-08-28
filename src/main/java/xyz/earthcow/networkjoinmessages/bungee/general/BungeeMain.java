@@ -75,6 +75,13 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     }
 
+    @Override
+    public void disable() {
+        getProxy().getPluginManager().unregisterCommands(this);
+        getProxy().getPluginManager().unregisterListeners(this);
+        getProxy().getScheduler().cancel(this);
+    }
+
     public static BungeeMain getInstance() {
         return instance;
     }

@@ -124,6 +124,15 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
+    public void disable() {
+        proxy.getEventManager().unregisterListeners(this);
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinimport"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("fakemessage"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("networkjoinreload"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("togglejoinmessage"));
+    }
+
+    @Override
     public void fireEvent(Object event) {
         proxy.getEventManager().fireAndForget(event);
     }

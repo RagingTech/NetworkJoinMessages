@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface CorePlugin {
     NetworkJoinMessagesCore getCore();
 
+    void disable();
+
     ServerType getServerType();
     File getDataFolder();
     CoreLogger getCoreLogger();

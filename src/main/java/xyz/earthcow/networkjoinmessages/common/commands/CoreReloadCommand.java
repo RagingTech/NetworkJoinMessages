@@ -12,7 +12,7 @@ public class CoreReloadCommand implements Command {
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
-            NetworkJoinMessagesCore.getInstance().loadConfig();
+            NetworkJoinMessagesCore.getInstance().loadConfigs();
             MessageHandler.getInstance().sendMessage(coreCommandSender,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.Reload.ConfigReloaded")
             );
