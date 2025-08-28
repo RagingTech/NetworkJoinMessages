@@ -76,8 +76,8 @@ public class CoreFakeCommand implements Command {
                     );
                     return;
                 }
-                boolean state = !Storage.getInstance().getAdminMessageState(player);
-                Storage.getInstance().setAdminMessageState(player, state);
+                boolean state = !Storage.getInstance().getSilentMessageState(player);
+                Storage.getInstance().setSilentMessageState(player, state);
                 MessageHandler.getInstance().sendMessage(
                     player,
                     ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.ToggleSilent")

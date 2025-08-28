@@ -57,7 +57,7 @@ public class BungeePlayer implements CorePlayer {
     }
 
     @Override
-    public @Nullable CoreBackendServer getCurrentServer() {
+    public @NotNull CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {
             return lastKnownConnectedServer;

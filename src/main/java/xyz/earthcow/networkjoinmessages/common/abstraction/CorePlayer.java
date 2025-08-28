@@ -12,7 +12,7 @@ public interface CorePlayer extends CoreCommandSender {
 
     int getConnectionIdentity();
 
-    @Nullable
+    @NotNull
     CoreBackendServer getCurrentServer();
 
     @Nullable

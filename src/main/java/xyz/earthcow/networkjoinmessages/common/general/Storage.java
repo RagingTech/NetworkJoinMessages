@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.general;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
@@ -9,53 +10,94 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class Storage {
+/**
+ * Singleton class for holding config values and user data that should persist after the user leaves the proxy
+ */
+public final class Storage {
 
+    // Singleton class
     private static Storage instance;
 
-    HashMap<UUID, String> previousServer = new HashMap<>();
-    HashMap<UUID, Boolean> messageState = new HashMap<>();
-    List<UUID> onlinePlayers = new ArrayList<>();
-    List<UUID> noJoinMessage = new ArrayList<>();
-    List<UUID> noLeaveMessage = new ArrayList<>();
-    List<UUID> noSwitchMessage = new ArrayList<>();
+    // User data that should persist after they leave
+    // User data that shouldn't persist after they leave can be stored in CorePlayer
+    private final HashMap<UUID, String> previousServer = new HashMap<>();
+    private final HashMap<UUID, Boolean> messageState = new HashMap<>();
+    private final List<UUID> onlinePlayers = new ArrayList<>();
+    private final List<UUID> noJoinMessage = new ArrayList<>();
+    private final List<UUID> noLeaveMessage = new ArrayList<>();
+    private final List<UUID> noSwitchMessage = new ArrayList<>();
 
-    boolean SwapServerMessageEnabled = true;
-    boolean FirstJoinNetworkMessageEnabled = true;
-    boolean JoinNetworkMessageEnabled = true;
-    boolean LeaveNetworkMessageEnabled = true;
-    boolean NotifyAdminsOnSilentMove = true;
-
-    boolean SwapViewableByJoined = true;
-    boolean SwapViewableByLeft = true;
-    boolean SwapViewableByOther = true;
-
-    boolean FirstJoinViewableByJoined = true;
-    boolean FirstJoinViewableByOther = true;
-
-    boolean JoinViewableByJoined = true;
-    boolean JoinViewableByOther = true;
-
-    boolean LeftViewableByLeft = true;
-    boolean LeftViewableByOther = true;
-
-    List<String> ServerFirstJoinMessageDisabled = new ArrayList<>();
-    List<String> ServerJoinMessageDisabled = new ArrayList<>();
-    List<String> ServerLeaveMessageDisabled = new ArrayList<>();
-
-    //BlackList settings
-    List<String> BlacklistedServers = new ArrayList<>();
-    boolean useBlacklistAsWhitelist;
-    String SwapServerMessageRequires = "ANY";
-
-    // Other plugins
-    boolean shouldSuppressLimboSwap = true;
-    boolean shouldSuppressLimboJoin = false;
-    boolean shouldSuppressLimboLeave = false;
+    //region Configuration fields
 
     /**
-     * Get current instance. Make new if there is none.
-     * @return instance of the storage.
+     * Map from valid server name -> display server name
+     */
+    private final HashMap<String, String> serverDisplayNames = new HashMap<>();
+
+    // Definite messages
+    private String swapServerMessage;
+    private String firstJoinNetworkMessage;
+    private String joinNetworkMessage;
+    private String leaveNetworkMessage;
+
+    // Randomized messages - enabled if the definite message is empty
+    private List<String> swapMessages;
+    private List<String> firstJoinMessages;
+    private List<String> joinMessages;
+    private List<String> leaveMessages;
+
+    /**
+     * The default silent state of a player joining with the networkjoinmessages.silent permission
+     * Default: true - Someone joining with the permission will be silent (not send a join message)
+     */
+    private boolean silentJoinDefaultState;
+
+    // Whether specific message types are enabled
+    private boolean swapServerMessageEnabled;
+    private boolean firstJoinNetworkMessageEnabled;
+    private boolean joinNetworkMessageEnabled;
+    private boolean leaveNetworkMessageEnabled;
+
+    private boolean notifyAdminsOnSilentMove;
+
+    private boolean swapViewableByJoined;
+    private boolean swapViewableByLeft;
+    private boolean swapViewableByOther;
+
+    private boolean firstJoinViewableByJoined;
+    private boolean firstJoinViewableByOther;
+
+    private boolean joinViewableByJoined;
+    private boolean joinViewableByOther;
+
+    private boolean leftViewableByLeft;
+    private boolean leftViewableByOther;
+
+    private List<String> serverFirstJoinMessageDisabled = new ArrayList<>();
+    private List<String> serverJoinMessageDisabled = new ArrayList<>();
+    private List<String> serverLeaveMessageDisabled = new ArrayList<>();
+
+    // BlackList settings
+    private List<String> blacklistedServers = new ArrayList<>();
+    private boolean useBlacklistAsWhitelist;
+    private String swapServerMessageRequires = "ANY";
+
+    /// Other plugins
+    // PremiumVanish
+    private boolean treatVanishedPlayersAsSilent;
+    private boolean removeVanishedPlayersFromPlayerCount;
+    // LimboAPI
+    private boolean shouldSuppressLimboSwap;
+    private boolean shouldSuppressLimboJoin;
+    private boolean shouldSuppressLimboLeave;
+    //endregion
+
+    // Prevent external instantiation
+    private Storage() {}
+
+    /**
+     * Get the instance. Make new if there is none.
+     * @return Storage instance
      */
     public static Storage getInstance() {
         if (instance == null) {
@@ -66,90 +108,75 @@ public class Storage {
     }
 
     /**
-     * Grab values from config and save them here.
+     * Grab values from config and save them here
      */
     public void setUpDefaultValuesFromConfig() {
-        this.SwapServerMessageEnabled = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.SwapServerMessageEnabled");
-        this.FirstJoinNetworkMessageEnabled = ConfigManager
-            .getPluginConfig()
-            .getBoolean("Settings.FirstJoinNetworkMessageEnabled");
-        this.JoinNetworkMessageEnabled = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.JoinNetworkMessageEnabled");
-        this.LeaveNetworkMessageEnabled = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.LeaveNetworkMessageEnabled");
-        this.NotifyAdminsOnSilentMove = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.NotifyAdminsOnSilentMove");
+        YamlDocument config = ConfigManager.getPluginConfig();
 
-        this.SwapViewableByJoined = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.SwapServerMessageViewableBy.ServerJoined");
-        this.SwapViewableByLeft = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.SwapServerMessageViewableBy.ServerLeft");
-        this.SwapViewableByOther = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.SwapServerMessageViewableBy.OtherServer");
+        // Load server display names using their real names as defaults
+        for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
+            serverDisplayNames.put(
+                serverKey.toLowerCase(),
+                config.getString("Servers." + serverKey, serverKey)
+            );
+        }
 
-        this.FirstJoinViewableByJoined = ConfigManager
-            .getPluginConfig()
-            .getBoolean("Settings.FirstJoinNetworkMessageViewableBy.ServerJoined");
-        this.FirstJoinViewableByOther = ConfigManager
-            .getPluginConfig()
-            .getBoolean("Settings.FirstJoinNetworkMessageViewableBy.OtherServer");
+        /// Messages
 
-        this.JoinViewableByJoined = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.JoinNetworkMessageViewableBy.ServerJoined");
-        this.JoinViewableByOther = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.JoinNetworkMessageViewableBy.OtherServer");
+        // Set definite messages
+        swapServerMessage = config.getString("Messages.SwapServerMessage", "");
+        firstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage", "");
+        joinNetworkMessage = config.getString("Messages.JoinNetworkMessage", "");
+        leaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage", "");
 
-        this.LeftViewableByLeft = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.LeaveNetworkMessageViewableBy.ServerLeft");
-        this.LeftViewableByOther = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.LeaveNetworkMessageViewableBy.OtherServer");
+        // Set randomized messages
+        swapMessages = config.getStringList("Messages.SwapServerMessages");
+        firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
+        joinMessages = config.getStringList("Messages.JoinNetworkMessages");
+        leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
 
-        //Blacklist
-        this.BlacklistedServers = ConfigManager
-                .getPluginConfig()
-                .getStringList("Settings.ServerBlacklist");
-        this.useBlacklistAsWhitelist = ConfigManager
-                .getPluginConfig()
-                .getBoolean("Settings.UseBlacklistAsWhitelist");
-        this.SwapServerMessageRequires = ConfigManager
-                .getPluginConfig()
-                .getString("Settings.SwapServerMessageRequires")
-                .toUpperCase();
+        /// Settings
 
-        this.ServerFirstJoinMessageDisabled = ConfigManager
-            .getPluginConfig()
-            .getStringList("Settings.IgnoreFirstJoinMessagesList");
-        this.ServerJoinMessageDisabled = ConfigManager
-                .getPluginConfig()
-                .getStringList("Settings.IgnoreJoinMessagesList");
-        this.ServerLeaveMessageDisabled = ConfigManager
-                .getPluginConfig()
-                .getStringList("Settings.IgnoreLeaveMessagesList");
+        this.silentJoinDefaultState = config.getBoolean("Settings.SilentJoinDefaultState");
 
-        this.shouldSuppressLimboSwap = ConfigManager
-            .getPluginConfig()
-            .getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
-        this.shouldSuppressLimboJoin = ConfigManager
-            .getPluginConfig()
-            .getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
-        this.shouldSuppressLimboLeave = ConfigManager
-            .getPluginConfig()
-            .getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
+        this.swapServerMessageEnabled = config.getBoolean("Settings.SwapServerMessageEnabled");
+        this.firstJoinNetworkMessageEnabled = config.getBoolean("Settings.FirstJoinNetworkMessageEnabled");
+        this.joinNetworkMessageEnabled = config.getBoolean("Settings.JoinNetworkMessageEnabled");
+        this.leaveNetworkMessageEnabled = config.getBoolean("Settings.LeaveNetworkMessageEnabled");
 
-        //Verify Swap Server Message
-        switch (SwapServerMessageRequires) {
+        this.notifyAdminsOnSilentMove = config.getBoolean("Settings.NotifyAdminsOnSilentMove");
+
+        this.swapViewableByJoined = config.getBoolean("Settings.SwapServerMessageViewableBy.ServerJoined");
+        this.swapViewableByLeft = config.getBoolean("Settings.SwapServerMessageViewableBy.ServerLeft");
+        this.swapViewableByOther = config.getBoolean("Settings.SwapServerMessageViewableBy.OtherServer");
+
+        this.firstJoinViewableByJoined = config.getBoolean("Settings.FirstJoinNetworkMessageViewableBy.ServerJoined");
+        this.firstJoinViewableByOther = config.getBoolean("Settings.FirstJoinNetworkMessageViewableBy.OtherServer");
+
+        this.joinViewableByJoined = config.getBoolean("Settings.JoinNetworkMessageViewableBy.ServerJoined");
+        this.joinViewableByOther = config.getBoolean("Settings.JoinNetworkMessageViewableBy.OtherServer");
+
+        this.leftViewableByLeft = config.getBoolean("Settings.LeaveNetworkMessageViewableBy.ServerLeft");
+        this.leftViewableByOther = config.getBoolean("Settings.LeaveNetworkMessageViewableBy.OtherServer");
+
+        // Blacklist
+        this.blacklistedServers = config.getStringList("Settings.ServerBlacklist");
+        this.useBlacklistAsWhitelist = config.getBoolean("Settings.UseBlacklistAsWhitelist");
+        this.swapServerMessageRequires = config.getString("Settings.SwapServerMessageRequires").toUpperCase();
+
+        this.serverFirstJoinMessageDisabled = config.getStringList("Settings.IgnoreFirstJoinMessagesList");
+        this.serverJoinMessageDisabled = config.getStringList("Settings.IgnoreJoinMessagesList");
+        this.serverLeaveMessageDisabled = config.getStringList("Settings.IgnoreLeaveMessagesList");
+
+        this.treatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
+        this.removeVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
+
+        this.shouldSuppressLimboSwap = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
+        this.shouldSuppressLimboJoin = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
+        this.shouldSuppressLimboLeave = config.getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
+
+        // Verify Swap Server Message
+        switch (swapServerMessageRequires) {
             case "JOINED":
             case "LEFT":
             case "BOTH":
@@ -157,120 +184,83 @@ public class Storage {
                 break;
             default:
                 MessageHandler.getInstance()
-                        .log(
-                                "Setting error: Settings.SwapServerMessageRequires " +
-                                        "only allows JOINED LEFT BOTH or ANY. Got " +
-                                        SwapServerMessageRequires +
-                                        "Defaulting to ANY."
-                        );
-                this.SwapServerMessageRequires = "ANY";
+                    .log(
+                        "Setting error: Settings.SwapServerMessageRequires " +
+                            "only allows JOINED LEFT BOTH or ANY. Got " +
+                            swapServerMessageRequires +
+                            "Defaulting to ANY."
+                    );
+                this.swapServerMessageRequires = "ANY";
         }
     }
 
-    public boolean isSwapServerMessageEnabled() {
-        return SwapServerMessageEnabled;
-    }
-
-    public boolean isFirstJoinNetworkMessageEnabled() {
-        return FirstJoinNetworkMessageEnabled;
-    }
-
-    public boolean isJoinNetworkMessageEnabled() {
-        return JoinNetworkMessageEnabled;
-    }
-
-    public boolean isLeaveNetworkMessageEnabled() {
-        return LeaveNetworkMessageEnabled;
-    }
-
-    public boolean notifyAdminsOnSilentMove() {
-        return NotifyAdminsOnSilentMove;
-    }
-
-    public boolean getAdminMessageState(CorePlayer p) {
-        if (p.hasPermission("networkjoinmessages.silent")) {
-            if (messageState.containsKey(p.getUniqueId())) {
-                return messageState.get(p.getUniqueId());
-            } else {
-                boolean state = ConfigManager.getPluginConfig()
-                    .getBoolean("Settings.SilentJoinDefaultState");
-                messageState.put(p.getUniqueId(), state);
-                return state;
-            }
-        } else {
+    public boolean getSilentMessageState(CorePlayer player) {
+        if (!player.hasPermission("networkjoinmessages.silent")) {
             return false;
         }
-    }
 
-    public void setAdminMessageState(CorePlayer player, boolean state) {
+        if (messageState.containsKey(player.getUniqueId())) {
+            return messageState.get(player.getUniqueId());
+        } else {
+            messageState.put(player.getUniqueId(), silentJoinDefaultState);
+            return silentJoinDefaultState;
+        }
+    }
+    public void setSilentMessageState(CorePlayer player, boolean state) {
         messageState.put(player.getUniqueId(), state);
     }
 
-    public boolean isConnected(CorePlayer p) {
-        return onlinePlayers.contains(p.getUniqueId());
+    public boolean isConnected(CorePlayer player) {
+        return onlinePlayers.contains(player.getUniqueId());
     }
+    public void setConnected(CorePlayer player, boolean state) {
+        if (state == isConnected(player)) {
+            return;
+        }
 
-    public void setConnected(CorePlayer p, boolean state) {
         if (state) {
-            if (!isConnected(p)) {
-                onlinePlayers.add(p.getUniqueId());
-            }
+            onlinePlayers.add(player.getUniqueId());
         } else {
-            if (isConnected(p)) {
-                onlinePlayers.remove(p.getUniqueId());
-            }
+            onlinePlayers.remove(player.getUniqueId());
         }
     }
 
-    public String getFrom(CorePlayer p) {
-        if (previousServer.containsKey(p.getUniqueId())) {
-            return previousServer.get(p.getUniqueId());
-        } else {
-            return p.getCurrentServer() == null ? "???" : p.getCurrentServer().getName();
-        }
+    public String getFrom(CorePlayer player) {
+        return previousServer.getOrDefault(player.getUniqueId(), player.getCurrentServer().getName());
     }
-
-    public void setFrom(CorePlayer p, String name) {
-        previousServer.put(p.getUniqueId(), name);
-    }
-
-    public boolean isElsewhere(CorePlayer player) {
-        return previousServer.containsKey(player.getUniqueId());
-    }
-
-    public void clearPlayer(CorePlayer player) {
-        previousServer.remove(player.getUniqueId());
+    public void setFrom(CorePlayer player, String name) {
+        previousServer.put(player.getUniqueId(), name);
     }
 
     private void setJoinState(UUID id, boolean state) {
         if (state) {
             noJoinMessage.remove(id);
         } else {
-            if (!noJoinMessage.contains(id)) { //Prevent duplicates.
+            if (!noJoinMessage.contains(id)) {
                 noJoinMessage.add(id);
             }
         }
     }
-
     private void setLeaveState(UUID id, boolean state) {
         if (state) {
             noLeaveMessage.remove(id);
         } else {
-            if (!noLeaveMessage.contains(id)) { //Prevent duplicates.
+            if (!noLeaveMessage.contains(id)) {
                 noLeaveMessage.add(id);
             }
         }
     }
-
     private void setSwitchState(UUID id, boolean state) {
         if (state) {
             noSwitchMessage.remove(id);
         } else {
-            if (!noSwitchMessage.contains(id)) { //Prevent duplicates.
+            if (!noSwitchMessage.contains(id)) {
                 noSwitchMessage.add(id);
             }
         }
     }
+
+
 
     public void setSendMessageState(String list, UUID id, boolean state) {
         switch (list) {
@@ -288,56 +278,49 @@ public class Storage {
                 return;
             case "switch":
                 setSwitchState(id, state);
-                return;
-            default:
-                return;
         }
     }
 
     public List<UUID> getIgnorePlayers(String type) {
-        switch (type) {
-            case "join":
-                return noJoinMessage;
-            case "leave":
-                return noLeaveMessage;
-            case "switch":
-                return noSwitchMessage;
-            default:
-                return new ArrayList<UUID>();
-        }
+        return switch (type) {
+            case "join" -> noJoinMessage;
+            case "leave" -> noLeaveMessage;
+            case "switch" -> noSwitchMessage;
+            default -> new ArrayList<UUID>();
+        };
     }
 
     public List<CorePlayer> getSwitchMessageReceivers(String to, String from) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
-        if (SwapViewableByJoined && SwapViewableByLeft && SwapViewableByOther) {
+        if (swapViewableByJoined && swapViewableByLeft && swapViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
-        else if (SwapViewableByOther) {
+        else if (swapViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             //Players on the connected server is not allowed to see. Remove them all.
-            if (!SwapViewableByJoined) {
+            if (!swapViewableByJoined) {
                 receivers.removeAll(getServerPlayers(to));
             }
 
-            if (!SwapViewableByLeft) {
+            if (!swapViewableByLeft) {
                 receivers.removeAll(getServerPlayers(from));
             }
             return receivers;
         }
         //OtherServer is false.
         else {
-            if (SwapViewableByJoined) {
+            if (swapViewableByJoined) {
                 receivers.addAll(getServerPlayers(to));
             }
 
-            if (SwapViewableByLeft) {
+            if (swapViewableByLeft) {
                 receivers.addAll(getServerPlayers(from));
             }
             return receivers;
@@ -347,21 +330,21 @@ public class Storage {
     public List<CorePlayer> getFirstJoinMessageReceivers(String server) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
-        if (FirstJoinViewableByJoined && FirstJoinViewableByOther) {
+        if (firstJoinViewableByJoined && firstJoinViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
-        else if (FirstJoinViewableByOther) {
+        else if (firstJoinViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
         } else {
-            if (FirstJoinViewableByJoined) {
+            if (firstJoinViewableByJoined) {
                 receivers.addAll(getServerPlayers(server));
             }
             return receivers;
@@ -371,21 +354,21 @@ public class Storage {
     public List<CorePlayer> getJoinMessageReceivers(String server) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
-        if (JoinViewableByJoined && JoinViewableByOther) {
+        if (joinViewableByJoined && joinViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
-        else if (JoinViewableByOther) {
+        else if (joinViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
         } else {
-            if (JoinViewableByJoined) {
+            if (joinViewableByJoined) {
                 receivers.addAll(getServerPlayers(server));
             }
             return receivers;
@@ -395,21 +378,21 @@ public class Storage {
     public List<CorePlayer> getLeaveMessageReceivers(String server) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
-        if (LeftViewableByLeft && LeftViewableByOther) {
+        if (leftViewableByLeft && leftViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
-        else if (LeftViewableByOther) {
+        else if (leftViewableByOther) {
             receivers.addAll(
                 NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
         } else {
-            if (LeftViewableByLeft) {
+            if (leftViewableByLeft) {
                 receivers.addAll(getServerPlayers(server));
             }
             return receivers;
@@ -431,8 +414,8 @@ public class Storage {
             MessageHandler.getInstance()
                 .log(
                     "Warning: Server of " +
-                    player.getName() +
-                    " came back as Null. Blackisted Server check failed. #01"
+                        player.getName() +
+                        " came back as Null. Blackisted Server check failed. #01"
                 );
             return false;
         }
@@ -444,20 +427,20 @@ public class Storage {
             MessageHandler.getInstance()
                 .log(
                     "Warning: Server of " +
-                    player.getName() +
-                    " came back as Null. Blackisted Server check failed. #02"
+                        player.getName() +
+                        " came back as Null. Blackisted Server check failed. #02"
                 );
             return false;
         }
 
-        if (BlacklistedServers == null) {
+        if (blacklistedServers == null) {
             MessageHandler.getInstance()
                 .log(
                     "Warning: Blacklisted servers returned null instead of an empty list..."
                 );
             return false;
         }
-        boolean listed = BlacklistedServers.contains(server);
+        boolean listed = blacklistedServers.contains(server);
         if (useBlacklistAsWhitelist) {
             //WHITELIST
             return !listed;
@@ -477,16 +460,16 @@ public class Storage {
     public boolean blacklistCheck(String from, String to) {
         boolean fromListed = false;
         if (from != null) {
-            fromListed = BlacklistedServers.contains(from);
+            fromListed = blacklistedServers.contains(from);
         }
 
         boolean toListed = false;
         if (to != null) {
-            toListed = BlacklistedServers.contains(to);
+            toListed = blacklistedServers.contains(to);
         }
 
         boolean result = true;
-        switch (SwapServerMessageRequires.toUpperCase()) {
+        switch (swapServerMessageRequires.toUpperCase()) {
             case "JOINED":
                 result = toListed;
                 //MessageHandler.getInstance().log("Joined - toListed = " + toListed);
@@ -520,7 +503,7 @@ public class Storage {
     public List<UUID> getIgnoredServerPlayers(String type) {
         List<UUID> ignored = new ArrayList<UUID>();
         if (type.equalsIgnoreCase("first-join")) {
-            for (String s : ServerFirstJoinMessageDisabled) {
+            for (String s : serverFirstJoinMessageDisabled) {
                 CoreBackendServer backendServer =
                     NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
                 if (backendServer != null) {
@@ -530,7 +513,7 @@ public class Storage {
                 }
             }
         } else if (type.equalsIgnoreCase("join")) {
-            for (String s : ServerJoinMessageDisabled) {
+            for (String s : serverJoinMessageDisabled) {
                 CoreBackendServer backendServer =
                     NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
                 if (backendServer != null) {
@@ -540,9 +523,9 @@ public class Storage {
                 }
             }
         } else if (type.equalsIgnoreCase("leave")) {
-            for (String s : ServerLeaveMessageDisabled) {
+            for (String s : serverLeaveMessageDisabled) {
                 CoreBackendServer backendServer =
-                        NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                    NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
                 if (backendServer != null) {
                     for (CorePlayer p : backendServer.getPlayersConnected()) {
                         ignored.add(p.getUniqueId());
@@ -553,15 +536,81 @@ public class Storage {
         return ignored;
     }
 
-    public boolean shouldSuppressLimboSwap() {
+
+
+    //region Getters
+
+    public String getSwapServerMessage() {
+        return swapServerMessage;
+    }
+
+    public String getFirstJoinNetworkMessage() {
+        return firstJoinNetworkMessage;
+    }
+
+    public String getJoinNetworkMessage() {
+        return joinNetworkMessage;
+    }
+
+    public String getLeaveNetworkMessage() {
+        return leaveNetworkMessage;
+    }
+
+    public List<String> getSwapMessages() {
+        return swapMessages;
+    }
+
+    public List<String> getFirstJoinMessages() {
+        return firstJoinMessages;
+    }
+
+    public List<String> getJoinMessages() {
+        return joinMessages;
+    }
+
+    public List<String> getLeaveMessages() {
+        return leaveMessages;
+    }
+
+    public boolean getNotifyAdminsOnSilentMove() {
+        return notifyAdminsOnSilentMove;
+    }
+
+    public boolean isSwapServerMessageEnabled() {
+        return swapServerMessageEnabled;
+    }
+
+    public boolean isFirstJoinNetworkMessageEnabled() {
+        return firstJoinNetworkMessageEnabled;
+    }
+
+    public boolean isJoinNetworkMessageEnabled() {
+        return joinNetworkMessageEnabled;
+    }
+
+    public boolean isLeaveNetworkMessageEnabled() {
+        return leaveNetworkMessageEnabled;
+    }
+
+    public boolean getTreatVanishedPlayersAsSilent() {
+        return treatVanishedPlayersAsSilent;
+    }
+
+    public boolean getRemoveVanishedPlayersFromPlayerCount() {
+        return removeVanishedPlayersFromPlayerCount;
+    }
+
+    public boolean getShouldSuppressLimboSwap() {
         return shouldSuppressLimboSwap;
     }
 
-    public boolean shouldSuppressLimboJoin() {
+    public boolean getShouldSuppressLimboJoin() {
         return shouldSuppressLimboJoin;
     }
 
-    public boolean shouldSuppressLimboLeave() {
+    public boolean getShouldSuppressLimboLeave() {
         return shouldSuppressLimboLeave;
     }
+
+    //endregion
 }

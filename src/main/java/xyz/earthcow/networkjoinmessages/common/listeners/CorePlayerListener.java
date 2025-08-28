@@ -46,13 +46,13 @@ public class CorePlayerListener {
             return;
         }
 
-        if (Storage.getInstance().shouldSuppressLimboJoin() && player.isInLimbo()) {
+        if (Storage.getInstance().getShouldSuppressLimboJoin() && player.isInLimbo()) {
             return;
         }
 
         String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
 
-        if (Storage.getInstance().getAdminMessageState(player)) {
+        if (Storage.getInstance().getSilentMessageState(player)) {
             // Silent
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
                 MessageHandler.getInstance().sendMessage(player,
@@ -67,7 +67,7 @@ public class CorePlayerListener {
             core.SilentEvent("JOIN", player.getName());
 
             // Send to admin players
-            if (Storage.getInstance().notifyAdminsOnSilentMove()) {
+            if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()
                     .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).toList()) {
                     MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
@@ -84,7 +84,7 @@ public class CorePlayerListener {
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
             player,
             MessageHandler.getInstance().getServerDisplayName(server.getName()),
-            Storage.getInstance().getAdminMessageState(player),
+            Storage.getInstance().getSilentMessageState(player),
             firstJoin,
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
@@ -96,13 +96,10 @@ public class CorePlayerListener {
     private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
         player.setLastKnownConnectedServer(server);
 
-        if (Storage.getInstance().shouldSuppressLimboSwap() && fromLimbo) {
+        if (Storage.getInstance().getShouldSuppressLimboSwap() && fromLimbo) {
             return;
         }
 
-        if (!Storage.getInstance().isElsewhere(player)) {
-            return;
-        }
         String to = server.getName();
         String from = Storage.getInstance().getFrom(player);
 
@@ -118,10 +115,10 @@ public class CorePlayerListener {
             .parseSwitchMessage(player, from, to);
 
         // Silent
-        if (Storage.getInstance().getAdminMessageState(player)) {
+        if (Storage.getInstance().getSilentMessageState(player)) {
             NetworkJoinMessagesCore.getInstance()
                 .SilentEvent("MOVE", player.getName(), from, to);
-            if (Storage.getInstance().notifyAdminsOnSilentMove()) {
+            if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
                         MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
@@ -139,7 +136,7 @@ public class CorePlayerListener {
             player,
             MessageHandler.getInstance().getServerDisplayName(from),
             MessageHandler.getInstance().getServerDisplayName(to),
-            Storage.getInstance().getAdminMessageState(player),
+            Storage.getInstance().getSilentMessageState(player),
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
         );
@@ -162,7 +159,7 @@ public class CorePlayerListener {
             // PremiumVanish
             if (premiumVanish != null) {
                 if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
-                    Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
+                    Storage.getInstance().setSilentMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
                 }
             }
 
@@ -201,7 +198,7 @@ public class CorePlayerListener {
             return;
         }
 
-        if (Storage.getInstance().shouldSuppressLimboLeave() && player.isInLimbo()) {
+        if (Storage.getInstance().getShouldSuppressLimboLeave() && player.isInLimbo()) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
@@ -209,16 +206,16 @@ public class CorePlayerListener {
         // PremiumVanish
         if (premiumVanish != null) {
             if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
-                Storage.getInstance().setAdminMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
+                Storage.getInstance().setSilentMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
             }
         }
 
         String message = MessageHandler.getInstance().formatQuitMessage(player);
 
         // Silent
-        if (Storage.getInstance().getAdminMessageState(player)) {
+        if (Storage.getInstance().getSilentMessageState(player)) {
             core.SilentEvent("QUIT", player.getName());
-            if (Storage.getInstance().notifyAdminsOnSilentMove()) {
+            if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
                         MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
@@ -237,7 +234,7 @@ public class CorePlayerListener {
                 .getServerDisplayName(
                     player.getCurrentServer() != null ? player.getCurrentServer().getName() : "???"
                 ),
-            Storage.getInstance().getAdminMessageState(player),
+            Storage.getInstance().getSilentMessageState(player),
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
         );
