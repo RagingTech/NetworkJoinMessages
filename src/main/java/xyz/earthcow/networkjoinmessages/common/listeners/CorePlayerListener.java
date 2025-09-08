@@ -18,39 +18,59 @@ public class CorePlayerListener {
 
     private final Core core = Core.getInstance();
     private final CorePlugin plugin = core.getPlugin();
+    private final Storage storage = Storage.getInstance();
 
     @Nullable
     private final PremiumVanish premiumVanish = plugin.getVanishAPI();
 
+    /**
+     * Helper function to determine if an event should or should not be silent
+     * @param player Trigger player
+     * @return True if the event is silent false otherwise
+     */
+    private boolean isSilentEvent(@NotNull CorePlayer player) {
+        // Event is silent if, the player has a silent message state OR
+        // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
+        return storage.getSilentMessageState(player) ||
+                (premiumVanish != null && storage.getTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
+    }
+
+    /**
+     * Handles a player joining the server
+     * @param player Player that joined
+     * @param server Server that the player joined
+     */
     private void handlePlayerJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
-        Storage.getInstance().setConnected(player, true);
+        storage.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
         boolean firstJoin = !core.getFirstJoinTracker().hasJoined(player.getUniqueId());
 
-        if (!firstJoin && !Storage.getInstance().isJoinNetworkMessageEnabled()) {
+        if (!firstJoin && !storage.isJoinNetworkMessageEnabled()) {
             return;
         }
 
         if (firstJoin) {
             core.getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
-            if (!Storage.getInstance().isFirstJoinNetworkMessageEnabled()) {
+            if (!storage.isFirstJoinNetworkMessageEnabled()) {
                 return;
             }
         }
 
         // Blacklist Check
-        if (Storage.getInstance().isBlacklisted(player)) {
+        if (storage.isBlacklisted(player)) {
             return;
         }
 
-        if (Storage.getInstance().getShouldSuppressLimboJoin() && player.isInLimbo()) {
+        if (storage.getShouldSuppressLimboJoin() && player.isInLimbo()) {
             return;
         }
 
         String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
 
-        if (Storage.getInstance().getSilentMessageState(player)) {
+        boolean isSilent = isSilentEvent(player);
+
+        if (isSilent) {
             // Silent
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
                 Formatter.getInstance().parsePlaceholdersAndThen(
@@ -67,10 +87,10 @@ public class CorePlayerListener {
             core.SilentEvent("JOIN", player.getName());
 
             // Send to admin players
-            if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
+            if (storage.getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()
                     .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).toList()) {
-                    MessageHandler.getInstance().sendMessage(p, Storage.getInstance().getSilentPrefix() + message, player);
+                    MessageHandler.getInstance().sendMessage(p, storage.getSilentPrefix() + message, player);
                 }
             }
         } else {
@@ -83,8 +103,8 @@ public class CorePlayerListener {
         // Call the custom NetworkJoinEvent
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
             player,
-            Storage.getInstance().getServerDisplayName(server.getName()),
-            Storage.getInstance().getSilentMessageState(player),
+            storage.getServerDisplayName(server.getName()),
+            isSilent,
             firstJoin,
                 Formatter.serialize(formattedMessage),
                 Formatter.sanitize(formattedMessage)
@@ -93,21 +113,27 @@ public class CorePlayerListener {
         plugin.fireEvent(networkJoinEvent);
     }
 
+    /**
+     * Handles a player swapping between servers within the network
+     * @param player Player that swapped
+     * @param server Server the player swapped to
+     * @param fromLimbo True if the player swapped from a LimboAPI server
+     */
     private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
         player.setLastKnownConnectedServer(server);
 
-        if (Storage.getInstance().getShouldSuppressLimboSwap() && fromLimbo) {
+        if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
             return;
         }
 
         String to = server.getName();
-        String from = Storage.getInstance().getFrom(player);
+        String from = storage.getFrom(player);
 
-        if (!Storage.getInstance().isSwapServerMessageEnabled()) {
+        if (!storage.isSwapServerMessageEnabled()) {
             return;
         }
 
-        if (Storage.getInstance().isBlacklisted(from, to)) {
+        if (storage.isBlacklisted(from, to)) {
             return;
         }
 
@@ -115,13 +141,15 @@ public class CorePlayerListener {
             .parseSwitchMessage(player, from, to);
 
         // Silent
-        if (Storage.getInstance().getSilentMessageState(player)) {
+        boolean isSilent = isSilentEvent(player);
+
+        if (isSilent) {
             Core.getInstance()
                 .SilentEvent("MOVE", player.getName(), from, to);
-            if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
+            if (storage.getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, Storage.getInstance().getSilentPrefix() + message, player);
+                        MessageHandler.getInstance().sendMessage(p, storage.getSilentPrefix() + message, player);
                     }
                 }
             }
@@ -134,9 +162,9 @@ public class CorePlayerListener {
         // Call the custom ServerSwapEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
             player,
-            Storage.getInstance().getServerDisplayName(from),
-            Storage.getInstance().getServerDisplayName(to),
-            Storage.getInstance().getSilentMessageState(player),
+            storage.getServerDisplayName(from),
+            storage.getServerDisplayName(to),
+            isSilent,
                 Formatter.serialize(formattedMessage),
                 Formatter.sanitize(formattedMessage)
         );
@@ -144,26 +172,29 @@ public class CorePlayerListener {
         plugin.fireEvent(swapServerEvent);
     }
 
-    public void onPreConnect(CorePlayer player, String previousServerName) {
-        if (player == null) {
-            return;
-        }
-
+    /**
+     * Called before a full connection is made to a server
+     * Used to determine the player's previous server should they be swapping
+     * @param player Trigger player
+     * @param previousServerName Previous server name
+     */
+    public void onPreConnect(@NotNull CorePlayer player, @Nullable String previousServerName) {
         if (previousServerName != null) {
-            Storage.getInstance().setFrom(player, previousServerName);
+            storage.setFrom(player, previousServerName);
         }
     }
 
+    /**
+     * Called somewhat after a player is fully connected to a server
+     * 'somewhat' because on Velocity the Player#getCurrentServer method will sometimes still not contain a server
+     * at this stage
+     * @param player Trigger player
+     * @param server Connected server
+     * @param previousServer Previously connected server - only null on join or when swapping from a LimboAPI server
+     */
     public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server, @Nullable CoreBackendServer previousServer) {
         plugin.runTaskAsync(() -> {
-            // PremiumVanish
-            if (premiumVanish != null) {
-                if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
-                    Storage.getInstance().setSilentMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
-                }
-            }
-
-            if (!Storage.getInstance().isConnected(player)) {
+            if (!storage.isConnected(player)) {
                 // If the player is NOT already connected they have just joined the network
                 handlePlayerJoin(player, server);
                 return;
@@ -176,49 +207,45 @@ public class CorePlayerListener {
         });
     }
 
-    public void onDisconnect(CorePlayer player) {
-        if (player == null) {
-            return;
-        }
+    /**
+     * Called when a player disconnects from the network
+     * @param player Trigger player
+     */
+    public void onDisconnect(@NotNull CorePlayer player) {
 
-        if (!Storage.getInstance().isConnected(player)) {
+        if (!storage.isConnected(player)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
-        Storage.getInstance().setConnected(player, false);
+        storage.setConnected(player, false);
 
-        if (!Storage.getInstance().isLeaveNetworkMessageEnabled()) {
+        if (!storage.isLeaveNetworkMessageEnabled()) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
-        if (Storage.getInstance().isBlacklisted(player)) {
+        if (storage.isBlacklisted(player)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
 
-        if (Storage.getInstance().getShouldSuppressLimboLeave() && player.isInLimbo()) {
+        if (storage.getShouldSuppressLimboLeave() && player.isInLimbo()) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
-        }
-
-        // PremiumVanish
-        if (premiumVanish != null) {
-            if (ConfigManager.getPluginConfig().getBoolean("Settings.OtherPlugins.PremiumVanish.ToggleFakemessageWhenVanishing")) {
-                Storage.getInstance().setSilentMessageState(player, premiumVanish.isVanished(player.getUniqueId()));
-            }
         }
 
         String message = MessageHandler.getInstance().formatLeaveMessage(player);
 
         // Silent
-        if (Storage.getInstance().getSilentMessageState(player)) {
+        boolean isSilent = isSilentEvent(player);
+
+        if (isSilent) {
             core.SilentEvent("QUIT", player.getName());
-            if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
+            if (storage.getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, Storage.getInstance().getSilentPrefix() + message, player);
+                        MessageHandler.getInstance().sendMessage(p, storage.getSilentPrefix() + message, player);
                     }
                 }
             }
@@ -230,8 +257,8 @@ public class CorePlayerListener {
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
             player,
-            Storage.getInstance().getServerDisplayName(player.getCurrentServer().getName()),
-            Storage.getInstance().getSilentMessageState(player),
+            storage.getServerDisplayName(player.getCurrentServer().getName()),
+            isSilent,
                 Formatter.serialize(formattedMessage),
                 Formatter.sanitize(formattedMessage)
         );
