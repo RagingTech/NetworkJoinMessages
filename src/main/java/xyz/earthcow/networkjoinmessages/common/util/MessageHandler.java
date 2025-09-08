@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class MessageHandler {
 
     private static MessageHandler instance;
+    private static Storage storage;
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
     private static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
 
@@ -115,7 +116,9 @@ public class MessageHandler {
         return miniMessage.serialize(component);
     }
 
-    public MessageHandler() {
+    private MessageHandler() {
+        storage = Storage.getInstance();
+
         try {
             luckPerms = LuckPermsProvider.get();
             log("Successfully hooked into LuckPerms!");
@@ -178,16 +181,6 @@ public class MessageHandler {
         }
 
         this.serverNames = serverNames;
-    }
-
-    public String getServerDisplayName(String serverName) {
-        String name = serverName;
-        if (serverNames != null) {
-            if (serverNames.containsKey(serverName.toLowerCase())) {
-                name = serverNames.get(serverName.toLowerCase());
-            }
-        }
-        return name;
     }
 
     public void parsePlaceholdersAndThen(@NotNull String message, @NotNull CorePlayer parseTarget, Consumer<String> then) {
@@ -422,7 +415,7 @@ public class MessageHandler {
 
     public String formatMessage(String msg, CorePlayer player) {
         String serverName = player.getCurrentServer() != null
-                ? getServerDisplayName(player.getCurrentServer().getName())
+                ? storage.getServerDisplayName(player.getCurrentServer().getName())
                 : "???";
         return handleLpPlaceholders(msg, player)
                 .replace("%player%", player.getName())
@@ -432,8 +425,8 @@ public class MessageHandler {
     }
 
     public String parseSwitchMessage(CorePlayer player, String fromName, String toName) {
-        String from = getServerDisplayName(fromName);
-        String to = getServerDisplayName(toName);
+        String from = storage.getServerDisplayName(fromName);
+        String to = storage.getServerDisplayName(toName);
         return formatMessage(
                 getSwapServerMessage()
                     .replace("%to%", to)

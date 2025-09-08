@@ -540,6 +540,10 @@ public final class Storage {
 
     //region Getters
 
+    public String getServerDisplayName(String serverName) {
+        return serverDisplayNames.getOrDefault(serverName, serverName);
+    }
+
     public String getSwapServerMessage() {
         return swapServerMessage;
     }

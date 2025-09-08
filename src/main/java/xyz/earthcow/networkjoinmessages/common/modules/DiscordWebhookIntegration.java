@@ -11,6 +11,7 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.awt.*;
@@ -227,8 +228,8 @@ public class DiscordWebhookIntegration {
     }
 
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
-        String displayTo = MessageHandler.getInstance().getServerDisplayName(toServer);
-        String displayFrom = MessageHandler.getInstance().getServerDisplayName(fromServer);
+        String displayTo = Storage.getInstance().getServerDisplayName(toServer);
+        String displayFrom = Storage.getInstance().getServerDisplayName(fromServer);
         return
             MessageHandler.sanitize(
                     MessageHandler.getInstance()

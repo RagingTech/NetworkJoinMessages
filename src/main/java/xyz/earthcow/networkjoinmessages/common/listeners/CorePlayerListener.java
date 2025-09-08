@@ -83,7 +83,7 @@ public class CorePlayerListener {
         // Call the custom NetworkJoinEvent
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
             player,
-            MessageHandler.getInstance().getServerDisplayName(server.getName()),
+            Storage.getInstance().getServerDisplayName(server.getName()),
             Storage.getInstance().getSilentMessageState(player),
             firstJoin,
             MessageHandler.serialize(formattedMessage),
@@ -134,8 +134,8 @@ public class CorePlayerListener {
         // Call the custom ServerSwapEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
             player,
-            MessageHandler.getInstance().getServerDisplayName(from),
-            MessageHandler.getInstance().getServerDisplayName(to),
+            Storage.getInstance().getServerDisplayName(from),
+            Storage.getInstance().getServerDisplayName(to),
             Storage.getInstance().getSilentMessageState(player),
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
@@ -230,10 +230,7 @@ public class CorePlayerListener {
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
             player,
-            MessageHandler.getInstance()
-                .getServerDisplayName(
-                    player.getCurrentServer() != null ? player.getCurrentServer().getName() : "???"
-                ),
+            Storage.getInstance().getServerDisplayName(player.getCurrentServer().getName()),
             Storage.getInstance().getSilentMessageState(player),
             MessageHandler.serialize(formattedMessage),
             MessageHandler.stripColor(formattedMessage)
