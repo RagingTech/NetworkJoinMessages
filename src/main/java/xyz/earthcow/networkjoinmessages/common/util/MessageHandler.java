@@ -246,13 +246,13 @@ public class MessageHandler {
     public void broadcastMessage(String text, String type, String from, String to, CorePlayer parseTarget) {
         List<CorePlayer> receivers = new ArrayList<>();
         if (type.equalsIgnoreCase("switch")) {
-            receivers.addAll(Storage.getInstance().getSwitchMessageReceivers(to, from));
+            receivers.addAll(storage.getSwitchMessageReceivers(to, from));
         } else if (type.equalsIgnoreCase("first-join")) {
-            receivers.addAll(Storage.getInstance().getFirstJoinMessageReceivers(from));
+            receivers.addAll(storage.getFirstJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("join")) {
-            receivers.addAll(Storage.getInstance().getJoinMessageReceivers(from));
+            receivers.addAll(storage.getJoinMessageReceivers(from));
         } else if (type.equalsIgnoreCase("leave")) {
-            receivers.addAll(Storage.getInstance().getLeaveMessageReceivers(from));
+            receivers.addAll(storage.getLeaveMessageReceivers(from));
         } else {
             receivers.addAll(NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers());
         }
@@ -260,8 +260,8 @@ public class MessageHandler {
         // Send message to console
         sendMessage(NetworkJoinMessagesCore.getInstance().getPlugin().getConsole(), text, parseTarget);
 
-        List<UUID> ignorePlayers = Storage.getInstance().getIgnorePlayers(type.equalsIgnoreCase("first-join") ? "join" : type);
-        ignorePlayers.addAll(Storage.getInstance().getIgnoredServerPlayers(type));
+        List<UUID> ignorePlayers = storage.getIgnorePlayers(type.equalsIgnoreCase("first-join") ? "join" : type);
+        ignorePlayers.addAll(storage.getIgnoredServerPlayers(type));
 
         for (CorePlayer player : receivers) {
             if (ignorePlayers.contains(player.getUniqueId())) {
