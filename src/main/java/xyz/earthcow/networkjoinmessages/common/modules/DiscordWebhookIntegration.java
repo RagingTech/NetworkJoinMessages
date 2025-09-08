@@ -12,6 +12,7 @@ import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.awt.*;
@@ -43,7 +44,7 @@ public class DiscordWebhookIntegration {
     }
 
     private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
-        MessageHandler.getInstance().parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
+        Formatter.getInstance().parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
             corePlugin.runTaskAsync(() -> {
                 try {
                     webhook.execute(formatted);
@@ -230,28 +231,24 @@ public class DiscordWebhookIntegration {
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
         String displayTo = Storage.getInstance().getServerDisplayName(toServer);
         String displayFrom = Storage.getInstance().getServerDisplayName(fromServer);
-        return
-            MessageHandler.sanitize(
-                    MessageHandler.getInstance()
-                        .formatMessage(txt, player)
+        return txt
+                .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
+                .replace("%to%", displayTo)
+                .replace("%to_clean%", Formatter.sanitize(displayTo))
+                .replace("%from%", displayFrom)
+                .replace("%from_clean%", Formatter.sanitize(displayFrom))
+                .replace(
+                        "%playercount_from%", MessageHandler.getInstance()
+                                .getServerPlayerCount(fromServer, true, player)
                 )
-                    .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                    .replace("%to%", displayTo)
-                    .replace("%to_clean%", MessageHandler.sanitize(displayTo))
-                    .replace("%from%", displayFrom)
-                    .replace("%from_clean%", MessageHandler.sanitize(displayFrom))
-                    .replace(
-                            "%playercount_from%", MessageHandler.getInstance()
-                                    .getServerPlayerCount(fromServer, true, player)
-                    )
-                    .replace(
-                            "%playercount_to%", MessageHandler.getInstance()
-                                    .getServerPlayerCount(toServer, false, player)
-                    )
-                    .replace(
-                            "%playercount_network%", MessageHandler.getInstance()
-                                    .getNetworkPlayerCount(player, false)
-                    );
+                .replace(
+                        "%playercount_to%", MessageHandler.getInstance()
+                                .getServerPlayerCount(toServer, false, player)
+                )
+                .replace(
+                        "%playercount_network%", MessageHandler.getInstance()
+                                .getNetworkPlayerCount(player, false)
+                );
     }
 
     private String getSwapConfigValue(String key, CorePlayer player, String toServer, String fromServer) {
@@ -264,25 +261,21 @@ public class DiscordWebhookIntegration {
     }
 
     private String replacePlaceholdersJoinLeave(String txt, CorePlayer player, boolean leaving) {
-        return
-            MessageHandler.sanitize(
-                    MessageHandler.getInstance()
-                        .formatMessage(txt, player)
+        return txt
+                .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
+                .replace(
+                        "%playercount_server%", MessageHandler.getInstance()
+                                .getServerPlayerCount(
+                                        player.getCurrentServer(),
+                                        leaving,
+                                        player
+                                )
                 )
-                    .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                    .replace(
-                            "%playercount_server%", MessageHandler.getInstance()
-                                    .getServerPlayerCount(
-                                            player.getCurrentServer(),
-                                            leaving,
-                                            player
-                                    )
-                    )
-                    .replace(
-                            "%playercount_network%",
-                            MessageHandler.getInstance()
-                                    .getNetworkPlayerCount(player, leaving)
-                    );
+                .replace(
+                        "%playercount_network%",
+                        MessageHandler.getInstance()
+                                .getNetworkPlayerCount(player, leaving)
+                );
     }
 
     private String getJoinLeaveConfigValue(String key, CorePlayer player, boolean leaving) {

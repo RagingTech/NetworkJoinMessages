@@ -1,0 +1,187 @@
+package xyz.earthcow.networkjoinmessages.common.util;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import net.william278.papiproxybridge.api.PlaceholderAPI;
+import org.jetbrains.annotations.NotNull;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.common.general.Storage;
+import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
+
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public final class Formatter {
+
+    private static Formatter instance;
+
+    private LuckPerms luckPerms = null;
+    private PlaceholderAPI placeholderAPI = null;
+    private static MiniPlaceholdersHook miniPlaceholders = null;
+
+    public static final MiniMessage miniMessage = MiniMessage.miniMessage();
+    public static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
+
+    private Formatter() {
+        // Get compatibility with other plugins, initialize hooks
+
+        try {
+            this.luckPerms = LuckPermsProvider.get();
+            MessageHandler.getInstance().log("Successfully hooked into LuckPerms!");
+        } catch (IllegalStateException | NoClassDefFoundError e) {
+            Core.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
+        }
+
+        try {
+            this.placeholderAPI = PlaceholderAPI.createInstance();
+            MessageHandler.getInstance().log("Successfully hooked into PAPIProxyBridge!");
+        } catch (NoClassDefFoundError e) {
+            Core.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
+        }
+
+        if (Core.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
+            miniPlaceholders = new MiniPlaceholdersHook();
+            MessageHandler.getInstance().log("Successfully hooked into MiniPlaceholders!");
+        }
+
+    }
+
+    public static Formatter getInstance() {
+        if (instance == null) {
+            instance = new Formatter();
+        }
+        return instance;
+    }
+
+    public static String translateLegacyCodes(String str) {
+        str = replaceEssentialsColorCodes(str);
+        return str
+                .replace('§', '&')
+                .replace("&0", convertToTag(NamedTextColor.BLACK.asHexString()))
+                .replace("&1", convertToTag(NamedTextColor.DARK_BLUE.asHexString()))
+                .replace("&2", convertToTag(NamedTextColor.DARK_GREEN.asHexString()))
+                .replace("&3", convertToTag(NamedTextColor.DARK_AQUA.asHexString()))
+                .replace("&4", convertToTag(NamedTextColor.DARK_RED.asHexString()))
+                .replace("&5", convertToTag(NamedTextColor.DARK_PURPLE.asHexString()))
+                .replace("&6", convertToTag(NamedTextColor.GOLD.asHexString()))
+                .replace("&7", convertToTag(NamedTextColor.GRAY.asHexString()))
+                .replace("&8", convertToTag(NamedTextColor.DARK_GRAY.asHexString()))
+                .replace("&9", convertToTag(NamedTextColor.BLUE.asHexString()))
+                .replace("&a", convertToTag(NamedTextColor.GREEN.asHexString()))
+                .replace("&b", convertToTag(NamedTextColor.AQUA.asHexString()))
+                .replace("&c", convertToTag(NamedTextColor.RED.asHexString()))
+                .replace("&d", convertToTag(NamedTextColor.LIGHT_PURPLE.asHexString()))
+                .replace("&e", convertToTag(NamedTextColor.YELLOW.asHexString()))
+                .replace("&f", convertToTag(NamedTextColor.WHITE.asHexString()))
+                .replace("&k", convertToTag("obfuscated"))
+                .replace("&l", convertToTag("bold"))
+                .replace("&m", convertToTag("strikethrough"))
+                .replace("&n", convertToTag("underlined"))
+                .replace("&o", convertToTag("italic"))
+                .replace("&r", convertToTag("reset"))
+                .replace("\\n", convertToTag("newline"))
+
+                // "&#FFC0CBHello! -> <#FFC0CB>Hello!
+                .replaceAll("&#([A-Fa-f0-9]{6})", "<#$1>");
+    }
+
+    public static String replaceEssentialsColorCodes(String str) {
+        // "§x§f§b§6§3§f§5Hello!" -> "&#fb63f5Hello!"
+        Matcher matcher = essentialsPattern.matcher(str);
+
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            String hexColor = matcher.group(0)
+                    .replace("§x", "")
+                    .replace("§", "");
+            matcher.appendReplacement(result, "&#" + hexColor);
+        }
+
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    public static String convertToTag(String str) {
+        return "<" + str + ">";
+    }
+
+    public static Component deserialize(String str) {
+        return deserialize(str, null);
+    }
+
+    public static Component deserialize(String str, CorePlayer parseTarget) {
+        if (miniPlaceholders != null) {
+            if (parseTarget == null) {
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
+            } else {
+                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver(), miniPlaceholders.getAudienceResolver(parseTarget.getAudience()));
+            }
+        }
+        return miniMessage.deserialize(translateLegacyCodes(str));
+    }
+
+    public static String serialize(Component component) {
+        return miniMessage.serialize(component);
+    }
+
+    public static String sanitize(String str) {
+        return stripColor(deserialize(str));
+    }
+
+    public static String stripColor(Component component) {
+        return PlainTextComponentSerializer.plainText().serialize(component);
+    }
+
+    private String handleLpPlaceholders(String str, CorePlayer player) {
+        if (luckPerms == null) return str;
+        User lpUser = luckPerms.getUserManager().getUser(player.getUniqueId());
+        String prefix = "";
+        String suffix = "";
+        if (lpUser != null) {
+            if (lpUser.getCachedData().getMetaData().getPrefix() != null) {
+                prefix = lpUser.getCachedData().getMetaData().getPrefix();
+            }
+            if (lpUser.getCachedData().getMetaData().getSuffix() != null) {
+                suffix = lpUser.getCachedData().getMetaData().getSuffix();
+            }
+        }
+        return str
+                .replace("%player_prefix%", prefix)
+                .replace("%player_suffix%", suffix);
+    }
+
+    /**
+     * This should be the final step before any player receives a message
+     * Handles LuckPerms, MiniPlaceholders, and PlaceholderAPI placeholders
+     * Handles custom placeholders: %player%, %displayname%, %server_name%, %server_name_clean%
+     *
+     * @param message The message to parse placeholders within
+     * @param parseTarget The CorePlayer to provide replacements for placeholders
+     * @param then The consumer to accept the parsed placeholder string
+     */
+    public void parsePlaceholdersAndThen(@NotNull String message, @NotNull CorePlayer parseTarget, Consumer<String> then) {
+        message = handleLpPlaceholders(message, parseTarget)
+                .replace("%player%", parseTarget.getName())
+                .replace("%displayname%", parseTarget.getName())
+                .replace("%server_name%", Storage.getInstance().getServerDisplayName(parseTarget.getCurrentServer().getName()))
+                .replace("%server_name_clean%", parseTarget.getCurrentServer().getName());
+
+        if (miniPlaceholders != null) {
+            message = serialize(deserialize(message, parseTarget));
+        }
+        if (placeholderAPI != null) {
+            placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(then);
+        } else {
+            then.accept(message);
+        }
+    }
+}

@@ -10,6 +10,7 @@ import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
@@ -56,12 +57,14 @@ public class CorePlayerListener {
         if (Storage.getInstance().getSilentMessageState(player)) {
             // Silent
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                MessageHandler.getInstance().sendMessage(player,
-                    MessageHandler.getInstance().formatMessage(
+                Formatter.getInstance().parsePlaceholdersAndThen(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
-                        player
-                    )
+                        player,
+                        formattedMsg -> {
+                            MessageHandler.getInstance().sendMessage(player, formattedMsg);
+                        }
                 );
+
             }
 
             // Send to console
@@ -79,7 +82,7 @@ public class CorePlayerListener {
             MessageHandler.getInstance().broadcastMessage(message, firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN, player);
         }
 
-        Component formattedMessage = MessageHandler.deserialize(message);
+        Component formattedMessage = Formatter.deserialize(message);
         // All checks have passed to reach this point
         // Call the custom NetworkJoinEvent
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
@@ -87,8 +90,8 @@ public class CorePlayerListener {
             Storage.getInstance().getServerDisplayName(server.getName()),
             Storage.getInstance().getSilentMessageState(player),
             firstJoin,
-            MessageHandler.serialize(formattedMessage),
-            MessageHandler.stripColor(formattedMessage)
+                Formatter.serialize(formattedMessage),
+                Formatter.stripColor(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
         plugin.fireEvent(networkJoinEvent);
@@ -131,15 +134,15 @@ public class CorePlayerListener {
                 .broadcastMessage(message, MessageType.SWAP, from, to, player);
         }
 
-        Component formattedMessage = MessageHandler.deserialize(message);
+        Component formattedMessage = Formatter.deserialize(message);
         // Call the custom ServerSwapEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
             player,
             Storage.getInstance().getServerDisplayName(from),
             Storage.getInstance().getServerDisplayName(to),
             Storage.getInstance().getSilentMessageState(player),
-            MessageHandler.serialize(formattedMessage),
-            MessageHandler.stripColor(formattedMessage)
+                Formatter.serialize(formattedMessage),
+                Formatter.stripColor(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
         plugin.fireEvent(swapServerEvent);
@@ -227,14 +230,14 @@ public class CorePlayerListener {
             MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player);
         }
 
-        Component formattedMessage = MessageHandler.deserialize(message);
+        Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
             player,
             Storage.getInstance().getServerDisplayName(player.getCurrentServer().getName()),
             Storage.getInstance().getSilentMessageState(player),
-            MessageHandler.serialize(formattedMessage),
-            MessageHandler.stripColor(formattedMessage)
+                Formatter.serialize(formattedMessage),
+                Formatter.stripColor(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         plugin.fireEvent(networkQuitEvent);
