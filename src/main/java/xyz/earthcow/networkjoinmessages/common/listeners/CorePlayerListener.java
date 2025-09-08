@@ -91,7 +91,7 @@ public class CorePlayerListener {
             Storage.getInstance().getSilentMessageState(player),
             firstJoin,
                 Formatter.serialize(formattedMessage),
-                Formatter.stripColor(formattedMessage)
+                Formatter.sanitize(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
         plugin.fireEvent(networkJoinEvent);
@@ -142,7 +142,7 @@ public class CorePlayerListener {
             Storage.getInstance().getServerDisplayName(to),
             Storage.getInstance().getSilentMessageState(player),
                 Formatter.serialize(formattedMessage),
-                Formatter.stripColor(formattedMessage)
+                Formatter.sanitize(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
         plugin.fireEvent(swapServerEvent);
@@ -237,7 +237,7 @@ public class CorePlayerListener {
             Storage.getInstance().getServerDisplayName(player.getCurrentServer().getName()),
             Storage.getInstance().getSilentMessageState(player),
                 Formatter.serialize(formattedMessage),
-                Formatter.stripColor(formattedMessage)
+                Formatter.sanitize(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         plugin.fireEvent(networkQuitEvent);

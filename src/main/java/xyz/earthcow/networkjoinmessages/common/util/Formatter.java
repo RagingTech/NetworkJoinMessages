@@ -9,6 +9,7 @@ import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.william278.papiproxybridge.api.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
@@ -60,7 +61,26 @@ public final class Formatter {
         return instance;
     }
 
-    public static String translateLegacyCodes(String str) {
+    //region Legacy parsers
+    private static String replaceEssentialsColorCodes(String str) {
+        // "§x§f§b§6§3§f§5Hello!" -> "&#fb63f5Hello!"
+        Matcher matcher = essentialsPattern.matcher(str);
+
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            String hexColor = matcher.group(0)
+                    .replace("§x", "")
+                    .replace("§", "");
+            matcher.appendReplacement(result, "&#" + hexColor);
+        }
+
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    private static String translateLegacyCodes(String str) {
         str = replaceEssentialsColorCodes(str);
         return str
                 .replace('§', '&')
@@ -92,33 +112,27 @@ public final class Formatter {
                 .replaceAll("&#([A-Fa-f0-9]{6})", "<#$1>");
     }
 
-    public static String replaceEssentialsColorCodes(String str) {
-        // "§x§f§b§6§3§f§5Hello!" -> "&#fb63f5Hello!"
-        Matcher matcher = essentialsPattern.matcher(str);
-
-        StringBuilder result = new StringBuilder();
-
-        while (matcher.find()) {
-            String hexColor = matcher.group(0)
-                    .replace("§x", "")
-                    .replace("§", "");
-            matcher.appendReplacement(result, "&#" + hexColor);
-        }
-
-        matcher.appendTail(result);
-
-        return result.toString();
-    }
-
-    public static String convertToTag(String str) {
+    private static String convertToTag(String str) {
         return "<" + str + ">";
     }
+    //endregion
 
+    /**
+     * Creates a component from the supplied string without parsing MiniPlaceholders
+     * @param str String to construct a component from
+     * @return An Adventure Component object
+     */
     public static Component deserialize(String str) {
         return deserialize(str, null);
     }
 
-    public static Component deserialize(String str, CorePlayer parseTarget) {
+    /**
+     * Creates a component from the supplied string
+     * @param str String to construct a component from
+     * @param parseTarget Optional CorePlayer to parse MiniPlaceholder placeholders against
+     * @return An Adventure Component object
+     */
+    public static Component deserialize(@NotNull String str, @Nullable CorePlayer parseTarget) {
         if (miniPlaceholders != null) {
             if (parseTarget == null) {
                 return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
@@ -129,18 +143,39 @@ public final class Formatter {
         return miniMessage.deserialize(translateLegacyCodes(str));
     }
 
+    /**
+     * Reverts the deserialization process
+     * @param component The component to revert back to a string
+     * @return A string theoretically capable of being deserialized back into an identical component as the input one
+     */
     public static String serialize(Component component) {
         return miniMessage.serialize(component);
     }
 
+    /**
+     * Completely strip formatting and tags from a string
+     * @param str The string to strip formatting and tags from
+     * @return A new string containing no formatting or tags
+     */
     public static String sanitize(String str) {
-        return stripColor(deserialize(str));
+        return sanitize(deserialize(str));
     }
 
-    public static String stripColor(Component component) {
+    /**
+     * Completely strip formatting and tags from a component, converting it to a string
+     * @param component The component to convert and strip formatting and tags from
+     * @return A string containing no formatting or tags
+     */
+    public static String sanitize(Component component) {
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
+    /**
+     * Parse LuckPerms placeholders, %player_prefix% & %player_suffix% from a string
+     * @param str The string to parse
+     * @param player The player to parse the string against
+     * @return A string with parsed LuckPerms placeholders
+     */
     private String handleLpPlaceholders(String str, CorePlayer player) {
         if (luckPerms == null) return str;
         User lpUser = luckPerms.getUserManager().getUser(player.getUniqueId());
