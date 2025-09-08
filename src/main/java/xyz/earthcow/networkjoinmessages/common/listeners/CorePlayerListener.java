@@ -22,10 +22,6 @@ public class CorePlayerListener {
     @Nullable
     private final PremiumVanish premiumVanish = plugin.getVanishAPI();
 
-    private String getSilentPrefix() {
-        return ConfigManager.getPluginConfig().getString("Messages.Misc.SilentPrefix");
-    }
-
     private void handlePlayerJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
         Storage.getInstance().setConnected(player, true);
         player.setLastKnownConnectedServer(server);
@@ -44,7 +40,7 @@ public class CorePlayerListener {
         }
 
         // Blacklist Check
-        if (Storage.getInstance().blacklistCheck(player)) {
+        if (Storage.getInstance().isBlacklisted(player)) {
             return;
         }
 
@@ -74,7 +70,7 @@ public class CorePlayerListener {
             if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()
                     .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).toList()) {
-                    MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
+                    MessageHandler.getInstance().sendMessage(p, Storage.getInstance().getSilentPrefix() + message, player);
                 }
             }
         } else {
@@ -111,7 +107,7 @@ public class CorePlayerListener {
             return;
         }
 
-        if (Storage.getInstance().blacklistCheck(from, to)) {
+        if (Storage.getInstance().isBlacklisted(from, to)) {
             return;
         }
 
@@ -125,7 +121,7 @@ public class CorePlayerListener {
             if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
+                        MessageHandler.getInstance().sendMessage(p, Storage.getInstance().getSilentPrefix() + message, player);
                     }
                 }
             }
@@ -197,7 +193,7 @@ public class CorePlayerListener {
             return;
         }
 
-        if (Storage.getInstance().blacklistCheck(player)) {
+        if (Storage.getInstance().isBlacklisted(player)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             return;
         }
@@ -222,7 +218,7 @@ public class CorePlayerListener {
             if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {
                     if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, getSilentPrefix() + message, player);
+                        MessageHandler.getInstance().sendMessage(p, Storage.getInstance().getSilentPrefix() + message, player);
                     }
                 }
             }

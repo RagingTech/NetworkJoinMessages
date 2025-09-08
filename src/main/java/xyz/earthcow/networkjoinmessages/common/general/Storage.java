@@ -44,6 +44,8 @@ public final class Storage {
     private List<String> joinMessages;
     private List<String> leaveMessages;
 
+    private String silentPrefix;
+
     /**
      * The default silent state of a player joining with the networkjoinmessages.silent permission
      * Default: true - Someone joining with the permission will be silent (not send a join message)
@@ -113,7 +115,7 @@ public final class Storage {
 
         // Load server display names using their real names as defaults
         for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
-            serverDisplayNames.put(
+            this.serverDisplayNames.put(
                 serverKey.toLowerCase(),
                 config.getString("Servers." + serverKey, serverKey)
             );
@@ -122,16 +124,19 @@ public final class Storage {
         /// Messages
 
         // Set definite messages
-        swapServerMessage = config.getString("Messages.SwapServerMessage", "");
-        firstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage", "");
-        joinNetworkMessage = config.getString("Messages.JoinNetworkMessage", "");
-        leaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage", "");
+        this.swapServerMessage = config.getString("Messages.SwapServerMessage", "");
+        this.firstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage", "");
+        this.joinNetworkMessage = config.getString("Messages.JoinNetworkMessage", "");
+        this.leaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage", "");
 
         // Set randomized messages
-        swapMessages = config.getStringList("Messages.SwapServerMessages");
-        firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
-        joinMessages = config.getStringList("Messages.JoinNetworkMessages");
-        leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
+        this.swapMessages = config.getStringList("Messages.SwapServerMessages");
+        this.firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
+        this.joinMessages = config.getStringList("Messages.JoinNetworkMessages");
+        this.leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
+
+        this.silentPrefix = config.getString("Messages.Misc.SilentPrefix");
+
 
         /// Settings
 
@@ -190,6 +195,10 @@ public final class Storage {
                     );
                 this.swapServerMessageRequires = "ANY";
         }
+    }
+
+    public String getSilentPrefix() {
+        return silentPrefix;
     }
 
     public boolean getSilentMessageState(CorePlayer player) {
@@ -257,8 +266,6 @@ public final class Storage {
             }
         }
     }
-
-
 
     public void setSendMessageState(String list, UUID id, boolean state) {
         switch (list) {
@@ -406,37 +413,20 @@ public final class Storage {
         return backendServer.getPlayersConnected();
     }
 
-    public boolean blacklistCheck(CorePlayer player) {
-        if (player.getCurrentServer() == null) {
-            MessageHandler.getInstance()
-                .log(
-                    "Warning: Server of " +
-                        player.getName() +
-                        " came back as Null. Blackisted Server check failed. #01"
-                );
-            return false;
-        }
-        String server = player
-            .getCurrentServer()
-            .getName();
-        //Null check because of Geyser issues.
+    public boolean isBlacklisted(CorePlayer player) {
+        String server = player.getCurrentServer().getName();
+
+        // Null check for possible Geyser issues.
         if (server == null) {
             MessageHandler.getInstance()
                 .log(
                     "Warning: Server of " +
                         player.getName() +
-                        " came back as Null. Blackisted Server check failed. #02"
+                        " came back as Null. Blacklisted Server check failed. #02"
                 );
             return false;
         }
 
-        if (blacklistedServers == null) {
-            MessageHandler.getInstance()
-                .log(
-                    "Warning: Blacklisted servers returned null instead of an empty list..."
-                );
-            return false;
-        }
         boolean listed = blacklistedServers.contains(server);
         if (useBlacklistAsWhitelist) {
             //WHITELIST
@@ -454,7 +444,7 @@ public final class Storage {
         //Returning FALSE allows the message to go further, TRUE will stop it.
     }
 
-    public boolean blacklistCheck(String from, String to) {
+    public boolean isBlacklisted(String from, String to) {
         boolean fromListed = false;
         if (from != null) {
             fromListed = blacklistedServers.contains(from);
