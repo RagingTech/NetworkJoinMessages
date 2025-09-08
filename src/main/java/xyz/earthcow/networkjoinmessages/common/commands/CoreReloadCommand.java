@@ -2,7 +2,7 @@ package xyz.earthcow.networkjoinmessages.common.commands;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class CoreReloadCommand implements Command {
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
-            NetworkJoinMessagesCore.getInstance().loadConfigs();
+            Core.getInstance().loadConfigs();
             MessageHandler.getInstance().sendMessage(coreCommandSender,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.Reload.ConfigReloaded")
             );

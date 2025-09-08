@@ -13,7 +13,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
@@ -53,7 +53,7 @@ public class VelocityMain implements CorePlugin {
     private final VelocityLogger velocityLogger;
     private final File dataFolder;
     private PremiumVanish premiumVanish;
-    private NetworkJoinMessagesCore core;
+    private Core core;
     private VelocityCommandSender console;
     private final Metrics.Factory metricsFactory;
     private boolean isLimboAPIAvailable = false;
@@ -74,7 +74,7 @@ public class VelocityMain implements CorePlugin {
         final int PLUGIN_ID = 26526;
         Metrics metrics = metricsFactory.make(this, PLUGIN_ID);
 
-        this.core = new NetworkJoinMessagesCore(this);
+        this.core = new Core(this);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
         proxy.getEventManager().register(this, new PlayerListener());
@@ -198,7 +198,7 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
-    public NetworkJoinMessagesCore getCore() {
+    public Core getCore() {
         return core;
     }
 

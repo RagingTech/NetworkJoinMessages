@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,7 +46,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
             }
             return false;
         } catch (SQLException e) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
+            Core.getInstance().getPlugin().getCoreLogger().severe(
                 "Cannot access joined database! Does the file exist?");
             return true;
         }
@@ -63,7 +63,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
                 return rs.next();
             }
         } catch (SQLException e) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
+            Core.getInstance().getPlugin().getCoreLogger().severe(
                 "SQL Failure: Failed to determine if " + playerUuid + " has joined before");
             return false;
         }
@@ -79,7 +79,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
             ps.setString(2, playerName);
             ps.executeUpdate();
         } catch (SQLException e) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
+            Core.getInstance().getPlugin().getCoreLogger().severe(
                 "SQL Failure: Failed to mark player joined for player " + playerName);
         }
     }
@@ -124,7 +124,7 @@ public class H2PlayerJoinTracker implements AutoCloseable {
                 DriverManager.registerDriver(new DriverShim(realDriver));
             }
         } catch (Exception e) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().severe(
+            Core.getInstance().getPlugin().getCoreLogger().severe(
                 "Failed to manually register H2 JDBC driver");
         }
     }

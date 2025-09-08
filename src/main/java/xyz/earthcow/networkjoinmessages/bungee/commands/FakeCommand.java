@@ -7,14 +7,14 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
 import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 
 public class FakeCommand extends Command implements TabExecutor {
 
-    private final CoreFakeCommand coreFakeCommand = NetworkJoinMessagesCore.getInstance().coreFakeCommand;
+    private final CoreFakeCommand coreFakeCommand = Core.getInstance().coreFakeCommand;
 
     public FakeCommand() {
-        super("fakemessage", NetworkJoinMessagesCore.getInstance().coreFakeCommand.getRequiredPermission(), "fm");
+        super("fakemessage", Core.getInstance().coreFakeCommand.getRequiredPermission(), "fm");
     }
 
     @Override

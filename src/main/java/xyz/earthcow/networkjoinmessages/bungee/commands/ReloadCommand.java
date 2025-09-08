@@ -5,17 +5,17 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
 import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 
 public class ReloadCommand extends Command {
 
     public ReloadCommand() {
-        super("networkjoinreload", NetworkJoinMessagesCore.getInstance().coreReloadCommand.getRequiredPermission(), "njoinreload");
+        super("networkjoinreload", Core.getInstance().coreReloadCommand.getRequiredPermission(), "njoinreload");
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        NetworkJoinMessagesCore.getInstance().coreReloadCommand.execute(
+        Core.getInstance().coreReloadCommand.execute(
             sender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) sender).getUniqueId())
                 :

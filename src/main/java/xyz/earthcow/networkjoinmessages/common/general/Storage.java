@@ -292,14 +292,14 @@ public final class Storage {
         //If all are true, add all players:
         if (swapViewableByJoined && swapViewableByLeft && swapViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (swapViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             //Players on the connected server is not allowed to see. Remove them all.
             if (!swapViewableByJoined) {
@@ -329,14 +329,14 @@ public final class Storage {
         //If all are true, add all players:
         if (firstJoinViewableByJoined && firstJoinViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (firstJoinViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
@@ -353,14 +353,14 @@ public final class Storage {
         //If all are true, add all players:
         if (joinViewableByJoined && joinViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (joinViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
@@ -377,14 +377,14 @@ public final class Storage {
         //If all are true, add all players:
         if (leftViewableByLeft && leftViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
         else if (leftViewableByOther) {
             receivers.addAll(
-                NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers()
+                Core.getInstance().getPlugin().getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
@@ -397,7 +397,7 @@ public final class Storage {
     }
 
     public List<CorePlayer> getServerPlayers(String serverName) {
-        CoreBackendServer backendServer = NetworkJoinMessagesCore.getInstance()
+        CoreBackendServer backendServer = Core.getInstance()
             .getPlugin()
             .getServer(serverName);
         if (backendServer == null) {
@@ -502,7 +502,7 @@ public final class Storage {
         if (type.equalsIgnoreCase("first-join")) {
             for (String s : serverFirstJoinMessageDisabled) {
                 CoreBackendServer backendServer =
-                    NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                    Core.getInstance().getPlugin().getServer(s);
                 if (backendServer != null) {
                     for (CorePlayer p : backendServer.getPlayersConnected()) {
                         ignored.add(p.getUniqueId());
@@ -512,7 +512,7 @@ public final class Storage {
         } else if (type.equalsIgnoreCase("join")) {
             for (String s : serverJoinMessageDisabled) {
                 CoreBackendServer backendServer =
-                    NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                    Core.getInstance().getPlugin().getServer(s);
                 if (backendServer != null) {
                     for (CorePlayer p : backendServer.getPlayersConnected()) {
                         ignored.add(p.getUniqueId());
@@ -522,7 +522,7 @@ public final class Storage {
         } else if (type.equalsIgnoreCase("leave")) {
             for (String s : serverLeaveMessageDisabled) {
                 CoreBackendServer backendServer =
-                    NetworkJoinMessagesCore.getInstance().getPlugin().getServer(s);
+                    Core.getInstance().getPlugin().getServer(s);
                 if (backendServer != null) {
                     for (CorePlayer p : backendServer.getPlayersConnected()) {
                         ignored.add(p.getUniqueId());

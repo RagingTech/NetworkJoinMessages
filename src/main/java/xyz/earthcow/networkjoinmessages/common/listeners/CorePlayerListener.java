@@ -8,13 +8,13 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 public class CorePlayerListener {
 
-    private final NetworkJoinMessagesCore core = NetworkJoinMessagesCore.getInstance();
+    private final Core core = Core.getInstance();
     private final CorePlugin plugin = core.getPlugin();
 
     @Nullable
@@ -116,7 +116,7 @@ public class CorePlayerListener {
 
         // Silent
         if (Storage.getInstance().getSilentMessageState(player)) {
-            NetworkJoinMessagesCore.getInstance()
+            Core.getInstance()
                 .SilentEvent("MOVE", player.getName(), from, to);
             if (Storage.getInstance().getNotifyAdminsOnSilentMove()) {
                 for (CorePlayer p : plugin.getAllPlayers()) {

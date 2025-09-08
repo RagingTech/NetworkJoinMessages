@@ -13,7 +13,7 @@ import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +25,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
     private static BungeeMain instance;
     private PlayerManager manager = new PlayerManager();
 
-    private NetworkJoinMessagesCore core;
+    private Core core;
     private CoreCommandSender console;
 
     private BungeeLogger bungeeLogger;
@@ -41,7 +41,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
         this.bungeeLogger = new BungeeLogger(getLogger());
         this.audiences = BungeeAudiences.create(this);
-        this.core = new NetworkJoinMessagesCore(this);
+        this.core = new Core(this);
         this.console = new BungeeCommandSender(getProxy().getConsole());
 
         instance = this;
@@ -107,7 +107,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
     }
 
     @Override
-    public NetworkJoinMessagesCore getCore() {
+    public Core getCore() {
         return core;
     }
 

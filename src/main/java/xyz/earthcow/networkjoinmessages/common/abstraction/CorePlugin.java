@@ -1,13 +1,13 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
 public interface CorePlugin {
-    NetworkJoinMessagesCore getCore();
+    Core getCore();
 
     void disable();
 

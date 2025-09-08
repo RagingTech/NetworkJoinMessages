@@ -7,12 +7,11 @@ import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
-public class NetworkJoinMessagesCore {
-    private static NetworkJoinMessagesCore instance;
+public class Core {
+    private static Core instance;
 
-    public static NetworkJoinMessagesCore getInstance() {
+    public static Core getInstance() {
         return instance;
     }
 
@@ -34,7 +33,7 @@ public class NetworkJoinMessagesCore {
     public final CoreReloadCommand coreReloadCommand = new CoreReloadCommand();
     public final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
 
-    public NetworkJoinMessagesCore(CorePlugin plugin) {
+    public Core(CorePlugin plugin) {
         this.plugin = plugin;
 
         instance = this;

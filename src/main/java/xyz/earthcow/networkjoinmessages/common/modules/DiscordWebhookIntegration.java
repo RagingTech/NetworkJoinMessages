@@ -10,7 +10,7 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class DiscordWebhookIntegration {
 
-    private final CorePlugin corePlugin = NetworkJoinMessagesCore.getInstance().getPlugin();
+    private final CorePlugin corePlugin = Core.getInstance().getPlugin();
 
     private YamlDocument discordConfig;
     private String webhookUrl;

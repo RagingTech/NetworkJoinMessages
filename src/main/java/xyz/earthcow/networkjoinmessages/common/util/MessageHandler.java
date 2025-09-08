@@ -13,8 +13,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
-import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 
@@ -122,17 +121,17 @@ public class MessageHandler {
             luckPerms = LuckPermsProvider.get();
             log("Successfully hooked into LuckPerms!");
         } catch (IllegalStateException | NoClassDefFoundError e) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
+            Core.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
 
         try {
             placeholderAPI = PlaceholderAPI.createInstance();
             log("Successfully hooked into PAPIProxyBridge!");
         } catch (NoClassDefFoundError e) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
+            Core.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
 
-        if (NetworkJoinMessagesCore.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
+        if (Core.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
             miniPlaceholders = new MiniPlaceholdersHook();
             log("Successfully hooked into MiniPlaceholders!");
         }
@@ -212,11 +211,11 @@ public class MessageHandler {
         } else if (type.equalsIgnoreCase("leave")) {
             receivers.addAll(storage.getLeaveMessageReceivers(from));
         } else {
-            receivers.addAll(NetworkJoinMessagesCore.getInstance().getPlugin().getAllPlayers());
+            receivers.addAll(Core.getInstance().getPlugin().getAllPlayers());
         }
 
         // Send message to console
-        sendMessage(NetworkJoinMessagesCore.getInstance().getPlugin().getConsole(), text, parseTarget);
+        sendMessage(Core.getInstance().getPlugin().getConsole(), text, parseTarget);
 
         List<UUID> ignorePlayers = storage.getIgnorePlayers(type.equalsIgnoreCase("first-join") ? "join" : type);
         ignorePlayers.addAll(storage.getIgnoredServerPlayers(type));
@@ -243,7 +242,7 @@ public class MessageHandler {
         CorePlayer player
     ) {
         return getServerPlayerCount(
-            NetworkJoinMessagesCore.getInstance().getPlugin().getServer(serverName),
+            Core.getInstance().getPlugin().getServer(serverName),
             leaving,
             player
         );
@@ -258,7 +257,7 @@ public class MessageHandler {
         if (backendServer != null) {
             List<CorePlayer> players = backendServer.getPlayersConnected();
 
-            PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+            PremiumVanish premiumVanish = Core.getInstance().getPlugin().getVanishAPI();
 
             if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
                 List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
@@ -280,12 +279,12 @@ public class MessageHandler {
     }
 
     public String getNetworkPlayerCount(CorePlayer player, Boolean leaving) {
-        Collection<CorePlayer> players = NetworkJoinMessagesCore.getInstance()
+        Collection<CorePlayer> players = Core.getInstance()
             .getPlugin()
             .getAllPlayers();
         int count = players.size();
 
-        PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
+        PremiumVanish premiumVanish = Core.getInstance().getPlugin().getVanishAPI();
 
         boolean vanished = false;
         if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
@@ -370,6 +369,6 @@ public class MessageHandler {
     }
 
     public void log(String string) {
-        NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().info(string);
+        Core.getInstance().getPlugin().getCoreLogger().info(string);
     }
 }
