@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
-import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -147,42 +146,6 @@ public class MessageHandler {
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
-    String SwapServerMessage = "";
-    String FirstJoinNetworkMessage = "";
-    String JoinNetworkMessage = "";
-    String LeaveNetworkMessage = "";
-
-    List<String> swapMessages = new ArrayList<>();
-    List<String> firstJoinMessages = new ArrayList<>();
-    List<String> joinMessages = new ArrayList<>();
-    List<String> leaveMessages = new ArrayList<>();
-
-    HashMap<String, String> serverNames;
-
-    public void setupConfigMessages() {
-        YamlDocument config = ConfigManager.getPluginConfig();
-        SwapServerMessage = config.getString("Messages.SwapServerMessage", "");
-        FirstJoinNetworkMessage = config.getString("Messages.FirstJoinNetworkMessage", "");
-        JoinNetworkMessage = config.getString("Messages.JoinNetworkMessage", "");
-        LeaveNetworkMessage = config.getString("Messages.LeaveNetworkMessage", "");
-
-        swapMessages = config.getStringList("Messages.SwapServerMessages");
-        firstJoinMessages = config.getStringList("Messages.FirstJoinNetworkMessages");
-        joinMessages = config.getStringList("Messages.JoinNetworkMessages");
-        leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
-
-        HashMap<String, String> serverNames = new HashMap<String, String>();
-
-        for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
-            serverNames.put(
-                    serverKey.toLowerCase(),
-                    config.getString("Servers." + serverKey, serverKey)
-            );
-        }
-
-        this.serverNames = serverNames;
-    }
-
     public void parsePlaceholdersAndThen(@NotNull String message, @NotNull CorePlayer parseTarget, Consumer<String> then) {
         if (miniPlaceholders != null) {
             message = serialize(deserialize(message, parseTarget));
@@ -235,12 +198,7 @@ public class MessageHandler {
      * @param player - The player to fetch the server from.
      */
     public void broadcastMessage(String text, String type, CorePlayer player) {
-        if (player.getCurrentServer() == null) {
-            NetworkJoinMessagesCore.getInstance().getPlugin().getCoreLogger().warn(
-                "Broadcast message of type: '" + type + "' for player: " + player.getName() + " failed to parse server name placeholders as " + player.getName() + "'s current server returned null."
-            );
-        }
-        broadcastMessage(text, type, player.getCurrentServer() == null ? "???" : player.getCurrentServer().getName(), "???", player);
+        broadcastMessage(text, type, player.getCurrentServer().getName(), "???", player);
     }
 
     public void broadcastMessage(String text, String type, String from, String to, CorePlayer parseTarget) {
@@ -271,60 +229,12 @@ public class MessageHandler {
         }
     }
 
-    public String getFirstJoinNetworkMessage() {
-        if (!FirstJoinNetworkMessage.isEmpty()) {
-            return FirstJoinNetworkMessage;
-        }
-        return getRandomMessage(firstJoinMessages);
-    }
-    public String getJoinNetworkMessage() {
-        if (!JoinNetworkMessage.isEmpty()) {
-            return JoinNetworkMessage;
-        }
-        return getRandomMessage(joinMessages);
-    }
-
-    public String getLeaveNetworkMessage() {
-        if (!LeaveNetworkMessage.isEmpty()) {
-            return LeaveNetworkMessage;
-        }
-        return getRandomMessage(leaveMessages);
-    }
-
-    public String getSwapServerMessage() {
-        if (!SwapServerMessage.isEmpty()) {
-            return SwapServerMessage;
-        }
-        return getRandomMessage(swapMessages);
-    }
-
-    private String getRandomMessage(List<String> messageList) {
-        if (messageList.isEmpty()) {
-            return "";
-        } else if (messageList.size() == 1) {
-            return messageList.get(0);
-        }
-        Random random = new Random();
-        int randomIndex = random.nextInt(messageList.size());
-        return messageList.get(randomIndex);
-    }
-
-    public List<String> getServerNames() {
-        if (serverNames != null) {
-            return List.of(serverNames.keySet().toArray(new String[0]));
-        }
-        return null;
-    }
-
     public String getServerPlayerCount(CorePlayer player, boolean leaving) {
-        if (player.getCurrentServer() != null) {
-            return getServerPlayerCount(
-                player.getCurrentServer(),
-                leaving,
-                player
-            );
-        }
-        return "?";
+        return getServerPlayerCount(
+            player.getCurrentServer(),
+            leaving,
+            player
+        );
     }
 
     public String getServerPlayerCount(
@@ -350,8 +260,7 @@ public class MessageHandler {
 
             PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
 
-            if (premiumVanish != null && ConfigManager.getPluginConfig()
-                .getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount")) {
+            if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
                 List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
                 // Filter out vanished players
                 players = players.stream().filter(corePlayer -> !vanishedPlayers.contains(corePlayer.getUniqueId())).collect(Collectors.toList());
@@ -379,8 +288,7 @@ public class MessageHandler {
         PremiumVanish premiumVanish = NetworkJoinMessagesCore.getInstance().getPlugin().getVanishAPI();
 
         boolean vanished = false;
-        if (premiumVanish != null && ConfigManager.getPluginConfig()
-            .getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount")) {
+        if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
             count -= premiumVanish.getInvisiblePlayers().size();
             if (player != null) {
                 vanished = premiumVanish.isVanished(player.getUniqueId());
@@ -388,7 +296,7 @@ public class MessageHandler {
         }
 
         if (player != null && !vanished && leaving) {
-            if (players.stream().map(CorePlayer::getUniqueId).collect(Collectors.toList()).contains(player.getUniqueId())) {
+            if (players.stream().map(CorePlayer::getUniqueId).toList().contains(player.getUniqueId())) {
                 count--;
             }
         }
@@ -414,9 +322,7 @@ public class MessageHandler {
     }
 
     public String formatMessage(String msg, CorePlayer player) {
-        String serverName = player.getCurrentServer() != null
-                ? storage.getServerDisplayName(player.getCurrentServer().getName())
-                : "???";
+        String serverName = storage.getServerDisplayName(player.getCurrentServer().getName());
         return handleLpPlaceholders(msg, player)
                 .replace("%player%", player.getName())
                 .replace("%displayname%", player.getName())
@@ -428,7 +334,7 @@ public class MessageHandler {
         String from = storage.getServerDisplayName(fromName);
         String to = storage.getServerDisplayName(toName);
         return formatMessage(
-                getSwapServerMessage()
+                storage.getSwapServerMessage()
                     .replace("%to%", to)
                     .replace("%to_clean%", sanitize(to))
                     .replace("%from%", from)
@@ -441,7 +347,7 @@ public class MessageHandler {
 
     public String formatFirstJoinMessage(CorePlayer player) {
         return formatMessage(
-            getFirstJoinNetworkMessage()
+            storage.getFirstJoinNetworkMessage()
                 .replace("%playercount_server%", getServerPlayerCount(player, false))
                 .replace("%playercount_network%", getNetworkPlayerCount(player, false))
             , player);
@@ -449,15 +355,15 @@ public class MessageHandler {
 
     public String formatJoinMessage(CorePlayer player) {
         return formatMessage(
-                getJoinNetworkMessage()
+            storage.getJoinNetworkMessage()
                     .replace("%playercount_server%", getServerPlayerCount(player, false))
                     .replace("%playercount_network%", getNetworkPlayerCount(player, false))
                 , player);
     }
 
-    public String formatQuitMessage(CorePlayer player) {
+    public String formatLeaveMessage(CorePlayer player) {
         return formatMessage(
-                getLeaveNetworkMessage()
+            storage.getLeaveNetworkMessage()
                         .replace("%playercount_server%", getServerPlayerCount(player, true))
                         .replace("%playercount_network%", getNetworkPlayerCount(player, true))
                 , player);

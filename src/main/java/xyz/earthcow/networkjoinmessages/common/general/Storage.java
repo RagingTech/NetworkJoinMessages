@@ -5,10 +5,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Singleton class for holding config values and user data that should persist after the user leaves the proxy
@@ -538,42 +535,48 @@ public final class Storage {
 
 
 
+    private String getRandomMessage(List<String> messageList) {
+        if (messageList.isEmpty()) {
+            return "";
+        } else if (messageList.size() == 1) {
+            return messageList.get(0);
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(messageList.size());
+        return messageList.get(randomIndex);
+    }
+
+    private String getMessage(String message, List<String> messageList) {
+        if (!message.isEmpty()) {
+            return message;
+        }
+        return getRandomMessage(messageList);
+    }
+
     //region Getters
+
+    public List<String> getServerNames() {
+        return List.of(serverDisplayNames.keySet().toArray(new String[0]));
+    }
 
     public String getServerDisplayName(String serverName) {
         return serverDisplayNames.getOrDefault(serverName, serverName);
     }
 
     public String getSwapServerMessage() {
-        return swapServerMessage;
+        return getMessage(swapServerMessage, swapMessages);
     }
 
     public String getFirstJoinNetworkMessage() {
-        return firstJoinNetworkMessage;
+        return getMessage(firstJoinNetworkMessage, firstJoinMessages);
     }
 
     public String getJoinNetworkMessage() {
-        return joinNetworkMessage;
+        return getMessage(joinNetworkMessage, joinMessages);
     }
 
     public String getLeaveNetworkMessage() {
-        return leaveNetworkMessage;
-    }
-
-    public List<String> getSwapMessages() {
-        return swapMessages;
-    }
-
-    public List<String> getFirstJoinMessages() {
-        return firstJoinMessages;
-    }
-
-    public List<String> getJoinMessages() {
-        return joinMessages;
-    }
-
-    public List<String> getLeaveMessages() {
-        return leaveMessages;
+        return getMessage(leaveNetworkMessage, leaveMessages);
     }
 
     public boolean getNotifyAdminsOnSilentMove() {

@@ -50,7 +50,7 @@ public class CoreFakeCommand implements Command {
                 return;
             case "fakequit":
             case "fq":
-                message = MessageHandler.getInstance().formatQuitMessage(player);
+                message = MessageHandler.getInstance().formatLeaveMessage(player);
                 MessageHandler.getInstance().broadcastMessage(message, "leave", player);
                 return;
             case "fakeswitch":
@@ -100,7 +100,7 @@ public class CoreFakeCommand implements Command {
             case 2:
             case 3:
                 if (args[0].equalsIgnoreCase("fs") || args[0].equalsIgnoreCase("fakeswitch")) {
-                    return MessageHandler.getInstance().getServerNames();
+                    return Storage.getInstance().getServerNames();
                 } else {
                     return ImmutableList.of(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.NoMoreArgumentsNeeded")

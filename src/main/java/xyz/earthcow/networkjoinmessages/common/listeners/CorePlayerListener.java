@@ -210,7 +210,7 @@ public class CorePlayerListener {
             }
         }
 
-        String message = MessageHandler.getInstance().formatQuitMessage(player);
+        String message = MessageHandler.getInstance().formatLeaveMessage(player);
 
         // Silent
         if (Storage.getInstance().getSilentMessageState(player)) {
