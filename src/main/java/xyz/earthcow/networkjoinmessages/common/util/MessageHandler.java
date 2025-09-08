@@ -224,7 +224,7 @@ public class MessageHandler {
         // Send message to console
         sendMessage(Core.getInstance().getPlugin().getConsole(), text, parseTarget);
 
-        List<UUID> ignorePlayers = storage.getIgnorePlayers(type.equals(MessageType.FIRST_JOIN) ? MessageType.JOIN : type);
+        List<UUID> ignorePlayers = storage.getIgnorePlayers(type);
         ignorePlayers.addAll(storage.getIgnoredServerPlayers(type));
 
         for (CorePlayer player : receivers) {
