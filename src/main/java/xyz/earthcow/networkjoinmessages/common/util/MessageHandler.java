@@ -196,28 +196,35 @@ public class MessageHandler {
      * @param type - What type of message should be sent (switch/join/leave)
      * @param player - The player to fetch the server from.
      */
-    public void broadcastMessage(String text, String type, CorePlayer player) {
+    public void broadcastMessage(String text, MessageType type, CorePlayer player) {
         broadcastMessage(text, type, player.getCurrentServer().getName(), "???", player);
     }
 
-    public void broadcastMessage(String text, String type, String from, String to, CorePlayer parseTarget) {
+    public void broadcastMessage(String text, MessageType type, String from, String to, CorePlayer parseTarget) {
         List<CorePlayer> receivers = new ArrayList<>();
-        if (type.equalsIgnoreCase("switch")) {
-            receivers.addAll(storage.getSwitchMessageReceivers(to, from));
-        } else if (type.equalsIgnoreCase("first-join")) {
-            receivers.addAll(storage.getFirstJoinMessageReceivers(from));
-        } else if (type.equalsIgnoreCase("join")) {
-            receivers.addAll(storage.getJoinMessageReceivers(from));
-        } else if (type.equalsIgnoreCase("leave")) {
-            receivers.addAll(storage.getLeaveMessageReceivers(from));
-        } else {
-            receivers.addAll(Core.getInstance().getPlugin().getAllPlayers());
+
+        switch (type) {
+            case SWAP -> {
+                receivers.addAll(storage.getSwitchMessageReceivers(to, from));
+            }
+            case FIRST_JOIN -> {
+                receivers.addAll(storage.getFirstJoinMessageReceivers(from));
+            }
+            case JOIN -> {
+                receivers.addAll(storage.getJoinMessageReceivers(from));
+            }
+            case LEAVE -> {
+                receivers.addAll(storage.getLeaveMessageReceivers(from));
+            }
+            default -> {
+                receivers.addAll(Core.getInstance().getPlugin().getAllPlayers());
+            }
         }
 
         // Send message to console
         sendMessage(Core.getInstance().getPlugin().getConsole(), text, parseTarget);
 
-        List<UUID> ignorePlayers = storage.getIgnorePlayers(type.equalsIgnoreCase("first-join") ? "join" : type);
+        List<UUID> ignorePlayers = storage.getIgnorePlayers(type.equals(MessageType.FIRST_JOIN) ? MessageType.JOIN : type);
         ignorePlayers.addAll(storage.getIgnoredServerPlayers(type));
 
         for (CorePlayer player : receivers) {

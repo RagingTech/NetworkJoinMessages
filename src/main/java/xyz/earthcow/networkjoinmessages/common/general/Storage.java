@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;
 
@@ -278,12 +279,11 @@ public final class Storage {
         }
     }
 
-    public List<UUID> getIgnorePlayers(String type) {
+    public List<UUID> getIgnorePlayers(MessageType type) {
         return switch (type) {
-            case "join" -> noJoinMessage;
-            case "leave" -> noLeaveMessage;
-            case "switch" -> noSwitchMessage;
-            default -> new ArrayList<UUID>();
+            case JOIN, FIRST_JOIN -> noJoinMessage;
+            case SWAP -> noSwitchMessage;
+            case LEAVE -> noLeaveMessage;
         };
     }
 
@@ -497,9 +497,9 @@ public final class Storage {
         }
     }
 
-    public List<UUID> getIgnoredServerPlayers(String type) {
+    public List<UUID> getIgnoredServerPlayers(MessageType type) {
         List<UUID> ignored = new ArrayList<UUID>();
-        if (type.equalsIgnoreCase("first-join")) {
+        if (type.equals(MessageType.FIRST_JOIN)) {
             for (String s : serverFirstJoinMessageDisabled) {
                 CoreBackendServer backendServer =
                     Core.getInstance().getPlugin().getServer(s);
@@ -509,7 +509,7 @@ public final class Storage {
                     }
                 }
             }
-        } else if (type.equalsIgnoreCase("join")) {
+        } else if (type.equals(MessageType.JOIN)) {
             for (String s : serverJoinMessageDisabled) {
                 CoreBackendServer backendServer =
                     Core.getInstance().getPlugin().getServer(s);
@@ -519,7 +519,7 @@ public final class Storage {
                     }
                 }
             }
-        } else if (type.equalsIgnoreCase("leave")) {
+        } else if (type.equals(MessageType.LEAVE)) {
             for (String s : serverLeaveMessageDisabled) {
                 CoreBackendServer backendServer =
                     Core.getInstance().getPlugin().getServer(s);

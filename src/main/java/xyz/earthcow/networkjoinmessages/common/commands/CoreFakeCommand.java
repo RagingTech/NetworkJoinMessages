@@ -6,6 +6,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.List;
 
@@ -46,12 +47,12 @@ public class CoreFakeCommand implements Command {
             case "fakejoin":
             case "fj":
                 message = MessageHandler.getInstance().formatJoinMessage(player);
-                MessageHandler.getInstance().broadcastMessage(message, "join", player);
+                MessageHandler.getInstance().broadcastMessage(message, MessageType.JOIN, player);
                 return;
             case "fakequit":
             case "fq":
                 message = MessageHandler.getInstance().formatLeaveMessage(player);
-                MessageHandler.getInstance().broadcastMessage(message, "leave", player);
+                MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player);
                 return;
             case "fakeswitch":
             case "fs":
@@ -66,7 +67,7 @@ public class CoreFakeCommand implements Command {
                 String toName = args[2];
 
                 message = MessageHandler.getInstance().parseSwitchMessage(player, fromName, toName);
-                MessageHandler.getInstance().broadcastMessage(message, "switch", fromName, toName, player);
+                MessageHandler.getInstance().broadcastMessage(message, MessageType.SWAP, fromName, toName, player);
                 return;
             case "toggle":
                 if (!player.hasPermission("networkjoinmessages.silent")) {

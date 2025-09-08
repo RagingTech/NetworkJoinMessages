@@ -11,6 +11,7 @@ import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.general.Core;
 import xyz.earthcow.networkjoinmessages.common.general.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 public class CorePlayerListener {
 
@@ -75,7 +76,7 @@ public class CorePlayerListener {
             }
         } else {
             // Not silent
-            MessageHandler.getInstance().broadcastMessage(message, firstJoin ? "first-join" : "join", player);
+            MessageHandler.getInstance().broadcastMessage(message, firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN, player);
         }
 
         Component formattedMessage = MessageHandler.deserialize(message);
@@ -127,7 +128,7 @@ public class CorePlayerListener {
             }
         } else {
             MessageHandler.getInstance()
-                .broadcastMessage(message, "switch", from, to, player);
+                .broadcastMessage(message, MessageType.SWAP, from, to, player);
         }
 
         Component formattedMessage = MessageHandler.deserialize(message);
@@ -223,7 +224,7 @@ public class CorePlayerListener {
                 }
             }
         } else {
-            MessageHandler.getInstance().broadcastMessage(message, "leave", player);
+            MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player);
         }
 
         Component formattedMessage = MessageHandler.deserialize(message);
