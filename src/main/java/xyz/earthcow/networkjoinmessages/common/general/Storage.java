@@ -45,6 +45,9 @@ public final class Storage {
     private List<String> leaveMessages;
 
     private String silentPrefix;
+    private String consoleSilentSwap;
+    private String consoleSilentJoin;
+    private String consoleSilentLeave;
 
     /**
      * The default silent state of a player joining with the networkjoinmessages.silent permission
@@ -136,6 +139,9 @@ public final class Storage {
         this.leaveMessages = config.getStringList("Messages.LeaveNetworkMessages");
 
         this.silentPrefix = config.getString("Messages.Misc.SilentPrefix");
+        this.consoleSilentSwap = config.getString("Messages.Misc.ConsoleSilentSwap");
+        this.consoleSilentJoin = config.getString("Messages.Misc.ConsoleSilentJoin");
+        this.consoleSilentLeave = config.getString("Messages.Misc.ConsoleSilentLeave");
 
 
         /// Settings
@@ -199,6 +205,18 @@ public final class Storage {
 
     public String getSilentPrefix() {
         return silentPrefix;
+    }
+
+    public String getConsoleSilentSwap() {
+        return consoleSilentSwap;
+    }
+
+    public String getConsoleSilentJoin() {
+        return consoleSilentJoin;
+    }
+
+    public String getConsoleSilentLeave() {
+        return consoleSilentLeave;
     }
 
     public boolean getSilentMessageState(CorePlayer player) {

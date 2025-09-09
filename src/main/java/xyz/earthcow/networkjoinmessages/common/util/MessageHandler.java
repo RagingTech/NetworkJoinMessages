@@ -114,6 +114,20 @@ public final class MessageHandler {
         }
     }
 
+    public void broadcastSilentMessage(String text, MessageType type, String from, String to, CorePlayer parseTarget) {
+        // Send message to console
+        sendMessage(Core.getInstance().getPlugin().getConsole(), text, player);
+
+        if (!storage.getNotifyAdminsOnSilentMove()) {
+            return;
+        }
+        for (CorePlayer p : Core.getInstance().getPlugin().getAllPlayers()) {
+            if (p.hasPermission("networkjoinmessages.silent")) {
+                sendMessage(p, storage.getSilentPrefix() + text, player);
+            }
+        }
+    }
+
     public String getServerPlayerCount(CorePlayer player, boolean leaving) {
         return getServerPlayerCount(player.getCurrentServer(), leaving, player);
     }

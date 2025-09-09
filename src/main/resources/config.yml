@@ -107,9 +107,9 @@ Messages:
       ConfigReloaded: Config Reloaded!
   Misc:
     SilentPrefix: "&7[Silent] "
-    ConsoleSilentMoveEvent: "&1Move Event was silenced. <player> <from> -> <to>"
-    ConsoleSilentJoinEvent: "&6Join Event was silenced. <player> joined the network."
-    ConsoleSilentQuitEvent: "&cQuit Event was silenced. <player> left the network."
+    ConsoleSilentSwap: "&1Swap message was silenced. %player% %from% -> %to%"
+    ConsoleSilentJoin: "&6Join message was silenced. %player% joined the network"
+    ConsoleSilentLeave: "&cLeave message was silenced. %player% left the network"
 Settings:
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /fakemessage toggle command
@@ -199,4 +199,4 @@ OtherPlugins:
     SuppressLeaveMessages: false
 
 # Do not touch this
-config-version: 6
+config-version: 7

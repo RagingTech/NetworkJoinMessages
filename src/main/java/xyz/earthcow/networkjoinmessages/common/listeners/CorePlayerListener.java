@@ -144,15 +144,7 @@ public class CorePlayerListener {
         boolean isSilent = isSilentEvent(player);
 
         if (isSilent) {
-            Core.getInstance()
-                .SilentEvent("MOVE", player.getName(), from, to);
-            if (storage.getNotifyAdminsOnSilentMove()) {
-                for (CorePlayer p : plugin.getAllPlayers()) {
-                    if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, storage.getSilentPrefix() + message, player);
-                    }
-                }
-            }
+            MessageHandler.getInstance().broadcastSilentMessage(message, MessageType.SWAP, from, to, player);
         } else {
             MessageHandler.getInstance()
                 .broadcastMessage(message, MessageType.SWAP, from, to, player);
