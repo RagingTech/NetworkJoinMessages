@@ -36,7 +36,7 @@ public class CoreFakeCommand implements Command {
         if (args.length < 1) {
             MessageHandler.getInstance().sendMessage(
                 player,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.NoArgument")
+                ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.NoArgument")
             );
             return;
         }
@@ -59,7 +59,7 @@ public class CoreFakeCommand implements Command {
                 if (args.length < 3) {
                     MessageHandler.getInstance().sendMessage(
                         player,
-                        ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.FakeSwitchNoArgument")
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.FakeSwitchNoArgument")
                     );
                     return;
                 }
@@ -73,7 +73,7 @@ public class CoreFakeCommand implements Command {
                 if (!player.hasPermission("networkjoinmessages.silent")) {
                     MessageHandler.getInstance().sendMessage(
                         player,
-                        ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.ToggleSilentNoPerm")
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.ToggleSilentNoPerm")
                     );
                     return;
                 }
@@ -81,7 +81,7 @@ public class CoreFakeCommand implements Command {
                 Storage.getInstance().setSilentMessageState(player, state);
                 MessageHandler.getInstance().sendMessage(
                     player,
-                    ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.ToggleSilent")
+                    ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.ToggleSilent")
                         .replaceAll("<state>", String.valueOf(state))
                 );
         }

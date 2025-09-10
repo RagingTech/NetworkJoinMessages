@@ -75,7 +75,7 @@ Messages:
   Commands:
     NoMoreArgumentsNeeded: "No more arguments needed."
     NoPermission: "&cYou do not have the permission to use this command."
-    Fakemessage:
+    FakeMessage:
       NoArgument: |
         &6Arguments:
         - &cfakejoin

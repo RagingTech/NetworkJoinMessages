@@ -111,7 +111,7 @@ public class CorePlayerListener {
         if (isSilent) {
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
                 Formatter.getInstance().parsePlaceholdersAndThen(
-                        ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.JoinNotification"),
                         player,
                         formattedMsg -> {
                             MessageHandler.getInstance().sendMessage(player, formattedMsg);
