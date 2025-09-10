@@ -1,28 +1,40 @@
-## About
+# NetworkJoinMessages
 
-This is a continuation of Tirco's project [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages) as it appears it is no longer being maintained.
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/RagingTech/NetworkJoinMessages)
+![GitHub license](https://img.shields.io/github/license/RagingTech/NetworkJoinMessages)
+![GitHub downloads](https://img.shields.io/github/downloads/RagingTech/NetworkJoinMessages/total)
+[![SpigotMC downloads](https://img.shields.io/spiget/downloads/118643?label=SpigotMC%20downloads)](https://www.spigotmc.org/resources/118643/)
 
-## License
+A modern continuation of [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages), this plugin handles customizable join, leave, and server-swap messages across proxy servers like BungeeCord and Velocity.
 
-Zlib was chosen as the basis for this project (BukkitPlugin) as it is highly permissive and easy for people to understand. The license has only been modified for this project to reflect authorship and creation year.
+## Features
+- Flexible joining, leaving, and switching notifications
+- Compatible with BungeeCord and Velocity proxy setups
+- Easy-to-use configuration with powerful placeholder support
+  - [LuckPerms](https://luckperms.net/) (prefix and suffix)
+  - [PAPIProxyBridge](https://www.spigotmc.org/resources/papiproxybridge.108415/)
+  - [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders)
+- Support for legacy and MiniMessage formatting
+- Support for [PremiumVanish](https://www.spigotmc.org/resources/premiumvanish-stay-hidden-bungee-velocity-support.14404/) and [LimboAPI](https://github.com/Elytrium/LimboAPI)
 
-Copyright (c) 2021 Tirco and EarthCow
+## Installation
+1. Download the latest release from [SpigotMC](https://www.spigotmc.org/resources/118643/)
+2. Place the JAR file in the `plugins` directory of your proxy server
+3. Restart the proxy to generate the default configuration
+4. Edit the `config.yml` file in the plugin's directory to your liking following changes with `/njoinreload`
 
-This software is provided 'as-is', without any express or implied
-warranty. In no event will the authors be held liable for any damages
-arising from the use of this software.
+### Contributing
 
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
+Contributions are encouraged!
 
-1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgment in the product documentation would be
-   appreciated but is not required.
+- Open issues for bug reports or suggestions
+- Submit pull requests for new features or fixes
 
-2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
+### License
 
-3. This notice may not be removed or altered from any source
-   distribution.
+Licensed under [Zlib](https://zlib.net/zlib_license.html) by the original author Tirco. You are free to use, modify, and redistribute this plugin, as long as credit is retained.
+
+### Support
+
+- Open an issue for bugs or feature requests
+- Join the [discord server](https://earthcow.xyz/discord) for help
