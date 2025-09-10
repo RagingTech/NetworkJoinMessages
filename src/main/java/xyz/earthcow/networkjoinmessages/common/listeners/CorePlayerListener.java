@@ -45,6 +45,7 @@ public class CorePlayerListener {
         player.setLastKnownConnectedServer(server);
 
         boolean firstJoin = !core.getFirstJoinTracker().hasJoined(player.getUniqueId());
+        MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
 
         if (!firstJoin && !storage.isJoinNetworkMessageEnabled()) {
             return;
@@ -71,7 +72,6 @@ public class CorePlayerListener {
         boolean isSilent = isSilentEvent(player);
 
         if (isSilent) {
-            // Silent
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
                 Formatter.getInstance().parsePlaceholdersAndThen(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.Fakemessage.JoinNotification"),
@@ -80,23 +80,10 @@ public class CorePlayerListener {
                             MessageHandler.getInstance().sendMessage(player, formattedMsg);
                         }
                 );
-
             }
-
-            // Send to console
-            core.SilentEvent("JOIN", player.getName());
-
-            // Send to admin players
-            if (storage.getNotifyAdminsOnSilentMove()) {
-                for (CorePlayer p : plugin.getAllPlayers()
-                    .stream().filter(networkPlayer -> networkPlayer.hasPermission("networkjoinmessages.silent")).toList()) {
-                    MessageHandler.getInstance().sendMessage(p, storage.getSilentPrefix() + message, player);
-                }
-            }
-        } else {
-            // Not silent
-            MessageHandler.getInstance().broadcastMessage(message, firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN, player);
         }
+
+        MessageHandler.getInstance().broadcastMessage(message, msgType, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // All checks have passed to reach this point
@@ -143,12 +130,8 @@ public class CorePlayerListener {
         // Silent
         boolean isSilent = isSilentEvent(player);
 
-        if (isSilent) {
-            MessageHandler.getInstance().broadcastSilentMessage(message, MessageType.SWAP, from, to, player);
-        } else {
-            MessageHandler.getInstance()
-                .broadcastMessage(message, MessageType.SWAP, from, to, player);
-        }
+        // Broadcast message
+        MessageHandler.getInstance().broadcastMessage(message, MessageType.SWAP, from, to, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom ServerSwapEvent
@@ -191,7 +174,7 @@ public class CorePlayerListener {
                 handlePlayerJoin(player, server);
                 return;
             }
-            // If the player IS already connected, then they have just switched servers
+            // If the player IS already connected, then they have just swapped servers
 
             // If the server type is Velocity and the previous server is null then the player MUST have come from a LimboAPI server
             boolean fromLimbo = plugin.getServerType().equals(ServerType.VELOCITY) && previousServer == null;
@@ -232,18 +215,8 @@ public class CorePlayerListener {
         // Silent
         boolean isSilent = isSilentEvent(player);
 
-        if (isSilent) {
-            core.SilentEvent("QUIT", player.getName());
-            if (storage.getNotifyAdminsOnSilentMove()) {
-                for (CorePlayer p : plugin.getAllPlayers()) {
-                    if (p.hasPermission("networkjoinmessages.silent")) {
-                        MessageHandler.getInstance().sendMessage(p, storage.getSilentPrefix() + message, player);
-                    }
-                }
-            }
-        } else {
-            MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player);
-        }
+        // Broadcast message
+        MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkQuitEvent

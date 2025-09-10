@@ -70,16 +70,53 @@ public final class MessageHandler {
     }
 
     /**
-     * Send a message globally, based on the players current server.
+     * Send a message globally, based on the players current server with silent false
      * @param text - The text to be displayed
      * @param type - What type of message should be sent (switch/join/leave)
-     * @param player - The player to fetch the server from.
+     * @param parseTarget - The player to fetch the server from and parse placeholders against
      */
-    public void broadcastMessage(String text, MessageType type, CorePlayer player) {
-        broadcastMessage(text, type, player.getCurrentServer().getName(), "???", player);
+    public void broadcastMessage(String text, MessageType type, CorePlayer parseTarget) {
+        broadcastMessage(text, type, parseTarget, false);
     }
 
+    /**
+     * Send a message globally, with silent false
+     * @param text - The text to be displayed
+     * @param type - What type of message should be sent (switch/join/leave)
+     * @param from - The server the player came from
+     * @param to - The server the player went to
+     * @param parseTarget - The player to parse placeholders against
+     */
     public void broadcastMessage(String text, MessageType type, String from, String to, CorePlayer parseTarget) {
+        broadcastMessage(text, type, from, to, parseTarget, false);
+    }
+
+    /**
+     * Send a message globally, based on the players current server with silent false
+     * @param text - The text to be displayed
+     * @param type - What type of message should be sent (switch/join/leave)
+     * @param parseTarget - The player to fetch the server from and parse placeholders against
+     * @param silent - Whether this message should be silent
+     */
+    public void broadcastMessage(String text, MessageType type, CorePlayer parseTarget, boolean silent) {
+        broadcastMessage(text, type, parseTarget.getCurrentServer().getName(), "", parseTarget, silent);
+    }
+
+    /**
+     * Send a message globally, with silent false
+     * @param text - The text to be displayed
+     * @param type - What type of message should be sent (switch/join/leave)
+     * @param from - The server the player came from
+     * @param to - The server the player went to
+     * @param parseTarget - The player to parse placeholders against
+     * @param silent - Whether this message should be silent
+     */
+    public void broadcastMessage(String text, MessageType type, String from, String to, CorePlayer parseTarget, boolean silent) {
+        if (silent) {
+            broadcastSilentMessage(text, type, from, to, parseTarget);
+            return;
+        }
+
         List<CorePlayer> receivers = new ArrayList<>();
 
         switch (type) {
@@ -94,9 +131,6 @@ public final class MessageHandler {
             }
             case LEAVE -> {
                 receivers.addAll(storage.getLeaveMessageReceivers(from));
-            }
-            default -> {
-                receivers.addAll(Core.getInstance().getPlugin().getAllPlayers());
             }
         }
 
@@ -114,18 +148,34 @@ public final class MessageHandler {
         }
     }
 
-    public void broadcastSilentMessage(String text, MessageType type, String from, String to, CorePlayer parseTarget) {
+    private void broadcastSilentMessage(@NotNull String text, @NotNull MessageType type, @NotNull CorePlayer parseTarget) {
+        broadcastSilentMessage(text, type, "", "", parseTarget);
+    }
+
+    private void broadcastSilentMessage(@NotNull String text, @NotNull MessageType type, @NotNull String from, @NotNull String to, @NotNull CorePlayer parseTarget) {
         // Send message to console
-        sendMessage(Core.getInstance().getPlugin().getConsole(), text, player);
+        handleSilentConsoleMessage(type, from, to, parseTarget);
 
         if (!storage.getNotifyAdminsOnSilentMove()) {
             return;
         }
+
         for (CorePlayer p : Core.getInstance().getPlugin().getAllPlayers()) {
             if (p.hasPermission("networkjoinmessages.silent")) {
-                sendMessage(p, storage.getSilentPrefix() + text, player);
+                sendMessage(p, storage.getSilentPrefix() + text, parseTarget);
             }
         }
+    }
+
+    private void handleSilentConsoleMessage(MessageType type, String from, String to, CorePlayer parseTarget) {
+        String message = switch (type) {
+            case SWAP -> storage.getConsoleSilentSwap()
+                .replace("%to%", to)
+                .replace("%from%", from);
+            case FIRST_JOIN, JOIN -> storage.getConsoleSilentJoin();
+            case LEAVE -> storage.getConsoleSilentLeave();
+        };
+        sendMessage(Core.getInstance().getPlugin().getConsole(), message, parseTarget);
     }
 
     public String getServerPlayerCount(CorePlayer player, boolean leaving) {

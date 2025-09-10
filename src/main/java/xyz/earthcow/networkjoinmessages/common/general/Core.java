@@ -57,43 +57,6 @@ public class Core {
         }
     }
 
-    /**
-     * Used when there's no specific from/to server.
-     * @param type - Type of event
-     * @param name - Name of player.
-     */
-    public void SilentEvent(String type, String name) {
-        SilentEvent(type, name, "", "");
-    }
-
-    /**
-     * Used to send a move message.
-     * @param type - The type of event that is silenced.
-     * @param name - Name of the player.
-     * @param from - Name of the server that is being moved from.
-     * @param to - Name of the server that is being moved to.
-     */
-    public void SilentEvent(String type, String name, String from, String to) {
-        String message;
-        switch (type) {
-            case "MOVE":
-                message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentMoveEvent")
-                    .replace("<to>", to)
-                    .replace("<from>", from);
-                break;
-            case "QUIT":
-                message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentQuitEvent");
-                break;
-            case "JOIN":
-                message = ConfigManager.getPluginConfig().getString("Messages.Misc.ConsoleSilentJoinEvent");
-                break;
-            default:
-                return;
-        }
-        message = message.replace("<player>", name);
-        plugin.getCoreLogger().info(message);
-    }
-
     public H2PlayerJoinTracker getFirstJoinTracker() {
         return firstJoinTracker;
     }
