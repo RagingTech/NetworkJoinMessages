@@ -23,18 +23,18 @@ A modern continuation of [BungeeJoinMessages](https://github.com/Tirco/BungeeJoi
 3. Restart the proxy to generate the default configuration
 4. Edit the `config.yml` file in the plugin's directory to your liking following changes with `/njoinreload`
 
-### Contributing
+## Contributing
 
 Contributions are encouraged!
 
 - Open issues for bug reports or suggestions
 - Submit pull requests for new features or fixes
 
-### License
+## License
 
 Licensed under [Zlib](https://zlib.net/zlib_license.html) by the original author Tirco. You are free to use, modify, and redistribute this plugin, as long as credit is retained.
 
-### Support
+## Support
 
 - Open an issue for bugs or feature requests
 - Join the [discord server](https://earthcow.xyz/discord) for help
