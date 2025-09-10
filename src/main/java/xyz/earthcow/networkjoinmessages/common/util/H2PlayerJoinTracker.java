@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.common.Core;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

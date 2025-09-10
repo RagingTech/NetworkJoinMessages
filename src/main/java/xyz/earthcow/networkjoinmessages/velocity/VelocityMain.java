@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.velocity.general;
+package xyz.earthcow.networkjoinmessages.velocity;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
@@ -13,7 +13,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;

@@ -2,7 +2,7 @@ package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
 import de.myzelyam.api.vanish.BungeeVanishAPI;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 
 import java.util.List;

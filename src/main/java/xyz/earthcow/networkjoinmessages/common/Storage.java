@@ -1,9 +1,8 @@
-package xyz.earthcow.networkjoinmessages.common.general;
+package xyz.earthcow.networkjoinmessages.common;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;

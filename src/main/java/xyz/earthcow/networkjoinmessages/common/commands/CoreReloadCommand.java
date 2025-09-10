@@ -1,9 +1,9 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
-import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
-import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
+import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 
 import java.util.List;
 

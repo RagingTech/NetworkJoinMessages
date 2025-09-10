@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.common.general;
+package xyz.earthcow.networkjoinmessages.common;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;

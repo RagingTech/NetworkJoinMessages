@@ -3,9 +3,9 @@ package xyz.earthcow.networkjoinmessages.common.commands;
 import com.google.common.collect.ImmutableList;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.Storage;
-import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
+import xyz.earthcow.networkjoinmessages.common.Storage;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
-import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 
 public class VelocityCommandSender implements CoreCommandSender {
     private final CommandSource source;

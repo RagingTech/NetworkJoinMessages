@@ -3,7 +3,7 @@ package xyz.earthcow.networkjoinmessages.common.commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.common.Core;
 
 import java.util.List;
 

@@ -37,7 +37,7 @@
     <properties>
         <!--  Author and MainClass are used in plugin.yml -->
         <author>Tirco and EarthCow</author>
-        <mainClass>xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain</mainClass>
+        <mainClass>xyz.earthcow.networkjoinmessages.bungee.BungeeMain</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <revision>SNAPSHOT</revision>

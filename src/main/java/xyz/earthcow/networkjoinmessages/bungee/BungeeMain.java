@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.bungee.general;
+package xyz.earthcow.networkjoinmessages.bungee;
 
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -13,7 +13,7 @@ import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.common.Core;
 
 import java.util.List;
 import java.util.UUID;

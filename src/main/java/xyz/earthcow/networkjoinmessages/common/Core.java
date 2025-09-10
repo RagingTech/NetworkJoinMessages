@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.common.general;
+package xyz.earthcow.networkjoinmessages.common;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;

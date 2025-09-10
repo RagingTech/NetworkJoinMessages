@@ -1,6 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
-import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.common.Core;
 
 import java.io.File;
 import java.util.List;

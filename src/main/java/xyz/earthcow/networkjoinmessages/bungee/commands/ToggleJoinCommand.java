@@ -5,8 +5,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
-import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
+import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
+import xyz.earthcow.networkjoinmessages.common.Core;
 
 public class ToggleJoinCommand extends Command implements TabExecutor {
 

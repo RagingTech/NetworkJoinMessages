@@ -3,7 +3,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 
 import java.util.List;
 import java.util.stream.Collectors;

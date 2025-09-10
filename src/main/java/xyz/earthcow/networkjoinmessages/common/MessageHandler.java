@@ -1,12 +1,12 @@
-package xyz.earthcow.networkjoinmessages.common.util;
+package xyz.earthcow.networkjoinmessages.common;
 
 import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
-import xyz.earthcow.networkjoinmessages.common.general.Core;
-import xyz.earthcow.networkjoinmessages.common.general.Storage;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
+import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;
 
@@ -18,7 +18,7 @@ public final class MessageHandler {
     private static MessageHandler instance;
 
     private final Storage storage = Storage.getInstance();
-    private final Formatter formatter = Formatter.getInstance();
+    private final xyz.earthcow.networkjoinmessages.common.util.Formatter formatter = xyz.earthcow.networkjoinmessages.common.util.Formatter.getInstance();
 
     // Prevent instantiation outside of class
     private MessageHandler() {}
@@ -62,7 +62,7 @@ public final class MessageHandler {
     public void sendMessage(CoreCommandSender sender, String message, CorePlayer parseTarget) {
         if (parseTarget != null) {
             formatter.parsePlaceholdersAndThen(message, parseTarget, formatted -> {
-                sender.sendMessage(Formatter.deserialize(formatted));
+                sender.sendMessage(xyz.earthcow.networkjoinmessages.common.util.Formatter.deserialize(formatted));
             });
             return;
         }
