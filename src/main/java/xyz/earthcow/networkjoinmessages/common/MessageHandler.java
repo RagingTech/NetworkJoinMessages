@@ -18,7 +18,7 @@ public final class MessageHandler {
     private static MessageHandler instance;
 
     private final Storage storage = Storage.getInstance();
-    private final xyz.earthcow.networkjoinmessages.common.util.Formatter formatter = xyz.earthcow.networkjoinmessages.common.util.Formatter.getInstance();
+    private final Formatter formatter = Formatter.getInstance();
 
     // Prevent instantiation outside of class
     private MessageHandler() {}
@@ -62,7 +62,7 @@ public final class MessageHandler {
     public void sendMessage(CoreCommandSender sender, String message, CorePlayer parseTarget) {
         if (parseTarget != null) {
             formatter.parsePlaceholdersAndThen(message, parseTarget, formatted -> {
-                sender.sendMessage(xyz.earthcow.networkjoinmessages.common.util.Formatter.deserialize(formatted));
+                sender.sendMessage(Formatter.deserialize(formatted));
             });
             return;
         }
