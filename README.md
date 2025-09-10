@@ -8,7 +8,7 @@
 A modern continuation of [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages), this plugin handles customizable join, leave, and server-swap messages across proxy servers like BungeeCord and Velocity.
 
 ## Features
-- Flexible joining, leaving, and switching notifications
+- Flexible joining, leaving, and server-swapping notifications
 - Compatible with BungeeCord and Velocity proxy setups
 - Easy-to-use configuration with powerful placeholder support
   - [LuckPerms](https://luckperms.net/) (prefix and suffix)
