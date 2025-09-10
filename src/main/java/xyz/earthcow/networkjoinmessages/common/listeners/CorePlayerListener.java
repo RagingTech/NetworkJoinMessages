@@ -35,6 +35,59 @@ public class CorePlayerListener {
                 (premiumVanish != null && storage.getTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
     }
 
+    private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
+        return shouldNotBroadcast(player, type, "", "", false);
+    }
+
+    private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type, @NotNull String from, @NotNull String to, boolean fromLimbo) {
+        switch (type) {
+            case SWAP -> {
+                if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
+                    return true;
+                }
+
+                if (!storage.isSwapServerMessageEnabled()) {
+                    return true;
+                }
+
+                if (storage.isBlacklisted(from, to)) {
+                    return true;
+                }
+            }
+            case FIRST_JOIN, JOIN -> {
+                boolean firstJoin = type.equals(MessageType.FIRST_JOIN);
+
+                if (firstJoin) {
+                    core.getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
+                    if (!storage.isFirstJoinNetworkMessageEnabled()) {
+                        return true;
+                    }
+                } else if (!storage.isJoinNetworkMessageEnabled()) {
+                    return true;
+                }
+
+                // Blacklist Check
+                if (storage.isBlacklisted(player)) {
+                    return true;
+                }
+
+                if (storage.getShouldSuppressLimboJoin() && player.isInLimbo()) {
+                    return true;
+                }
+            }
+            case LEAVE -> {
+                if (!storage.isConnected(player) || !storage.isLeaveNetworkMessageEnabled() || storage.isBlacklisted(player)) {
+                    return true;
+                }
+
+                if (storage.getShouldSuppressLimboLeave() && player.isInLimbo()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Handles a player joining the server
      * @param player Player that joined
@@ -47,23 +100,7 @@ public class CorePlayerListener {
         boolean firstJoin = !core.getFirstJoinTracker().hasJoined(player.getUniqueId());
         MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
 
-        if (!firstJoin && !storage.isJoinNetworkMessageEnabled()) {
-            return;
-        }
-
-        if (firstJoin) {
-            core.getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
-            if (!storage.isFirstJoinNetworkMessageEnabled()) {
-                return;
-            }
-        }
-
-        // Blacklist Check
-        if (storage.isBlacklisted(player)) {
-            return;
-        }
-
-        if (storage.getShouldSuppressLimboJoin() && player.isInLimbo()) {
+        if (shouldNotBroadcast(player, msgType)) {
             return;
         }
 
@@ -109,18 +146,10 @@ public class CorePlayerListener {
     private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
         player.setLastKnownConnectedServer(server);
 
-        if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
-            return;
-        }
-
         String to = server.getName();
         String from = storage.getFrom(player);
 
-        if (!storage.isSwapServerMessageEnabled()) {
-            return;
-        }
-
-        if (storage.isBlacklisted(from, to)) {
+        if (shouldNotBroadcast(player, MessageType.SWAP, from, to, fromLimbo)) {
             return;
         }
 
@@ -188,25 +217,9 @@ public class CorePlayerListener {
      */
     public void onDisconnect(@NotNull CorePlayer player) {
 
-        if (!storage.isConnected(player)) {
+        if (shouldNotBroadcast(player, MessageType.LEAVE)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
-            return;
-        }
-
-        storage.setConnected(player, false);
-
-        if (!storage.isLeaveNetworkMessageEnabled()) {
-            plugin.getPlayerManager().removePlayer(player.getUniqueId());
-            return;
-        }
-
-        if (storage.isBlacklisted(player)) {
-            plugin.getPlayerManager().removePlayer(player.getUniqueId());
-            return;
-        }
-
-        if (storage.getShouldSuppressLimboLeave() && player.isInLimbo()) {
-            plugin.getPlayerManager().removePlayer(player.getUniqueId());
+            storage.setConnected(player, false);
             return;
         }
 
