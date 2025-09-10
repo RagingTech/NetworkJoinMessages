@@ -148,10 +148,6 @@ public final class MessageHandler {
         }
     }
 
-    private void broadcastSilentMessage(@NotNull String text, @NotNull MessageType type, @NotNull CorePlayer parseTarget) {
-        broadcastSilentMessage(text, type, "", "", parseTarget);
-    }
-
     private void broadcastSilentMessage(@NotNull String text, @NotNull MessageType type, @NotNull String from, @NotNull String to, @NotNull CorePlayer parseTarget) {
         // Send message to console
         handleSilentConsoleMessage(type, from, to, parseTarget);
