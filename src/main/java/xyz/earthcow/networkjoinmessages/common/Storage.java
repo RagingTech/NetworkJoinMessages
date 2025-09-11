@@ -1,6 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
@@ -12,8 +13,7 @@ import java.util.*;
  */
 public final class Storage {
 
-    // Singleton class
-    private static Storage instance;
+    private final Core core;
 
     // User data that should persist after they leave
     // User data that shouldn't persist after they leave can be stored in CorePlayer
@@ -94,19 +94,8 @@ public final class Storage {
     private boolean shouldSuppressLimboLeave;
     //endregion
 
-    // Prevent external instantiation
-    private Storage() {}
-
-    /**
-     * Get the instance. Make new if there is none.
-     * @return Storage instance
-     */
-    public static Storage getInstance() {
-        if (instance == null) {
-            instance = new Storage();
-        }
-
-        return instance;
+    public Storage(@NotNull Core core) {
+        this.core = core;
     }
 
     /**

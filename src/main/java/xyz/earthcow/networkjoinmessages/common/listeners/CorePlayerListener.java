@@ -104,13 +104,13 @@ public class CorePlayerListener {
             return;
         }
 
-        String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
+        String message = firstJoin ? core.getMessageHandler().formatFirstJoinMessage(player) : core.getMessageHandler().formatJoinMessage(player);
 
         boolean isSilent = isSilentEvent(player);
 
         if (isSilent) {
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                Formatter.getInstance().parsePlaceholdersAndThen(
+                core.getFormatter().parsePlaceholdersAndThen(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.JoinNotification"),
                         player,
                         formattedMsg -> {
@@ -120,7 +120,7 @@ public class CorePlayerListener {
             }
         }
 
-        MessageHandler.getInstance().broadcastMessage(message, msgType, player, isSilent);
+        core.getMessageHandler().broadcastMessage(message, msgType, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // All checks have passed to reach this point

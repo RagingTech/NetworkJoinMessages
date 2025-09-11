@@ -11,27 +11,16 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 import java.util.*;
 
 /**
- * Singleton class handling the sending of messages to command senders
+ * Handles the sending of messages to command senders
  */
 public final class MessageHandler {
 
-    private static MessageHandler instance;
+    private final Storage storage;
+    private final Formatter formatter;
 
-    private final Storage storage = Storage.getInstance();
-    private final Formatter formatter = Formatter.getInstance();
-
-    // Prevent instantiation outside of class
-    private MessageHandler() {}
-
-    /**
-     * Gets or creates the only instance of the MessageHandler class allowed to exist
-     * @return The MessageHandler instance
-     */
-    public static MessageHandler getInstance() {
-        if (instance == null) {
-            instance = new MessageHandler();
-        }
-        return instance;
+    public MessageHandler(Storage storage, Formatter formatter) {
+        this.storage = storage;
+        this.formatter = formatter;
     }
 
     /**
