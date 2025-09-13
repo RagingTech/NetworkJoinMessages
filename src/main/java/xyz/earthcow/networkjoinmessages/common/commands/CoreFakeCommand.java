@@ -1,11 +1,11 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Storage;
-import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.List;
@@ -16,17 +16,23 @@ public class CoreFakeCommand implements Command {
         "fakejoin", "fakequit", "fakeswitch", "fj", "fq", "fs", "toggle"
     );
 
+    private final Storage storage;
+    private final MessageHandler messageHandler;
+
+    public CoreFakeCommand(Storage storage, MessageHandler messageHandler) {
+        this.storage = storage;
+        this.messageHandler = messageHandler;
+    }
+
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
-        if (!(coreCommandSender instanceof CorePlayer)) {
+        if (!(coreCommandSender instanceof CorePlayer player)) {
             coreCommandSender.sendMessage("Only players can run this command!");
             return;
         }
 
-        CorePlayer player = (CorePlayer) coreCommandSender;
-
         if (!player.hasPermission("networkjoinmessages.fakemessage")) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission")
             );
@@ -34,7 +40,7 @@ public class CoreFakeCommand implements Command {
         }
 
         if (args.length < 1) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.NoArgument")
             );
@@ -46,18 +52,18 @@ public class CoreFakeCommand implements Command {
         switch (args[0].toLowerCase()) {
             case "fakejoin":
             case "fj":
-                message = MessageHandler.getInstance().formatJoinMessage(player);
-                MessageHandler.getInstance().broadcastMessage(message, MessageType.JOIN, player);
+                message = messageHandler.formatJoinMessage(player);
+                messageHandler.broadcastMessage(message, MessageType.JOIN, player);
                 return;
             case "fakequit":
             case "fq":
-                message = MessageHandler.getInstance().formatLeaveMessage(player);
-                MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player);
+                message = messageHandler.formatLeaveMessage(player);
+                messageHandler.broadcastMessage(message, MessageType.LEAVE, player);
                 return;
             case "fakeswitch":
             case "fs":
                 if (args.length < 3) {
-                    MessageHandler.getInstance().sendMessage(
+                    messageHandler.sendMessage(
                         player,
                         ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.FakeSwitchNoArgument")
                     );
@@ -66,20 +72,20 @@ public class CoreFakeCommand implements Command {
                 String fromName = args[1];
                 String toName = args[2];
 
-                message = MessageHandler.getInstance().parseSwitchMessage(player, fromName, toName);
-                MessageHandler.getInstance().broadcastMessage(message, MessageType.SWAP, fromName, toName, player);
+                message = messageHandler.parseSwitchMessage(player, fromName, toName);
+                messageHandler.broadcastMessage(message, MessageType.SWAP, fromName, toName, player);
                 return;
             case "toggle":
                 if (!player.hasPermission("networkjoinmessages.silent")) {
-                    MessageHandler.getInstance().sendMessage(
+                    messageHandler.sendMessage(
                         player,
                         ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.ToggleSilentNoPerm")
                     );
                     return;
                 }
-                boolean state = !Storage.getInstance().getSilentMessageState(player);
-                Storage.getInstance().setSilentMessageState(player, state);
-                MessageHandler.getInstance().sendMessage(
+                boolean state = !storage.getSilentMessageState(player);
+                storage.setSilentMessageState(player, state);
+                messageHandler.sendMessage(
                     player,
                     ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.ToggleSilent")
                         .replaceAll("<state>", String.valueOf(state))
@@ -101,7 +107,7 @@ public class CoreFakeCommand implements Command {
             case 2:
             case 3:
                 if (args[0].equalsIgnoreCase("fs") || args[0].equalsIgnoreCase("fakeswitch")) {
-                    return Storage.getInstance().getServerNames();
+                    return storage.getServerNames();
                 } else {
                     return ImmutableList.of(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.NoMoreArgumentsNeeded")

@@ -18,25 +18,30 @@ public class Core {
     private final DiscordWebhookIntegration discordWebhookIntegration;
     private H2PlayerJoinTracker firstJoinTracker;
 
-    private final CoreImportCommand coreImportCommand = new CoreImportCommand();
-    private final CoreFakeCommand coreFakeCommand = new CoreFakeCommand();
-    private final CoreReloadCommand coreReloadCommand = new CoreReloadCommand();
-    private final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
+    private final CoreImportCommand coreImportCommand;
+    private final CoreFakeCommand coreFakeCommand;
+    private final CoreReloadCommand coreReloadCommand;
+    private final CoreToggleJoinCommand coreToggleJoinCommand;
 
     public Core(CorePlugin plugin) {
         this.plugin = plugin;
-        this.formatter = new Formatter(this);
-        this.storage = new Storage(this);
-        this.messageHandler = new MessageHandler(, formatter);
+        this.storage = new Storage(plugin);
+        this.formatter = new Formatter(plugin, storage);
+        this.messageHandler = new MessageHandler(plugin, storage, formatter);
 
         loadConfigs();
-        discordWebhookIntegration = new DiscordWebhookIntegration();
+        discordWebhookIntegration = new DiscordWebhookIntegration(this);
 
         try {
-            firstJoinTracker = new H2PlayerJoinTracker("./" + plugin.getDataFolder().getPath() + "/joined");
+            firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
         } catch (Exception ex) {
             plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
         }
+
+        this.coreImportCommand = new CoreImportCommand(this);
+        this.coreFakeCommand = new CoreFakeCommand(storage, messageHandler);
+        this.coreReloadCommand = new CoreReloadCommand(this);
+        this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 
     }
 

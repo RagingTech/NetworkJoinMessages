@@ -12,8 +12,9 @@ import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
-import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.abstraction.*;
+import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,20 +49,20 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
         getProxy()
             .getPluginManager()
-            .registerListener(this, new PlayerListener());
+            .registerListener(this, new PlayerListener(new CorePlayerListener(core)));
 
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new ImportCommand());
+            .registerCommand(this, new ImportCommand(core.getCoreImportCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new FakeCommand());
+            .registerCommand(this, new FakeCommand(core.getCoreFakeCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new ReloadCommand());
+            .registerCommand(this, new ReloadCommand(core.getCoreReloadCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new ToggleJoinCommand());
+            .registerCommand(this, new ToggleJoinCommand(core.getCoreToggleJoinCommand()));
 
         if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
             this.premiumVanish = new BungeePremiumVanish();

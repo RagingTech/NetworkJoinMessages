@@ -4,19 +4,22 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
 import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
-import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 
 public class ToggleJoinCommand extends Command implements TabExecutor {
 
-    public ToggleJoinCommand() {
-        super("networkjoinmessage", Core.getInstance().coreToggleJoinCommand.getRequiredPermission(), "njointoggle");
+    private final CoreToggleJoinCommand coreToggleJoinCommand;
+
+    public ToggleJoinCommand(CoreToggleJoinCommand coreToggleJoinCommand) {
+        super("networkjoinmessage", coreToggleJoinCommand.getRequiredPermission(), "njointoggle");
+        this.coreToggleJoinCommand = coreToggleJoinCommand;
     }
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
-        Core.getInstance().coreToggleJoinCommand.execute(
+        coreToggleJoinCommand.execute(
             commandSender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) commandSender).getUniqueId())
                 :
@@ -26,7 +29,7 @@ public class ToggleJoinCommand extends Command implements TabExecutor {
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        return Core.getInstance().coreToggleJoinCommand.getTabCompletion(
+        return coreToggleJoinCommand.getTabCompletion(
             sender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) sender).getUniqueId())
                 :

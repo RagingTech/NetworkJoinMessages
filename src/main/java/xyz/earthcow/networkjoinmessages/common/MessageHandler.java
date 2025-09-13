@@ -1,24 +1,26 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import org.jetbrains.annotations.NotNull;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
+import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Handles the sending of messages to command senders
  */
 public final class MessageHandler {
 
+    private final CorePlugin plugin;
     private final Storage storage;
     private final Formatter formatter;
 
-    public MessageHandler(Storage storage, Formatter formatter) {
+    public MessageHandler(CorePlugin plugin, Storage storage, Formatter formatter) {
+        this.plugin = plugin;
         this.storage = storage;
         this.formatter = formatter;
     }
@@ -124,7 +126,7 @@ public final class MessageHandler {
         }
 
         // Send message to console
-        sendMessage(Core.getInstance().getPlugin().getConsole(), text, parseTarget);
+        sendMessage(plugin.getConsole(), text, parseTarget);
 
         List<UUID> ignorePlayers = storage.getIgnorePlayers(type);
         ignorePlayers.addAll(storage.getIgnoredServerPlayers(type));
@@ -145,7 +147,7 @@ public final class MessageHandler {
             return;
         }
 
-        for (CorePlayer p : Core.getInstance().getPlugin().getAllPlayers()) {
+        for (CorePlayer p : plugin.getAllPlayers()) {
             if (p.hasPermission("networkjoinmessages.silent")) {
                 sendMessage(p, storage.getSilentPrefix() + text, parseTarget);
             }
@@ -160,7 +162,7 @@ public final class MessageHandler {
             case FIRST_JOIN, JOIN -> storage.getConsoleSilentJoin();
             case LEAVE -> storage.getConsoleSilentLeave();
         };
-        sendMessage(Core.getInstance().getPlugin().getConsole(), message, parseTarget);
+        sendMessage(plugin.getConsole(), message, parseTarget);
     }
 
     public String getServerPlayerCount(CorePlayer player, boolean leaving) {
@@ -168,13 +170,13 @@ public final class MessageHandler {
     }
 
     public String getServerPlayerCount(String serverName, boolean leaving, CorePlayer player) {
-        return getServerPlayerCount(Core.getInstance().getPlugin().getServer(serverName), leaving, player);
+        return getServerPlayerCount(plugin.getServer(serverName), leaving, player);
     }
 
     public String getServerPlayerCount(@NotNull CoreBackendServer backendServer, boolean leaving, CorePlayer player) {
         List<CorePlayer> players = backendServer.getPlayersConnected();
 
-        PremiumVanish premiumVanish = Core.getInstance().getPlugin().getVanishAPI();
+        PremiumVanish premiumVanish = plugin.getVanishAPI();
 
         if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
                 List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
@@ -194,10 +196,10 @@ public final class MessageHandler {
     }
 
     public String getNetworkPlayerCount(CorePlayer player, boolean leaving) {
-        Collection<CorePlayer> players = Core.getInstance().getPlugin().getAllPlayers();
+        Collection<CorePlayer> players = plugin.getAllPlayers();
         int count = players.size();
 
-        PremiumVanish premiumVanish = Core.getInstance().getPlugin().getVanishAPI();
+        PremiumVanish premiumVanish = plugin.getVanishAPI();
 
         boolean vanished = false;
         if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
@@ -247,6 +249,6 @@ public final class MessageHandler {
     }
 
     public void log(String string) {
-        Core.getInstance().getPlugin().getCoreLogger().info(string);
+        plugin.getCoreLogger().info(string);
     }
 }

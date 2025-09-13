@@ -3,6 +3,8 @@ package xyz.earthcow.networkjoinmessages.common.util;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -19,7 +21,8 @@ class H2PlayerJoinTrackerTest {
     @BeforeEach
     void setUp() throws Exception {
         tempDbFile = Files.createTempFile("testdb", ".mv.db").toFile();
-        tracker = new H2PlayerJoinTracker(tempDbFile.getAbsolutePath());
+        CoreLogger logger = Mockito.mock(CoreLogger.class);
+        tracker = new H2PlayerJoinTracker(logger, tempDbFile.getAbsolutePath());
     }
 
     @AfterEach

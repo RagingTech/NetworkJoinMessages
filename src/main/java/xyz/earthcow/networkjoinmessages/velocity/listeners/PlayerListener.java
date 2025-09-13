@@ -6,13 +6,17 @@ import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
-import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 
 public class PlayerListener {
 
-    private final CorePlayerListener corePlayerListener = new CorePlayerListener();
+    private final CorePlayerListener corePlayerListener;
+
+    public PlayerListener(CorePlayerListener corePlayerListener) {
+        this.corePlayerListener = corePlayerListener;
+    }
 
     @Subscribe
     public void onPreConnect(ServerPreConnectEvent event) {
