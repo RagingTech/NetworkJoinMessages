@@ -51,10 +51,11 @@ public class VelocityMain implements CorePlugin {
     private static VelocityMain instance;
     private final PlayerManager manager = new PlayerManager();
     private final ProxyServer proxy;
-    private final VelocityLogger velocityLogger;
+    private final Logger logger;
     private final File dataFolder;
     private PremiumVanish premiumVanish;
     private Core core;
+    private VelocityLogger velocityLogger;
     private VelocityCommandSender console;
     private final Metrics.Factory metricsFactory;
     private boolean isLimboAPIAvailable = false;
@@ -62,7 +63,7 @@ public class VelocityMain implements CorePlugin {
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
         this.proxy = proxy;
-        this.velocityLogger = new VelocityLogger(logger);
+        this.logger = logger;
         this.dataFolder = dataDirectory.toFile();
         this.metricsFactory = metricsFactory;
 
@@ -76,6 +77,7 @@ public class VelocityMain implements CorePlugin {
         Metrics metrics = metricsFactory.make(this, PLUGIN_ID);
 
         this.core = new Core(this);
+        this.velocityLogger = new VelocityLogger(logger, core.getStorage());
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
         proxy.getEventManager().register(this, new PlayerListener(new CorePlayerListener(core)));

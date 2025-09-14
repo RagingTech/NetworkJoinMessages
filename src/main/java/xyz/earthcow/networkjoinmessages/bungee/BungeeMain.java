@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class BungeeMain extends Plugin implements CorePlugin {
 
     private static BungeeMain instance;
-    private PlayerManager manager = new PlayerManager();
+    private final PlayerManager manager = new PlayerManager();
 
     private Core core;
     private CoreCommandSender console;
@@ -40,9 +40,9 @@ public class BungeeMain extends Plugin implements CorePlugin {
         final int PLUGIN_ID = 26527;
         Metrics metrics = new Metrics(this, PLUGIN_ID);
 
-        this.bungeeLogger = new BungeeLogger(getLogger());
         this.audiences = BungeeAudiences.create(this);
         this.core = new Core(this);
+        this.bungeeLogger = new BungeeLogger(getLogger(), core.getStorage());
         this.console = new BungeeCommandSender(getProxy().getConsole());
 
         instance = this;

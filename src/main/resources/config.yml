@@ -198,5 +198,6 @@ OtherPlugins:
     # No leave messages for players leaving from limbo servers
     SuppressLeaveMessages: false
 
+debug: false
 # Do not touch this
 config-version: 7

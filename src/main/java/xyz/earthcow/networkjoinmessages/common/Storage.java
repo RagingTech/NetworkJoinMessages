@@ -93,6 +93,10 @@ public final class Storage {
     private boolean shouldSuppressLimboSwap;
     private boolean shouldSuppressLimboJoin;
     private boolean shouldSuppressLimboLeave;
+
+    /// Debug
+    private boolean debug;
+
     //endregion
 
     public Storage(@NotNull CorePlugin plugin) {
@@ -172,6 +176,8 @@ public final class Storage {
         this.shouldSuppressLimboSwap = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         this.shouldSuppressLimboJoin = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
         this.shouldSuppressLimboLeave = config.getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
+
+        this.debug = config.getBoolean("debug");
 
         // Verify Swap Server Message
         switch (swapServerMessageRequires) {
@@ -612,6 +618,10 @@ public final class Storage {
 
     public boolean getShouldSuppressLimboLeave() {
         return shouldSuppressLimboLeave;
+    }
+
+    public boolean getDebug() {
+        return debug;
     }
 
     //endregion
