@@ -3,25 +3,34 @@ package xyz.earthcow.networkjoinmessages.common.listeners;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
+import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Core;
-import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
-import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 public class CorePlayerListener {
 
-    private final Core core = Core.getInstance();
-    private final CorePlugin plugin = core.getPlugin();
-    private final Storage storage = Storage.getInstance();
+    private final Core core;
+    private final CorePlugin plugin;
+    private final Storage storage;
+    private final MessageHandler messageHandler;
 
     @Nullable
-    private final PremiumVanish premiumVanish = plugin.getVanishAPI();
+    private final PremiumVanish premiumVanish;
+    
+    public CorePlayerListener(Core core) {
+        this.core = core;
+        this.plugin = core.getPlugin();
+        this.storage = core.getStorage();
+        this.messageHandler = core.getMessageHandler();
+        this.premiumVanish = plugin.getVanishAPI();
+    }
 
     /**
      * Helper function to determine if an event should or should not be silent
@@ -104,23 +113,23 @@ public class CorePlayerListener {
             return;
         }
 
-        String message = firstJoin ? MessageHandler.getInstance().formatFirstJoinMessage(player) : MessageHandler.getInstance().formatJoinMessage(player);
+        String message = firstJoin ? core.getMessageHandler().formatFirstJoinMessage(player) : core.getMessageHandler().formatJoinMessage(player);
 
         boolean isSilent = isSilentEvent(player);
 
         if (isSilent) {
             if (player.hasPermission("networkjoinmessages.fakemessage")) {
-                Formatter.getInstance().parsePlaceholdersAndThen(
+                core.getFormatter().parsePlaceholdersAndThen(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.JoinNotification"),
                         player,
                         formattedMsg -> {
-                            MessageHandler.getInstance().sendMessage(player, formattedMsg);
+                            messageHandler.sendMessage(player, formattedMsg);
                         }
                 );
             }
         }
 
-        MessageHandler.getInstance().broadcastMessage(message, msgType, player, isSilent);
+        core.getMessageHandler().broadcastMessage(message, msgType, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // All checks have passed to reach this point
@@ -153,14 +162,14 @@ public class CorePlayerListener {
             return;
         }
 
-        String message = MessageHandler.getInstance()
+        String message = messageHandler
             .parseSwitchMessage(player, from, to);
 
         // Silent
         boolean isSilent = isSilentEvent(player);
 
         // Broadcast message
-        MessageHandler.getInstance().broadcastMessage(message, MessageType.SWAP, from, to, player, isSilent);
+        messageHandler.broadcastMessage(message, MessageType.SWAP, from, to, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom ServerSwapEvent
@@ -223,13 +232,13 @@ public class CorePlayerListener {
             return;
         }
 
-        String message = MessageHandler.getInstance().formatLeaveMessage(player);
+        String message = messageHandler.formatLeaveMessage(player);
 
         // Silent
         boolean isSilent = isSilentEvent(player);
 
         // Broadcast message
-        MessageHandler.getInstance().broadcastMessage(message, MessageType.LEAVE, player, isSilent);
+        messageHandler.broadcastMessage(message, MessageType.LEAVE, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkQuitEvent

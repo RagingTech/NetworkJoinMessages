@@ -2,12 +2,18 @@ package xyz.earthcow.networkjoinmessages.common.commands;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 
 import java.util.List;
 
 public class CoreImportCommand implements Command {
+
+    private final Core core;
+
+    public CoreImportCommand(Core core) {
+        this.core = core;
+    }
 
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
@@ -17,7 +23,7 @@ public class CoreImportCommand implements Command {
         }
 
         for (String arg : args) {
-            if (!Core.getInstance().getFirstJoinTracker().addUsersFromUserCache(arg)) {
+            if (!core.getFirstJoinTracker().addUsersFromUserCache(arg)) {
                 coreCommandSender.sendMessage(Component.text("Failed to import users from " + arg, NamedTextColor.RED));
             } else {
                 coreCommandSender.sendMessage(Component.text("Successfully imported users from " + arg, NamedTextColor.GREEN));

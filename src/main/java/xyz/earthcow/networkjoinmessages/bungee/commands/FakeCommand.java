@@ -4,17 +4,17 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
-import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
 import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
-import xyz.earthcow.networkjoinmessages.common.Core;
 
 public class FakeCommand extends Command implements TabExecutor {
 
-    private final CoreFakeCommand coreFakeCommand = Core.getInstance().coreFakeCommand;
+    private final CoreFakeCommand coreFakeCommand;
 
-    public FakeCommand() {
-        super("fakemessage", Core.getInstance().coreFakeCommand.getRequiredPermission(), "fm");
+    public FakeCommand(CoreFakeCommand coreFakeCommand) {
+        super("fakemessage", coreFakeCommand.getRequiredPermission(), "fm");
+        this.coreFakeCommand = coreFakeCommand;
     }
 
     @Override

@@ -6,58 +6,90 @@ import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 
 public class Core {
-    private static Core instance;
-
-    public static Core getInstance() {
-        return instance;
-    }
-
     private final CorePlugin plugin;
-
-    public CorePlugin getPlugin() {
-        return plugin;
-    }
+    private final Formatter formatter;
+    private final Storage storage;
+    private final MessageHandler messageHandler;
 
     private final DiscordWebhookIntegration discordWebhookIntegration;
     private H2PlayerJoinTracker firstJoinTracker;
 
-    public DiscordWebhookIntegration getDiscordWebhookIntegration() {
-        return discordWebhookIntegration;
-    }
-
-    public final CoreImportCommand coreImportCommand = new CoreImportCommand();
-    public final CoreFakeCommand coreFakeCommand = new CoreFakeCommand();
-    public final CoreReloadCommand coreReloadCommand = new CoreReloadCommand();
-    public final CoreToggleJoinCommand coreToggleJoinCommand = new CoreToggleJoinCommand();
+    private final CoreImportCommand coreImportCommand;
+    private final CoreFakeCommand coreFakeCommand;
+    private final CoreReloadCommand coreReloadCommand;
+    private final CoreToggleJoinCommand coreToggleJoinCommand;
 
     public Core(CorePlugin plugin) {
         this.plugin = plugin;
-
-        instance = this;
+        this.storage = new Storage(plugin);
+        this.formatter = new Formatter(plugin, storage);
+        this.messageHandler = new MessageHandler(plugin, storage, formatter);
 
         loadConfigs();
-        discordWebhookIntegration = new DiscordWebhookIntegration();
+        discordWebhookIntegration = new DiscordWebhookIntegration(this);
 
         try {
-            firstJoinTracker = new H2PlayerJoinTracker("./" + plugin.getDataFolder().getPath() + "/joined");
+            firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
         } catch (Exception ex) {
             plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
         }
+
+        this.coreImportCommand = new CoreImportCommand(this);
+        this.coreFakeCommand = new CoreFakeCommand(storage, messageHandler);
+        this.coreReloadCommand = new CoreReloadCommand(this);
+        this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 
     }
 
     public void loadConfigs() {
         ConfigManager.setupConfigs(plugin);
-        Storage.getInstance().setUpDefaultValuesFromConfig();
+        storage.setUpDefaultValuesFromConfig();
         if (discordWebhookIntegration != null) {
             discordWebhookIntegration.loadVariables();
         }
     }
 
+    public CorePlugin getPlugin() {
+        return plugin;
+    }
+
+    public Formatter getFormatter() {
+        return formatter;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public MessageHandler getMessageHandler() {
+        return messageHandler;
+    }
+
     public H2PlayerJoinTracker getFirstJoinTracker() {
         return firstJoinTracker;
+    }
+
+    public DiscordWebhookIntegration getDiscordWebhookIntegration() {
+        return discordWebhookIntegration;
+    }
+
+    public CoreImportCommand getCoreImportCommand() {
+        return coreImportCommand;
+    }
+
+    public CoreFakeCommand getCoreFakeCommand() {
+        return coreFakeCommand;
+    }
+
+    public CoreReloadCommand getCoreReloadCommand() {
+        return coreReloadCommand;
+    }
+
+    public CoreToggleJoinCommand getCoreToggleJoinCommand() {
+        return coreToggleJoinCommand;
     }
 }

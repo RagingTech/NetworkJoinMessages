@@ -1,11 +1,11 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Storage;
-import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 
 import java.util.List;
 
@@ -14,18 +14,24 @@ public class CoreToggleJoinCommand implements Command {
     private final List<String> COMMAND_ARGS = ImmutableList.of(
         "join", "leave", "quit", "switch", "all"
     );
+    
+    private final Storage storage;
+    private final MessageHandler messageHandler;
 
+    public CoreToggleJoinCommand(Storage storage, MessageHandler messageHandler) {
+        this.storage = storage;
+        this.messageHandler = messageHandler;
+    }
+    
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
-        if (!(coreCommandSender instanceof CorePlayer)) {
+        if (!(coreCommandSender instanceof CorePlayer player)) {
             coreCommandSender.sendMessage("Only players can run this command!");
             return;
         }
 
-        CorePlayer player = (CorePlayer) coreCommandSender;
-
         if (!player.hasPermission("networkjoinmessages.togglemessage")) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission")
             );
@@ -33,7 +39,7 @@ public class CoreToggleJoinCommand implements Command {
         }
 
         if (args.length < 1) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
             );
@@ -41,7 +47,7 @@ public class CoreToggleJoinCommand implements Command {
         }
 
         if (args.length < 2) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingState")
             );
@@ -52,16 +58,16 @@ public class CoreToggleJoinCommand implements Command {
         boolean state = args[1].equalsIgnoreCase("on") || args[1].equalsIgnoreCase("true");
 
         if (!COMMAND_ARGS.contains(mode)) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
             );
             return;
         }
 
-        Storage.getInstance().setSendMessageState(mode, player.getUniqueId(), state);
+        storage.setSendMessageState(mode, player.getUniqueId(), state);
 
-        MessageHandler.getInstance().sendMessage(
+        messageHandler.sendMessage(
             player,
             ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.Confirmation")
                 .replaceAll("<mode>", mode)

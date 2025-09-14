@@ -10,10 +10,9 @@ import net.luckperms.api.model.user.User;
 import net.william278.papiproxybridge.api.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.earthcow.networkjoinmessages.common.MessageHandler;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.Storage;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 
 import java.util.function.Consumer;
@@ -22,7 +21,7 @@ import java.util.regex.Pattern;
 
 public final class Formatter {
 
-    private static Formatter instance;
+    private final Storage storage;
 
     private LuckPerms luckPerms = null;
     private PlaceholderAPI placeholderAPI = null;
@@ -31,35 +30,29 @@ public final class Formatter {
     public static final MiniMessage miniMessage = MiniMessage.miniMessage();
     public static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
 
-    private Formatter() {
+    public Formatter(@NotNull CorePlugin plugin, @NotNull Storage storage) {
+        this.storage = storage;
         // Get compatibility with other plugins, initialize hooks
 
         try {
             this.luckPerms = LuckPermsProvider.get();
-            MessageHandler.getInstance().log("Successfully hooked into LuckPerms!");
+            plugin.getCoreLogger().info("Successfully hooked into LuckPerms!");
         } catch (IllegalStateException | NoClassDefFoundError e) {
-            Core.getInstance().getPlugin().getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
+            plugin.getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
 
         try {
             this.placeholderAPI = PlaceholderAPI.createInstance();
-            MessageHandler.getInstance().log("Successfully hooked into PAPIProxyBridge!");
+            plugin.getCoreLogger().info("Successfully hooked into PAPIProxyBridge!");
         } catch (NoClassDefFoundError e) {
-            Core.getInstance().getPlugin().getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
+            plugin.getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
 
-        if (Core.getInstance().getPlugin().isPluginLoaded("MiniPlaceholders")) {
+        if (plugin.isPluginLoaded("MiniPlaceholders")) {
             miniPlaceholders = new MiniPlaceholdersHook();
-            MessageHandler.getInstance().log("Successfully hooked into MiniPlaceholders!");
+            plugin.getCoreLogger().info("Successfully hooked into MiniPlaceholders!");
         }
 
-    }
-
-    public static Formatter getInstance() {
-        if (instance == null) {
-            instance = new Formatter();
-        }
-        return instance;
     }
 
     //region Legacy parsers
@@ -208,7 +201,7 @@ public final class Formatter {
         message = handleLpPlaceholders(message, parseTarget)
                 .replace("%player%", parseTarget.getName())
                 .replace("%displayname%", parseTarget.getName())
-                .replace("%server_name%", Storage.getInstance().getServerDisplayName(parseTarget.getCurrentServer().getName()))
+                .replace("%server_name%", storage.getServerDisplayName(parseTarget.getCurrentServer().getName()))
                 .replace("%server_name_clean%", parseTarget.getCurrentServer().getName());
 
         if (miniPlaceholders != null) {

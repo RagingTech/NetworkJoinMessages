@@ -2,15 +2,21 @@ package xyz.earthcow.networkjoinmessages.velocity.commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
-import xyz.earthcow.networkjoinmessages.common.Core;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
 
 public class ImportCommand implements SimpleCommand {
 
+    private final CoreImportCommand coreImportCommand;
+
+    public ImportCommand(CoreImportCommand coreImportCommand) {
+        this.coreImportCommand = coreImportCommand;
+    }
+
     @Override
     public void execute(Invocation invocation) {
-        Core.getInstance().coreImportCommand.execute(
+        coreImportCommand.execute(
             invocation.source() instanceof Player ?
                 // If the CommandSource is a Player
                 VelocityMain.getInstance().getOrCreatePlayer(((Player) invocation.source()).getUniqueId())
@@ -24,6 +30,6 @@ public class ImportCommand implements SimpleCommand {
     public boolean hasPermission(final Invocation invocation) {
         return invocation
             .source()
-            .hasPermission(Core.getInstance().coreImportCommand.getRequiredPermission());
+            .hasPermission(coreImportCommand.getRequiredPermission());
     }
 }

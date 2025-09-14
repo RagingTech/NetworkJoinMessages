@@ -7,15 +7,19 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeServer;
-import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 
 public class PlayerListener implements Listener {
 
-    private final CorePlayerListener corePlayerListener = new CorePlayerListener();
+    private final CorePlayerListener corePlayerListener;
+
+    public PlayerListener(CorePlayerListener corePlayerListener) {
+        this.corePlayerListener = corePlayerListener;
+    }
 
     @EventHandler
     public void prePlayerSwitchServer(ServerConnectEvent e) {

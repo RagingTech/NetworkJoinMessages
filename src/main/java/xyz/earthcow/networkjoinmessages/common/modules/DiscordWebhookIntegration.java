@@ -4,16 +4,16 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.discordwebhook.DiscordWebhook;
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
+import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Core;
-import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
-import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 
 import java.awt.*;
 import java.util.Date;
@@ -21,13 +21,20 @@ import java.util.List;
 
 public class DiscordWebhookIntegration {
 
-    private final CorePlugin corePlugin = Core.getInstance().getPlugin();
+    private final CorePlugin plugin;
+    private final Formatter formatter;
+    private final Storage storage;
+    private final MessageHandler messageHandler;
 
     private YamlDocument discordConfig;
     private String webhookUrl;
     private boolean enabled;
 
-    public DiscordWebhookIntegration() {
+    public DiscordWebhookIntegration(Core core) {
+        this.plugin = core.getPlugin();
+        this.formatter = core.getFormatter();
+        this.storage = core.getStorage();
+        this.messageHandler = core.getMessageHandler();
         loadVariables();
     }
 
@@ -40,16 +47,16 @@ public class DiscordWebhookIntegration {
         // Set the main webhook url
         webhookUrl = discordConfig.getString("WebhookUrl");
 
-        corePlugin.getCoreLogger().info("Discord Integration is enabled!");
+        plugin.getCoreLogger().info("Discord Integration is enabled!");
     }
 
     private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
-        Formatter.getInstance().parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
-            corePlugin.runTaskAsync(() -> {
+        formatter.parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
+            plugin.runTaskAsync(() -> {
                 try {
                     webhook.execute(formatted);
                 } catch (Exception e) {
-                    corePlugin
+                    plugin
                         .getCoreLogger()
                         .warn(
                             "[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url."
@@ -229,8 +236,8 @@ public class DiscordWebhookIntegration {
     }
 
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
-        String displayTo = Storage.getInstance().getServerDisplayName(toServer);
-        String displayFrom = Storage.getInstance().getServerDisplayName(fromServer);
+        String displayTo = storage.getServerDisplayName(toServer);
+        String displayFrom = storage.getServerDisplayName(fromServer);
         return txt
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                 .replace("%to%", displayTo)
@@ -238,15 +245,15 @@ public class DiscordWebhookIntegration {
                 .replace("%from%", displayFrom)
                 .replace("%from_clean%", Formatter.sanitize(displayFrom))
                 .replace(
-                        "%playercount_from%", MessageHandler.getInstance()
+                        "%playercount_from%", messageHandler
                                 .getServerPlayerCount(fromServer, true, player)
                 )
                 .replace(
-                        "%playercount_to%", MessageHandler.getInstance()
+                        "%playercount_to%", messageHandler
                                 .getServerPlayerCount(toServer, false, player)
                 )
                 .replace(
-                        "%playercount_network%", MessageHandler.getInstance()
+                        "%playercount_network%", messageHandler
                                 .getNetworkPlayerCount(player, false)
                 );
     }
@@ -264,7 +271,7 @@ public class DiscordWebhookIntegration {
         return txt
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                 .replace(
-                        "%playercount_server%", MessageHandler.getInstance()
+                        "%playercount_server%", messageHandler
                                 .getServerPlayerCount(
                                         player.getCurrentServer(),
                                         leaving,
@@ -273,7 +280,7 @@ public class DiscordWebhookIntegration {
                 )
                 .replace(
                         "%playercount_network%",
-                        MessageHandler.getInstance()
+                        messageHandler
                                 .getNetworkPlayerCount(player, leaving)
                 );
     }
@@ -328,7 +335,7 @@ public class DiscordWebhookIntegration {
         String hexColor = discordConfig.getString(key + ".Color");
 
         if (hexColor.isEmpty()) {
-            corePlugin
+            plugin
                 .getCoreLogger()
                 .warn("A color was missing from embed config!");
             hexColor = "#000000";
@@ -339,7 +346,7 @@ public class DiscordWebhookIntegration {
             hexColor = "#" + hexColor;
         }
         if (hexColor.length() != 7) {
-            corePlugin
+            plugin
                 .getCoreLogger()
                 .warn("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";

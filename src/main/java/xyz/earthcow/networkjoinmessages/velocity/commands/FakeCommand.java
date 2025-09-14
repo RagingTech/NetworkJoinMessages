@@ -3,15 +3,18 @@ package xyz.earthcow.networkjoinmessages.velocity.commands;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
-import xyz.earthcow.networkjoinmessages.common.Core;
-import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
 import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
 
 import java.util.List;
 
 public class FakeCommand implements SimpleCommand {
 
-    private final CoreFakeCommand coreFakeCommand = Core.getInstance().coreFakeCommand;
+    private final CoreFakeCommand coreFakeCommand;
+
+    public FakeCommand(CoreFakeCommand coreFakeCommand) {
+        this.coreFakeCommand = coreFakeCommand;
+    }
 
     @Override
     public void execute(SimpleCommand.Invocation invocation) {

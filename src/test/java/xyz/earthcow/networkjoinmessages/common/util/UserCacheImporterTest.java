@@ -3,11 +3,15 @@ package xyz.earthcow.networkjoinmessages.common.util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserCacheImporterTest {
     @TempDir
@@ -16,7 +20,8 @@ class UserCacheImporterTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        tracker = new H2PlayerJoinTracker(tempDir.resolve("joined").toAbsolutePath().toString());
+        CoreLogger logger = Mockito.mock(CoreLogger.class);
+        tracker = new H2PlayerJoinTracker(logger, tempDir.resolve("joined").toAbsolutePath().toString());
     }
 
     @Test

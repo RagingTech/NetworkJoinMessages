@@ -12,8 +12,9 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
-import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.abstraction.*;
+import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
@@ -77,7 +78,7 @@ public class VelocityMain implements CorePlugin {
         this.core = new Core(this);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
-        proxy.getEventManager().register(this, new PlayerListener());
+        proxy.getEventManager().register(this, new PlayerListener(new CorePlayerListener(core)));
 
         CommandManager commandManager = proxy.getCommandManager();
         commandManager.register(
@@ -85,7 +86,7 @@ public class VelocityMain implements CorePlugin {
                 .metaBuilder("njoinimport")
                 .plugin(this)
                 .build(),
-            new ImportCommand()
+            new ImportCommand(core.getCoreImportCommand())
         );
         commandManager.register(
             commandManager
@@ -93,7 +94,7 @@ public class VelocityMain implements CorePlugin {
                 .aliases("fm")
                 .plugin(this)
                 .build(),
-            new FakeCommand()
+            new FakeCommand(core.getCoreFakeCommand())
         );
         commandManager.register(
             commandManager
@@ -101,7 +102,7 @@ public class VelocityMain implements CorePlugin {
                 .aliases("njoinreload")
                 .plugin(this)
                 .build(),
-            new ReloadCommand()
+            new ReloadCommand(core.getCoreReloadCommand())
         );
         commandManager.register(
             commandManager
@@ -109,7 +110,7 @@ public class VelocityMain implements CorePlugin {
                 .aliases("njointoggle")
                 .plugin(this)
                 .build(),
-            new ToggleJoinCommand()
+            new ToggleJoinCommand(core.getCoreToggleJoinCommand())
         );
 
         if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
