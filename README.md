@@ -1,8 +1,8 @@
 # NetworkJoinMessages
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/RagingTech/NetworkJoinMessages)
-![GitHub license](https://img.shields.io/github/license/RagingTech/NetworkJoinMessages)
-![GitHub downloads](https://img.shields.io/github/downloads/RagingTech/NetworkJoinMessages/total)
+![zlib license](https://img.shields.io/badge/license-zlib-orange)
+![GitHub downloads](https://img.shields.io/github/downloads/RagingTech/NetworkJoinMessages/total?label=GitHub%20downloads)
 [![SpigotMC downloads](https://img.shields.io/spiget/downloads/118643?label=SpigotMC%20downloads)](https://www.spigotmc.org/resources/118643/)
 
 A modern continuation of [BungeeJoinMessages](https://github.com/Tirco/BungeeJoinMessages), this plugin handles customizable join, leave, and server-swap messages across proxy servers like BungeeCord and Velocity.
@@ -32,9 +32,10 @@ Contributions are encouraged!
 
 ## License
 
-Licensed under [Zlib](https://zlib.net/zlib_license.html) by the original author Tirco. You are free to use, modify, and redistribute this plugin, as long as credit is retained.
+Licensed under [zlib License](https://zlib.net/zlib_license.html) by the original author Tirco. You are free to use, modify, and redistribute this plugin, as long as credit is retained.
 
 ## Support
 
 - Open an issue for bugs or feature requests
 - Join the [discord server](https://earthcow.xyz/discord) for help
+
