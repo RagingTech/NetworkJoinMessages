@@ -137,7 +137,7 @@ public final class Formatter {
             if (parseTarget == null) {
                 return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver());
             } else {
-                return miniMessage.deserialize(translateLegacyCodes(str), miniPlaceholders.getGlobalResolver(), miniPlaceholders.getAudienceResolver(parseTarget.getAudience()));
+                return miniMessage.deserialize(translateLegacyCodes(str), parseTarget.getAudience(), miniPlaceholders.getAudienceGlobalResolver());
             }
         }
         return miniMessage.deserialize(translateLegacyCodes(str));
