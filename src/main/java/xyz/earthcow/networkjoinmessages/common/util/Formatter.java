@@ -34,17 +34,23 @@ public final class Formatter {
         this.storage = storage;
         // Get compatibility with other plugins, initialize hooks
 
-        try {
-            this.luckPerms = LuckPermsProvider.get();
-            plugin.getCoreLogger().info("Successfully hooked into LuckPerms!");
-        } catch (IllegalStateException | NoClassDefFoundError e) {
+        if (plugin.isPluginLoaded("LuckPerms")) {
+            try {
+                this.luckPerms = LuckPermsProvider.get();
+                plugin.getCoreLogger().info("Successfully hooked into LuckPerms!");
+            } catch (IllegalStateException | NoClassDefFoundError ignored) {}
+        }
+        if (luckPerms == null) {
             plugin.getCoreLogger().warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
 
-        try {
-            this.placeholderAPI = PlaceholderAPI.createInstance();
-            plugin.getCoreLogger().info("Successfully hooked into PAPIProxyBridge!");
-        } catch (NoClassDefFoundError e) {
+        if (plugin.isPluginLoaded("PAPIProxyBridge")) {
+            try {
+                this.placeholderAPI = PlaceholderAPI.createInstance();
+                plugin.getCoreLogger().info("Successfully hooked into PAPIProxyBridge!");
+            } catch (NoClassDefFoundError ignored) {}
+        }
+        if (placeholderAPI == null) {
             plugin.getCoreLogger().warn("Could not find PAPIProxyBridge. Corresponding placeholders will be unavailable.");
         }
 
