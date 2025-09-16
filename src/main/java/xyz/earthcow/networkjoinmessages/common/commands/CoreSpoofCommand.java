@@ -10,16 +10,16 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.List;
 
-public class CoreFakeCommand implements Command {
+public class CoreSpoofCommand implements Command {
 
     private final List<String> COMMAND_ARGS = ImmutableList.of(
-        "fakejoin", "fakequit", "fakeswitch", "fj", "fq", "fs", "toggle"
+        "join", "leave", "swap", "toggle"
     );
 
     private final Storage storage;
     private final MessageHandler messageHandler;
 
-    public CoreFakeCommand(Storage storage, MessageHandler messageHandler) {
+    public CoreSpoofCommand(Storage storage, MessageHandler messageHandler) {
         this.storage = storage;
         this.messageHandler = messageHandler;
     }
@@ -31,7 +31,7 @@ public class CoreFakeCommand implements Command {
             return;
         }
 
-        if (!player.hasPermission("networkjoinmessages.fakemessage")) {
+        if (!player.hasPermission("networkjoinmessages.spoof")) {
             messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission")
@@ -50,18 +50,15 @@ public class CoreFakeCommand implements Command {
         String message;
 
         switch (args[0].toLowerCase()) {
-            case "fakejoin":
-            case "fj":
+            case "join":
                 message = messageHandler.formatJoinMessage(player);
                 messageHandler.broadcastMessage(message, MessageType.JOIN, player);
                 return;
-            case "fakequit":
-            case "fq":
+            case "leave":
                 message = messageHandler.formatLeaveMessage(player);
                 messageHandler.broadcastMessage(message, MessageType.LEAVE, player);
                 return;
-            case "fakeswitch":
-            case "fs":
+            case "swap":
                 if (args.length < 3) {
                     messageHandler.sendMessage(
                         player,
@@ -95,7 +92,7 @@ public class CoreFakeCommand implements Command {
 
     @Override
     public String getRequiredPermission() {
-        return "networkjoinmessages.fakemessage";
+        return "networkjoinmessages.spoof";
     }
 
     @Override
@@ -106,7 +103,7 @@ public class CoreFakeCommand implements Command {
                 return COMMAND_ARGS;
             case 2:
             case 3:
-                if (args[0].equalsIgnoreCase("fs") || args[0].equalsIgnoreCase("fakeswitch")) {
+                if (args[0].equalsIgnoreCase("swap")) {
                     return storage.getServerNames();
                 } else {
                     return ImmutableList.of(

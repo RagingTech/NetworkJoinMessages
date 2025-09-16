@@ -270,7 +270,7 @@ public final class Storage {
             }
         }
     }
-    private void setSwitchState(UUID id, boolean state) {
+    private void setSwapState(UUID id, boolean state) {
         if (state) {
             noSwitchMessage.remove(id);
         } else {
@@ -283,7 +283,7 @@ public final class Storage {
     public void setSendMessageState(String list, UUID id, boolean state) {
         switch (list) {
             case "all":
-                setSwitchState(id, state);
+                setSwapState(id, state);
                 setJoinState(id, state);
                 setLeaveState(id, state);
                 return;
@@ -291,11 +291,10 @@ public final class Storage {
                 setJoinState(id, state);
                 return;
             case "leave":
-            case "quit":
                 setLeaveState(id, state);
                 return;
-            case "switch":
-                setSwitchState(id, state);
+            case "swap":
+                setSwapState(id, state);
         }
     }
 

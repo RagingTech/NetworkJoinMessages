@@ -12,7 +12,7 @@ public class ReloadCommand extends Command {
     private final CoreReloadCommand coreReloadCommand;
 
     public ReloadCommand(CoreReloadCommand coreReloadCommand) {
-        super("networkjoinreload", coreReloadCommand.getRequiredPermission(), "njoinreload");
+        super("njoinreload", coreReloadCommand.getRequiredPermission());
         this.coreReloadCommand = coreReloadCommand;
     }
 

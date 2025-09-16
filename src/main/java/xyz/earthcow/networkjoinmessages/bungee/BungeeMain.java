@@ -7,10 +7,10 @@ import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.*;
-import xyz.earthcow.networkjoinmessages.bungee.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.bungee.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
-import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleJoinCommand;
+import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleCommand;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
@@ -56,13 +56,13 @@ public class BungeeMain extends Plugin implements CorePlugin {
             .registerCommand(this, new ImportCommand(core.getCoreImportCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new FakeCommand(core.getCoreFakeCommand()));
+            .registerCommand(this, new SpoofCommand(core.getCoreSpoofCommand()));
         getProxy()
             .getPluginManager()
             .registerCommand(this, new ReloadCommand(core.getCoreReloadCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new ToggleJoinCommand(core.getCoreToggleJoinCommand()));
+            .registerCommand(this, new ToggleCommand(core.getCoreToggleCommand()));
 
         if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
             this.premiumVanish = new BungeePremiumVanish();

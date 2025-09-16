@@ -16,7 +16,7 @@ import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
-import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
+import xyz.earthcow.networkjoinmessages.velocity.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
@@ -92,27 +92,24 @@ public class VelocityMain implements CorePlugin {
         );
         commandManager.register(
             commandManager
-                .metaBuilder("fakemessage")
-                .aliases("fm")
+                .metaBuilder("njoinspoof")
                 .plugin(this)
                 .build(),
-            new FakeCommand(core.getCoreFakeCommand())
+            new SpoofCommand(core.getCoreSpoofCommand())
         );
         commandManager.register(
             commandManager
-                .metaBuilder("networkjoinreload")
-                .aliases("njoinreload")
+                .metaBuilder("njoinreload")
                 .plugin(this)
                 .build(),
             new ReloadCommand(core.getCoreReloadCommand())
         );
         commandManager.register(
             commandManager
-                .metaBuilder("togglejoinmessage")
-                .aliases("njointoggle")
+                .metaBuilder("njointoggle")
                 .plugin(this)
                 .build(),
-            new ToggleJoinCommand(core.getCoreToggleJoinCommand())
+            new ToggleJoinCommand(core.getCoreToggleCommand())
         );
 
         if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
@@ -130,9 +127,9 @@ public class VelocityMain implements CorePlugin {
     public void disable() {
         proxy.getEventManager().unregisterListeners(this);
         proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinimport"));
-        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("fakemessage"));
-        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("networkjoinreload"));
-        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("togglejoinmessage"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinspoof"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinreload"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njointoggle"));
     }
 
     @Override

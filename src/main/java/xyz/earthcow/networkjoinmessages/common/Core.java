@@ -1,7 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
-import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
@@ -19,7 +19,7 @@ public class Core {
     private H2PlayerJoinTracker firstJoinTracker;
 
     private final CoreImportCommand coreImportCommand;
-    private final CoreFakeCommand coreFakeCommand;
+    private final CoreSpoofCommand coreSpoofCommand;
     private final CoreReloadCommand coreReloadCommand;
     private final CoreToggleJoinCommand coreToggleJoinCommand;
 
@@ -39,7 +39,7 @@ public class Core {
         }
 
         this.coreImportCommand = new CoreImportCommand(this);
-        this.coreFakeCommand = new CoreFakeCommand(storage, messageHandler);
+        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler);
         this.coreReloadCommand = new CoreReloadCommand(this);
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 
@@ -81,15 +81,15 @@ public class Core {
         return coreImportCommand;
     }
 
-    public CoreFakeCommand getCoreFakeCommand() {
-        return coreFakeCommand;
+    public CoreSpoofCommand getCoreSpoofCommand() {
+        return coreSpoofCommand;
     }
 
     public CoreReloadCommand getCoreReloadCommand() {
         return coreReloadCommand;
     }
 
-    public CoreToggleJoinCommand getCoreToggleJoinCommand() {
+    public CoreToggleJoinCommand getCoreToggleCommand() {
         return coreToggleJoinCommand;
     }
 }

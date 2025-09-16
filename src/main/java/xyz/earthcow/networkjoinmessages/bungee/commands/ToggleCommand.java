@@ -6,20 +6,20 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
-import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 
-public class FakeCommand extends Command implements TabExecutor {
+public class ToggleCommand extends Command implements TabExecutor {
 
-    private final CoreFakeCommand coreFakeCommand;
+    private final CoreToggleJoinCommand coreToggleJoinCommand;
 
-    public FakeCommand(CoreFakeCommand coreFakeCommand) {
-        super("fakemessage", coreFakeCommand.getRequiredPermission(), "fm");
-        this.coreFakeCommand = coreFakeCommand;
+    public ToggleCommand(CoreToggleJoinCommand coreToggleJoinCommand) {
+        super("njointoggle", coreToggleJoinCommand.getRequiredPermission());
+        this.coreToggleJoinCommand = coreToggleJoinCommand;
     }
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
-        coreFakeCommand.execute(
+        coreToggleJoinCommand.execute(
             commandSender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) commandSender).getUniqueId())
                 :
@@ -29,7 +29,7 @@ public class FakeCommand extends Command implements TabExecutor {
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        return coreFakeCommand.getTabCompletion(
+        return coreToggleJoinCommand.getTabCompletion(
             sender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) sender).getUniqueId())
                 :

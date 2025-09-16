@@ -12,7 +12,7 @@ import java.util.List;
 public class CoreToggleJoinCommand implements Command {
 
     private final List<String> COMMAND_ARGS = ImmutableList.of(
-        "join", "leave", "quit", "switch", "all"
+        "join", "leave", "swap", "all"
     );
     
     private final Storage storage;
@@ -30,7 +30,7 @@ public class CoreToggleJoinCommand implements Command {
             return;
         }
 
-        if (!player.hasPermission("networkjoinmessages.togglemessage")) {
+        if (!player.hasPermission("networkjoinmessages.toggle")) {
             messageHandler.sendMessage(
                 player,
                 ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission")
@@ -78,7 +78,7 @@ public class CoreToggleJoinCommand implements Command {
 
     @Override
     public String getRequiredPermission() {
-        return "networkjoinmessages.togglemessage";
+        return "networkjoinmessages.toggle";
     }
 
     @Override

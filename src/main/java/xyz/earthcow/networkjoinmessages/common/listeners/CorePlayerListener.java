@@ -118,7 +118,7 @@ public class CorePlayerListener {
         boolean isSilent = isSilentEvent(player);
 
         if (isSilent) {
-            if (player.hasPermission("networkjoinmessages.fakemessage")) {
+            if (player.hasPermission("networkjoinmessages.spoof")) {
                 core.getFormatter().parsePlaceholdersAndThen(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.JoinNotification"),
                         player,
