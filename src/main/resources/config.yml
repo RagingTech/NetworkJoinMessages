@@ -75,17 +75,17 @@ Messages:
   Commands:
     NoMoreArgumentsNeeded: "No more arguments needed."
     NoPermission: "&cYou do not have the permission to use this command."
-    FakeMessage:
+    Spoof:
       NoArgument: |
         &6Arguments:
-        - &cfakejoin
-        - &cfakequit
-        - &cfakeswitch&6 (to) (from)
-      FakeSwitchNoArgument: |
+        - &cjoin
+        - &cleave
+        - &cswap&6 (to) (from)
+      SwapNoArgument: |
         &6Arguments:
-        - &cfakejoin
-        - &cfakequit
-        - &cfakeswitch&6 (to) (from)
+        - &cjoin
+        - &cleave
+        - &cswap&6 (to) (from)
         &4Error: Please specify &cTO&4 and &cFROM
       ToggleSilentNoPerm: "&cYou do not have the permission to join the server silently."
       ToggleSilent: "&eYour SilentMode has now been set to &6<state>"
@@ -112,7 +112,7 @@ Messages:
     ConsoleSilentLeave: "&cLeave message was silenced. %player% left the network"
 Settings:
   # Should players with the networkjoinmessages.silent permission be silenced by default?
-  # It will be set to this for all players after a reboot. They can toggle it for themselves with the /fakemessage toggle command
+  # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
   SilentJoinDefaultState: true
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true

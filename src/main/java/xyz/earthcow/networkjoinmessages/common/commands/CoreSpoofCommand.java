@@ -42,7 +42,7 @@ public class CoreSpoofCommand implements Command {
         if (args.length < 1) {
             messageHandler.sendMessage(
                 player,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.NoArgument")
+                ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.NoArgument")
             );
             return;
         }
@@ -62,7 +62,7 @@ public class CoreSpoofCommand implements Command {
                 if (args.length < 3) {
                     messageHandler.sendMessage(
                         player,
-                        ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.FakeSwitchNoArgument")
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.SwapNoArgument")
                     );
                     return;
                 }
@@ -76,7 +76,7 @@ public class CoreSpoofCommand implements Command {
                 if (!player.hasPermission("networkjoinmessages.silent")) {
                     messageHandler.sendMessage(
                         player,
-                        ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.ToggleSilentNoPerm")
+                        ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.ToggleSilentNoPerm")
                     );
                     return;
                 }
@@ -84,7 +84,7 @@ public class CoreSpoofCommand implements Command {
                 storage.setSilentMessageState(player, state);
                 messageHandler.sendMessage(
                     player,
-                    ConfigManager.getPluginConfig().getString("Messages.Commands.FakeMessage.ToggleSilent")
+                    ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.ToggleSilent")
                         .replaceAll("<state>", String.valueOf(state))
                 );
         }
