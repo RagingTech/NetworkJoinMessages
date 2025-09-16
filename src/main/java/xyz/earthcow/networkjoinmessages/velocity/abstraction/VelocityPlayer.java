@@ -87,6 +87,7 @@ public class VelocityPlayer implements CorePlayer {
         if (!VelocityMain.getInstance().getIsLimboAPIAvailable()) {
             return false;
         }
+        //noinspection ConstantValue
         return ((ConnectedPlayer) velocityPlayer).getConnection().getState().name() == null;
     }
 }
