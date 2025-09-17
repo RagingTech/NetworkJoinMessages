@@ -308,113 +308,81 @@ public final class Storage {
         };
     }
 
-    public List<CorePlayer> getSwapMessageReceivers(String to, String from) {
+    /**
+     * Determines which players should receive a message based on the configured
+     * visibility flags and the involved servers. This method encapsulates the
+     * common logic shared by swap, first-join, join, and leave message handling.
+     *
+     * <p>The selection rules are as follows:
+     * <ul>
+     *   <li>If all relevant flags are {@code true}, all players are returned.</li>
+     *   <li>If {@code viewableByOther} is {@code true}, all players are returned,
+     *       but the groups corresponding to {@code false} flags are removed.</li>
+     *   <li>If {@code viewableByOther} is {@code false}, only the groups with
+     *       {@code true} flags are returned.</li>
+     * </ul>
+     *
+     * @param viewableByJoined  whether players on the "joined" server should see the message
+     * @param viewableByLeft    whether players on the "left" server should see the message
+     *                          (ignored if {@code fromServer} is {@code null})
+     * @param viewableByOther   whether players on other servers should see the message
+     * @param toServer          the name of the "joined" server, or {@code null} if not applicable
+     * @param fromServer        the name of the "left" server, or {@code null} if not applicable
+     * @return a list of players who should receive the message, never {@code null}
+     */
+    private List<CorePlayer> getReceivers(
+            boolean viewableByJoined,
+            boolean viewableByLeft,
+            boolean viewableByOther,
+            String toServer,
+            String fromServer
+    ) {
         List<CorePlayer> receivers = new ArrayList<>();
-        //If all are true, add all players:
-        if (swapViewableByJoined && swapViewableByLeft && swapViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            return receivers;
-        }
-        //Other server is true, but atleast one of the to or from are set to false:
-        else if (swapViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            //Players on the connected server is not allowed to see. Remove them all.
-            if (!swapViewableByJoined) {
-                receivers.removeAll(getServerPlayers(to));
-            }
 
-            if (!swapViewableByLeft) {
-                receivers.removeAll(getServerPlayers(from));
-            }
+        // Case 1: everyone
+        if (viewableByJoined && (viewableByLeft || fromServer == null) && viewableByOther) {
+            receivers.addAll(plugin.getAllPlayers());
             return receivers;
         }
-        //OtherServer is false.
-        else {
-            if (swapViewableByJoined) {
-                receivers.addAll(getServerPlayers(to));
-            }
 
-            if (swapViewableByLeft) {
-                receivers.addAll(getServerPlayers(from));
+        // Case 2: everyone except exclusions
+        if (viewableByOther) {
+            receivers.addAll(plugin.getAllPlayers());
+
+            if (!viewableByJoined && toServer != null) {
+                receivers.removeAll(getServerPlayers(toServer));
+            }
+            if (!viewableByLeft && fromServer != null) {
+                receivers.removeAll(getServerPlayers(fromServer));
             }
             return receivers;
         }
+
+        // Case 3: only specific servers
+        if (viewableByJoined && toServer != null) {
+            receivers.addAll(getServerPlayers(toServer));
+        }
+        if (viewableByLeft && fromServer != null) {
+            receivers.addAll(getServerPlayers(fromServer));
+        }
+
+        return receivers;
+    }
+
+    public List<CorePlayer> getSwapMessageReceivers(String to, String from) {
+        return getReceivers(swapViewableByJoined, swapViewableByLeft, swapViewableByOther, to, from);
     }
 
     public List<CorePlayer> getFirstJoinMessageReceivers(String server) {
-        List<CorePlayer> receivers = new ArrayList<>();
-        //If all are true, add all players:
-        if (firstJoinViewableByJoined && firstJoinViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            return receivers;
-        }
-        //Other server is true, but atleast one of the to or from are set to false:
-        else if (firstJoinViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            receivers.removeAll(getServerPlayers(server));
-            return receivers;
-        } else {
-            if (firstJoinViewableByJoined) {
-                receivers.addAll(getServerPlayers(server));
-            }
-            return receivers;
-        }
+        return getReceivers(firstJoinViewableByJoined, true, firstJoinViewableByOther, server, null);
     }
 
     public List<CorePlayer> getJoinMessageReceivers(String server) {
-        List<CorePlayer> receivers = new ArrayList<>();
-        //If all are true, add all players:
-        if (joinViewableByJoined && joinViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            return receivers;
-        }
-        //Other server is true, but atleast one of the to or from are set to false:
-        else if (joinViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            receivers.removeAll(getServerPlayers(server));
-            return receivers;
-        } else {
-            if (joinViewableByJoined) {
-                receivers.addAll(getServerPlayers(server));
-            }
-            return receivers;
-        }
+        return getReceivers(joinViewableByJoined, true, joinViewableByOther, server, null);
     }
 
     public List<CorePlayer> getLeaveMessageReceivers(String server) {
-        List<CorePlayer> receivers = new ArrayList<>();
-        //If all are true, add all players:
-        if (leaveViewableByLeft && leaveViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            return receivers;
-        }
-        //Other server is true, but atleast one of the to or from are set to false:
-        else if (leaveViewableByOther) {
-            receivers.addAll(
-                plugin.getAllPlayers()
-            );
-            receivers.removeAll(getServerPlayers(server));
-            return receivers;
-        } else {
-            if (leaveViewableByLeft) {
-                receivers.addAll(getServerPlayers(server));
-            }
-            return receivers;
-        }
+        return getReceivers(leaveViewableByLeft, true, leaveViewableByOther, server, null);
     }
 
     public List<CorePlayer> getServerPlayers(String serverName) {
