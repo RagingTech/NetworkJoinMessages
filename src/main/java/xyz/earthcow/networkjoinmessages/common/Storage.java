@@ -710,6 +710,11 @@ public final class Storage {
         customCharts.add(new SimplePie("luck_perms_is_present", () -> String.valueOf(plugin.isPluginLoaded("LuckPerms"))));
         customCharts.add(new SimplePie("mini_placeholders_is_present", () -> String.valueOf(plugin.isPluginLoaded("MiniPlaceholders"))));
 
+        // Discord integration
+        customCharts.add(new SimplePie("discord_integration_enabled", () ->
+            String.valueOf(ConfigManager.getDiscordConfig().getBoolean("Enabled"))
+        ));
+
         return customCharts;
     }
 
