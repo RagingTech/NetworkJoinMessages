@@ -9,7 +9,7 @@ import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
-import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
@@ -242,15 +242,15 @@ public class CorePlayerListener {
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkQuitEvent
-        NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
+        NetworkLeaveEvent networkLeaveEvent = new NetworkLeaveEvent(
             player.getUniqueId(),
             storage.getServerDisplayName(player.getCurrentServer().getName()),
             isSilent,
             Formatter.serialize(formattedMessage),
             Formatter.sanitize(formattedMessage)
         );
-        core.getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
-        plugin.fireEvent(networkQuitEvent);
+        core.getDiscordWebhookIntegration().onNetworkQuit(networkLeaveEvent);
+        plugin.fireEvent(networkLeaveEvent);
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
     }

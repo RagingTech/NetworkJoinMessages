@@ -1,16 +1,16 @@
 package xyz.earthcow.networkjoinmessages.bungee.events;
 
 import net.md_5.bungee.api.plugin.Event;
-import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 
 public class BungeeNetworkLeaveEvent extends Event {
-    private final NetworkQuitEvent data;
+    private final NetworkLeaveEvent data;
 
-    public BungeeNetworkLeaveEvent(NetworkQuitEvent data) {
+    public BungeeNetworkLeaveEvent(NetworkLeaveEvent data) {
         this.data = data;
     }
 
-    public NetworkQuitEvent getData() {
+    public NetworkLeaveEvent getData() {
         return data;
     }
 }

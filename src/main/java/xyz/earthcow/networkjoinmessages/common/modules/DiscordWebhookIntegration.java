@@ -10,7 +10,7 @@ import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
-import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 
@@ -178,7 +178,7 @@ public class DiscordWebhookIntegration {
         executeWebhook(discordWebhook, player);
     }
 
-    public void onNetworkQuit(NetworkQuitEvent event) {
+    public void onNetworkQuit(NetworkLeaveEvent event) {
         if (!enabled) {
             return;
         }

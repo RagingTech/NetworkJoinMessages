@@ -19,7 +19,7 @@ import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
-import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 
@@ -151,8 +151,8 @@ public class BungeeMain extends Plugin implements CorePlugin {
             getProxy().getPluginManager().callEvent((Event) event);
         } else if (event instanceof NetworkJoinEvent) {
             getProxy().getPluginManager().callEvent(new BungeeNetworkJoinEvent((NetworkJoinEvent) event));
-        } else if (event instanceof NetworkQuitEvent) {
-            getProxy().getPluginManager().callEvent(new BungeeNetworkLeaveEvent((NetworkQuitEvent) event));
+        } else if (event instanceof NetworkLeaveEvent) {
+            getProxy().getPluginManager().callEvent(new BungeeNetworkLeaveEvent((NetworkLeaveEvent) event));
         } else if (event instanceof SwapServerEvent) {
             getProxy().getPluginManager().callEvent(new BungeeSwapServerEvent((SwapServerEvent) event));
         }
