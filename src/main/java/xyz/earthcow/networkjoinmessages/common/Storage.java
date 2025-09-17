@@ -454,37 +454,41 @@ public final class Storage {
         return finalResult;
     }
 
+    /**
+     * Collects the UUIDs of all players on servers where messages of the given
+     * type are disabled. This is used to determine which players should be ignored
+     * when sending messages.
+     *
+     * @param type the type of message being checked (FIRST_JOIN, JOIN, or LEAVE)
+     *             (SWAP is not handled here and will always return an empty list)
+     * @return a list of player UUIDs that should be ignored for the given message type
+     */
     public List<UUID> getIgnoredServerPlayers(MessageType type) {
-        List<UUID> ignored = new ArrayList<UUID>();
-        if (type.equals(MessageType.FIRST_JOIN)) {
-            for (String s : serverFirstJoinMessageDisabled) {
-                CoreBackendServer backendServer =
-                    plugin.getServer(s);
-                if (backendServer != null) {
-                    for (CorePlayer p : backendServer.getPlayersConnected()) {
-                        ignored.add(p.getUniqueId());
-                    }
+        List<String> disabledServers;
+        switch (type) {
+            case FIRST_JOIN:
+                disabledServers = serverFirstJoinMessageDisabled;
+                break;
+            case JOIN:
+                disabledServers = serverJoinMessageDisabled;
+                break;
+            case LEAVE:
+                disabledServers = serverLeaveMessageDisabled;
+                break;
+            default:
+                plugin.getCoreLogger().debug("No ignored servers defined for message type: " + type);
+                return Collections.emptyList();
+        }
+
+        List<UUID> ignored = new ArrayList<>();
+        for (String serverName : disabledServers) {
+            CoreBackendServer backendServer = plugin.getServer(serverName);
+            if (backendServer != null) {
+                for (CorePlayer player : backendServer.getPlayersConnected()) {
+                    ignored.add(player.getUniqueId());
                 }
-            }
-        } else if (type.equals(MessageType.JOIN)) {
-            for (String s : serverJoinMessageDisabled) {
-                CoreBackendServer backendServer =
-                    plugin.getServer(s);
-                if (backendServer != null) {
-                    for (CorePlayer p : backendServer.getPlayersConnected()) {
-                        ignored.add(p.getUniqueId());
-                    }
-                }
-            }
-        } else if (type.equals(MessageType.LEAVE)) {
-            for (String s : serverLeaveMessageDisabled) {
-                CoreBackendServer backendServer =
-                    plugin.getServer(s);
-                if (backendServer != null) {
-                    for (CorePlayer p : backendServer.getPlayersConnected()) {
-                        ignored.add(p.getUniqueId());
-                    }
-                }
+            } else {
+                plugin.getCoreLogger().debug("Ignored server not found or offline: " + serverName);
             }
         }
         return ignored;
