@@ -6,6 +6,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
+import org.bstats.charts.CustomChart;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.*;
 import xyz.earthcow.networkjoinmessages.bungee.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
@@ -67,6 +68,10 @@ public class BungeeMain extends Plugin implements CorePlugin {
         if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
             this.premiumVanish = new BungeePremiumVanish();
             bungeeLogger.info("Successfully hooked into PremiumVanish!");
+        }
+
+        for (CustomChart chart : core.getStorage().getCustomCharts()) {
+            metrics.addCustomChart(chart);
         }
 
     }

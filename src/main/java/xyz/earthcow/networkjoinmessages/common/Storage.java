@@ -1,6 +1,10 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import org.bstats.charts.CustomChart;
+import org.bstats.charts.SimpleBarChart;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -8,6 +12,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 
 /**
  * Singleton class for holding config values and user data that should persist after the user leaves the proxy
@@ -73,8 +78,8 @@ public final class Storage {
     private boolean joinViewableByJoined;
     private boolean joinViewableByOther;
 
-    private boolean leftViewableByLeft;
-    private boolean leftViewableByOther;
+    private boolean leaveViewableByLeft;
+    private boolean leaveViewableByOther;
 
     private List<String> serverFirstJoinMessageDisabled = new ArrayList<>();
     private List<String> serverJoinMessageDisabled = new ArrayList<>();
@@ -158,8 +163,8 @@ public final class Storage {
         this.joinViewableByJoined = config.getBoolean("Settings.JoinNetworkMessageViewableBy.ServerJoined");
         this.joinViewableByOther = config.getBoolean("Settings.JoinNetworkMessageViewableBy.OtherServer");
 
-        this.leftViewableByLeft = config.getBoolean("Settings.LeaveNetworkMessageViewableBy.ServerLeft");
-        this.leftViewableByOther = config.getBoolean("Settings.LeaveNetworkMessageViewableBy.OtherServer");
+        this.leaveViewableByLeft = config.getBoolean("Settings.LeaveNetworkMessageViewableBy.ServerLeft");
+        this.leaveViewableByOther = config.getBoolean("Settings.LeaveNetworkMessageViewableBy.OtherServer");
 
         // Blacklist
         this.blacklistedServers = config.getStringList("Settings.ServerBlacklist");
@@ -394,21 +399,21 @@ public final class Storage {
     public List<CorePlayer> getLeaveMessageReceivers(String server) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
-        if (leftViewableByLeft && leftViewableByOther) {
+        if (leaveViewableByLeft && leaveViewableByOther) {
             receivers.addAll(
                 plugin.getAllPlayers()
             );
             return receivers;
         }
         //Other server is true, but atleast one of the to or from are set to false:
-        else if (leftViewableByOther) {
+        else if (leaveViewableByOther) {
             receivers.addAll(
                 plugin.getAllPlayers()
             );
             receivers.removeAll(getServerPlayers(server));
             return receivers;
         } else {
-            if (leftViewableByLeft) {
+            if (leaveViewableByLeft) {
                 receivers.addAll(getServerPlayers(server));
             }
             return receivers;
@@ -621,6 +626,84 @@ public final class Storage {
 
     public boolean getDebug() {
         return debug;
+    }
+
+    public Collection<CustomChart> getCustomCharts() {
+        List<CustomChart> customCharts = new ArrayList<>();
+
+        customCharts.add(new SimplePie("swap_enabled", () -> String.valueOf(swapServerMessageEnabled)));
+        customCharts.add(new SimplePie("first_join_enabled", () -> String.valueOf(firstJoinNetworkMessageEnabled)));
+        customCharts.add(new SimplePie("join_enabled", () -> String.valueOf(joinNetworkMessageEnabled)));
+        customCharts.add(new SimplePie("leave_enabled", () -> String.valueOf(leaveNetworkMessageEnabled)));
+
+        customCharts.add(new SimplePie("random_swap", () -> String.valueOf(swapServerMessageEnabled && swapServerMessage.isEmpty())));
+        customCharts.add(new SimplePie("random_first_join", () -> String.valueOf(firstJoinNetworkMessageEnabled && firstJoinNetworkMessage.isEmpty())));
+        customCharts.add(new SimplePie("random_join", () -> String.valueOf(joinNetworkMessageEnabled && joinNetworkMessage.isEmpty())));
+        customCharts.add(new SimplePie("random_leave", () -> String.valueOf(leaveNetworkMessageEnabled && leaveNetworkMessage.isEmpty())));
+
+        customCharts.add(new SimplePie("silent_join_default_state", () -> String.valueOf(silentJoinDefaultState)));
+        customCharts.add(new SimplePie("notify_admins_on_silent_move", () -> String.valueOf(notifyAdminsOnSilentMove)));
+
+        customCharts.add(new SimplePie("swap_viewable_by", () -> {
+            List<String> values = new ArrayList<>();
+
+            if (swapViewableByJoined) values.add("joined");
+            if (swapViewableByLeft)   values.add("left");
+            if (swapViewableByOther)  values.add("other");
+
+            if (values.size() == 3) return "all";
+            if (values.isEmpty())   return "none";
+
+            return String.join(" ", values);
+        }));
+        customCharts.add(new SimplePie("first_join_viewable_by", () -> {
+            if (firstJoinViewableByJoined && firstJoinViewableByOther) return "all";
+            if (firstJoinViewableByJoined) return "joined";
+            if (firstJoinViewableByOther)  return "other";
+
+            return "none";
+        }));
+        customCharts.add(new SimplePie("join_viewable_by", () -> {
+            if (joinViewableByJoined && joinViewableByOther) return "all";
+            if (joinViewableByJoined) return "joined";
+            if (joinViewableByOther)  return "other";
+
+            return "none";
+        }));
+        customCharts.add(new SimplePie("leave_viewable_by", () -> {
+            if (leaveViewableByLeft && leaveViewableByOther) return "all";
+            if (leaveViewableByLeft)  return "left";
+            if (leaveViewableByOther) return "other";
+
+            return "none";
+        }));
+
+        customCharts.add(new SimplePie("server_blacklist_is_default", () ->
+            String.valueOf(blacklistedServers.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.ServerBlacklist")))
+        ));
+        customCharts.add(new SimplePie("blacklist_is_whitelist", () -> String.valueOf(useBlacklistAsWhitelist)));
+
+        customCharts.add(new SimplePie("swap_requires", () -> swapServerMessageRequires));
+
+        customCharts.add(new SimplePie("ignore_first_join_list_is_default", () ->
+            String.valueOf(serverFirstJoinMessageDisabled.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreFirstJoinMessagesList")))
+        ));
+        customCharts.add(new SimplePie("ignore_join_list_is_default", () ->
+            String.valueOf(serverJoinMessageDisabled.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreJoinMessagesList")))
+        ));
+        customCharts.add(new SimplePie("ignore_leave_list_is_default", () ->
+            String.valueOf(serverLeaveMessageDisabled.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreLeaveMessagesList")))
+        ));
+
+        // Other plugins
+        customCharts.add(new SimplePie("premium_vanish_vanished_are_silent", () -> String.valueOf(treatVanishedPlayersAsSilent)));
+        customCharts.add(new SimplePie("premium_vanish_remove_vanished_from_player_count", () -> String.valueOf(removeVanishedPlayersFromPlayerCount)));
+
+        customCharts.add(new SimplePie("limbo_api_suppress_swap", () -> String.valueOf(shouldSuppressLimboSwap)));
+        customCharts.add(new SimplePie("limbo_api_suppress_join", () -> String.valueOf(shouldSuppressLimboJoin)));
+        customCharts.add(new SimplePie("limbo_api_suppress_leave", () -> String.valueOf(shouldSuppressLimboLeave)));
+
+        return customCharts;
     }
 
     //endregion

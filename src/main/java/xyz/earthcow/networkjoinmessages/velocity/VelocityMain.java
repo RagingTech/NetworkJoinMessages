@@ -10,9 +10,12 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import org.bstats.charts.CustomChart;
+import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
@@ -82,6 +85,24 @@ public class VelocityMain implements CorePlugin {
 
         proxy.getEventManager().register(this, new PlayerListener(new CorePlayerListener(core)));
 
+        registerCommands();
+
+        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
+            this.premiumVanish = new VelocityPremiumVanish();
+            velocityLogger.info("Successfully hooked into PremiumVanish!");
+        }
+
+        if (isPluginLoaded("limboapi")) {
+            this.isLimboAPIAvailable = true;
+            velocityLogger.info("Successfully hooked into LimboAPI!");
+        }
+
+        for (CustomChart chart : core.getStorage().getCustomCharts()) {
+            metrics.addCustomChart(chart);
+        }
+    }
+
+    private void registerCommands() {
         CommandManager commandManager = proxy.getCommandManager();
         commandManager.register(
             commandManager
@@ -111,16 +132,6 @@ public class VelocityMain implements CorePlugin {
                 .build(),
             new ToggleJoinCommand(core.getCoreToggleCommand())
         );
-
-        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
-            this.premiumVanish = new VelocityPremiumVanish();
-            velocityLogger.info("Successfully hooked into PremiumVanish!");
-        }
-
-        if (isPluginLoaded("limboapi")) {
-            this.isLimboAPIAvailable = true;
-            velocityLogger.info("Successfully hooked into LimboAPI!");
-        }
     }
 
     @Override
