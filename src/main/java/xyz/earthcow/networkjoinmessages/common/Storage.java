@@ -703,6 +703,13 @@ public final class Storage {
         customCharts.add(new SimplePie("limbo_api_suppress_join", () -> String.valueOf(shouldSuppressLimboJoin)));
         customCharts.add(new SimplePie("limbo_api_suppress_leave", () -> String.valueOf(shouldSuppressLimboLeave)));
 
+        // Present plugins
+        customCharts.add(new SimplePie("premium_vanish_is_present", () -> String.valueOf(plugin.isPluginLoaded("PremiumVanish"))));
+        customCharts.add(new SimplePie("limbo_api_is_present", () -> String.valueOf(plugin.isPluginLoaded("LimboAPI"))));
+        customCharts.add(new SimplePie("papi_bridge_is_present", () -> String.valueOf(plugin.isPluginLoaded("PAPIProxyBridge"))));
+        customCharts.add(new SimplePie("luck_perms_is_present", () -> String.valueOf(plugin.isPluginLoaded("LuckPerms"))));
+        customCharts.add(new SimplePie("mini_placeholders_is_present", () -> String.valueOf(plugin.isPluginLoaded("MiniPlaceholders"))));
+
         return customCharts;
     }
 
