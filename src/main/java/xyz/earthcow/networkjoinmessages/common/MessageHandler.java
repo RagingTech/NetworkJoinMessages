@@ -112,7 +112,7 @@ public final class MessageHandler {
 
         switch (type) {
             case SWAP -> {
-                receivers.addAll(storage.getSwitchMessageReceivers(to, from));
+                receivers.addAll(storage.getSwapMessageReceivers(to, from));
             }
             case FIRST_JOIN -> {
                 receivers.addAll(storage.getFirstJoinMessageReceivers(from));

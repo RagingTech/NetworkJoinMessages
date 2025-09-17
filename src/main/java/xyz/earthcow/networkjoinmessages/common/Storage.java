@@ -2,9 +2,7 @@ package xyz.earthcow.networkjoinmessages.common;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bstats.charts.CustomChart;
-import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
-import org.bstats.charts.SingleLineChart;
 import org.jetbrains.annotations.NotNull;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -12,7 +10,6 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 
 /**
  * Singleton class for holding config values and user data that should persist after the user leaves the proxy
@@ -311,7 +308,7 @@ public final class Storage {
         };
     }
 
-    public List<CorePlayer> getSwitchMessageReceivers(String to, String from) {
+    public List<CorePlayer> getSwapMessageReceivers(String to, String from) {
         List<CorePlayer> receivers = new ArrayList<>();
         //If all are true, add all players:
         if (swapViewableByJoined && swapViewableByLeft && swapViewableByOther) {
