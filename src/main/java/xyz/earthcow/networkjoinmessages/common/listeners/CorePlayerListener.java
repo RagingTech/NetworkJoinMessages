@@ -135,12 +135,12 @@ public class CorePlayerListener {
         // All checks have passed to reach this point
         // Call the custom NetworkJoinEvent
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
-            player,
+            player.getUniqueId(),
             storage.getServerDisplayName(server.getName()),
             isSilent,
             firstJoin,
-                Formatter.serialize(formattedMessage),
-                Formatter.sanitize(formattedMessage)
+            Formatter.serialize(formattedMessage),
+            Formatter.sanitize(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
         plugin.fireEvent(networkJoinEvent);
@@ -174,12 +174,12 @@ public class CorePlayerListener {
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom ServerSwapEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
-            player,
+            player.getUniqueId(),
             storage.getServerDisplayName(from),
             storage.getServerDisplayName(to),
             isSilent,
-                Formatter.serialize(formattedMessage),
-                Formatter.sanitize(formattedMessage)
+            Formatter.serialize(formattedMessage),
+            Formatter.sanitize(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
         plugin.fireEvent(swapServerEvent);
@@ -243,11 +243,11 @@ public class CorePlayerListener {
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkQuitEvent
         NetworkQuitEvent networkQuitEvent = new NetworkQuitEvent(
-            player,
+            player.getUniqueId(),
             storage.getServerDisplayName(player.getCurrentServer().getName()),
             isSilent,
-                Formatter.serialize(formattedMessage),
-                Formatter.sanitize(formattedMessage)
+            Formatter.serialize(formattedMessage),
+            Formatter.sanitize(formattedMessage)
         );
         core.getDiscordWebhookIntegration().onNetworkQuit(networkQuitEvent);
         plugin.fireEvent(networkQuitEvent);

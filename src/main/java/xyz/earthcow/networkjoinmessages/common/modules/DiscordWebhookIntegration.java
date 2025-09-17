@@ -77,7 +77,7 @@ public class DiscordWebhookIntegration {
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
-        CorePlayer player = event.player();
+        CorePlayer player = plugin.getPlayerManager().getPlayer(event.playerUniqueId());
         String toServer = event.serverTo();
         String fromServer = event.serverFrom();
         // Check if custom webhook is enabled
@@ -139,7 +139,7 @@ public class DiscordWebhookIntegration {
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
-        CorePlayer player = event.player();
+        CorePlayer player = plugin.getPlayerManager().getPlayer(event.playerUniqueId());
         // Check if custom webhook is enabled
         if (discordConfig.getBoolean(key + ".CustomWebhook.Enabled")) {
             discordWebhook.setUsername(
@@ -189,7 +189,7 @@ public class DiscordWebhookIntegration {
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
-        CorePlayer player = event.player();
+        CorePlayer player = plugin.getPlayerManager().getPlayer(event.playerUniqueId());
         // Check if custom webhook is enabled
         if (
                 discordConfig.getBoolean(
