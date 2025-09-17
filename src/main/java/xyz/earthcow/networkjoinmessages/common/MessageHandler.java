@@ -247,8 +247,4 @@ public final class MessageHandler {
                 .replace("%playercount_server%", getServerPlayerCount(player, leaving))
                 .replace("%playercount_network%", getNetworkPlayerCount(player, leaving));
     }
-
-    public void log(String string) {
-        plugin.getCoreLogger().info(string);
-    }
 }
