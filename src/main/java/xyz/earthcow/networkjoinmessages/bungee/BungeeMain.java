@@ -12,9 +12,15 @@ import xyz.earthcow.networkjoinmessages.bungee.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleCommand;
+import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 
 import java.util.List;
@@ -143,6 +149,12 @@ public class BungeeMain extends Plugin implements CorePlugin {
     public void fireEvent(Object event) {
         if (event instanceof Event) {
             getProxy().getPluginManager().callEvent((Event) event);
+        } else if (event instanceof NetworkJoinEvent) {
+            getProxy().getPluginManager().callEvent(new BungeeNetworkJoinEvent((NetworkJoinEvent) event));
+        } else if (event instanceof NetworkQuitEvent) {
+            getProxy().getPluginManager().callEvent(new BungeeNetworkLeaveEvent((NetworkQuitEvent) event));
+        } else if (event instanceof SwapServerEvent) {
+            getProxy().getPluginManager().callEvent(new BungeeSwapServerEvent((SwapServerEvent) event));
         }
     }
 
