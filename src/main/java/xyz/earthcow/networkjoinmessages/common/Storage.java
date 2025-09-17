@@ -4,6 +4,7 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
@@ -393,78 +394,64 @@ public final class Storage {
         return backendServer.getPlayersConnected();
     }
 
+    /**
+     * Checks whether the given player is blocked from receiving a message
+     * based on the current blacklist/whitelist configuration.
+     *
+     * @param player the player to check
+     * @return {@code true} if the player is blocked, {@code false} otherwise
+     */
     public boolean isBlacklisted(CorePlayer player) {
         String server = player.getCurrentServer().getName();
-
-        // Null check for possible Geyser issues.
-        if (server == null) {
-            plugin.getCoreLogger()
-                .info(
-                    "Warning: Server of " +
-                        player.getName() +
-                        " came back as Null. Blacklisted Server check failed. #02"
-                );
-            return false;
-        }
-
         boolean listed = blacklistedServers.contains(server);
-        if (useBlacklistAsWhitelist) {
-            //WHITELIST
-            return !listed;
-            //Returns TRUE if it's NOT in the list (Deny MessagE)
-            //FALSE if it is in the list. (Allow Message)
 
-        } else {
-            //BLACKLIST
-            return listed;
-            //Returns TRUE if it is listed. (Allow Message)
-            //FALSE if it's not listed. (Deny Message)
+        boolean result = useBlacklistAsWhitelist != listed;
 
-        }
-        //Returning FALSE allows the message to go further, TRUE will stop it.
+        plugin.getCoreLogger().debug(String.format(
+                "Blacklist check for player %s on server %s: listed=%s, mode=%s, result=%s",
+                player.getName(), server, listed,
+                useBlacklistAsWhitelist ? "WHITELIST" : "BLACKLIST",
+                result
+        ));
+
+        return result;
     }
 
-    public boolean isBlacklisted(String from, String to) {
-        boolean fromListed = false;
-        if (from != null) {
-            fromListed = blacklistedServers.contains(from);
-        }
+    /**
+     * Checks whether a message involving two servers should be blocked,
+     * based on the current blacklist/whitelist configuration and the
+     * {@code swapServerMessageRequires} setting.
+     *
+     * @param from the "left" server name
+     * @param to   the "joined" server name
+     * @return {@code true} if the message is blocked, {@code false} otherwise
+     */
+    public boolean isBlacklisted(@Nullable String from, @Nullable String to) {
+        boolean fromListed = from != null && blacklistedServers.contains(from);
+        boolean toListed   = to   != null && blacklistedServers.contains(to);
 
-        boolean toListed = false;
-        if (to != null) {
-            toListed = blacklistedServers.contains(to);
-        }
+        boolean result = switch (swapServerMessageRequires.toUpperCase()) {
+            case "JOINED" -> toListed;
+            case "LEFT" -> fromListed;
+            case "ANY" -> fromListed || toListed;
+            case "BOTH" -> fromListed && toListed;
+            default -> {
+                plugin.getCoreLogger().warn("Unrecognized swapServerMessageRequires value: "
+                        + swapServerMessageRequires);
+                yield false;
+            }
+        };
 
-        boolean result = true;
-        switch (swapServerMessageRequires.toUpperCase()) {
-            case "JOINED":
-                result = toListed;
-                //MessageHandler.getInstance().log("Joined - toListed = " + toListed);
-                break;
-            case "LEFT":
-                result = fromListed;
-                //MessageHandler.getInstance().log("Left - fromListed = " + fromListed);
-                break;
-            case "ANY":
-                result = fromListed || toListed;
-                //MessageHandler.getInstance().log("ANY - fromListed = " + fromListed + "toListed = " + toListed + " result = " + result);
-                break;
-            case "BOTH":
-                result = fromListed && toListed;
-                //MessageHandler.getInstance().log("BOTH - fromListed = " + fromListed + "toListed = " + toListed + " result = " + result);
-                break;
-            default:
-                //MessageHandler.getInstance().log("Warning: Default action triggered under blacklist check. Is it correctly configured?");
-                break;
-        }
-        //Returning FALSE allows the message to go further, TRUE will stop it.
-        if (useBlacklistAsWhitelist) {
-            //WHITELIST
-            return !result;
-        } else {
-            //BLACKLIST
-            return result;
-        }
+        boolean finalResult = useBlacklistAsWhitelist != result;
+
+        plugin.getCoreLogger().debug(String.format(
+                "Blacklist check for swap (from=%s, to=%s): fromListed=%s, toListed=%s, mode=%s, requires=%s, result=%s",
+                from, to, fromListed, toListed,
+                useBlacklistAsWhitelist ? "WHITELIST" : "BLACKLIST",
+                swapServerMessageRequires, finalResult
+        ));
+
+        return finalResult;
     }
 
     public List<UUID> getIgnoredServerPlayers(MessageType type) {
