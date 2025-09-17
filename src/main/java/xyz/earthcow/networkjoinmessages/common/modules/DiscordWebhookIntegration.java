@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.discordwebhook.DiscordWebhook;
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -30,11 +29,11 @@ public class DiscordWebhookIntegration {
     private String webhookUrl;
     private boolean enabled;
 
-    public DiscordWebhookIntegration(Core core) {
-        this.plugin = core.getPlugin();
-        this.formatter = core.getFormatter();
-        this.storage = core.getStorage();
-        this.messageHandler = core.getMessageHandler();
+    public DiscordWebhookIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler) {
+        this.plugin = plugin;
+        this.storage = storage;
+        this.formatter = formatter;
+        this.messageHandler = messageHandler;
         loadVariables();
     }
 

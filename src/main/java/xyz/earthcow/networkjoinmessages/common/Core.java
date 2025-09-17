@@ -30,7 +30,7 @@ public class Core {
         this.messageHandler = new MessageHandler(plugin, storage, formatter);
 
         loadConfigs();
-        discordWebhookIntegration = new DiscordWebhookIntegration(this);
+        discordWebhookIntegration = new DiscordWebhookIntegration(plugin, storage, formatter, messageHandler);
 
         try {
             firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
