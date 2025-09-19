@@ -178,17 +178,27 @@ public final class MessageHandler {
 
         PremiumVanish premiumVanish = plugin.getVanishAPI();
 
+        boolean vanished = false;
         if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
                 List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
                 // Filter out vanished players
                 players = players.stream().filter(corePlayer -> !vanishedPlayers.contains(corePlayer.getUniqueId())).toList();
+                vanished = vanishedPlayers.contains(player.getUniqueId());
         }
 
         int count = players.size();
 
-        if (player != null && leaving) {
+        if (player != null && !vanished) {
+            // If the player is technically on the server, and they are leaving subtract them from count
+            // Otherwise, if the player is not on the server, and they are not leaving add them to the count
             if (players.stream().anyMatch(corePlayer -> corePlayer.getUniqueId().equals(player.getUniqueId()))) {
-                count--;
+                if (leaving) {
+                    count--;
+                }
+            } else {
+                if (!leaving) {
+                    count++;
+                }
             }
         }
 
