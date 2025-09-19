@@ -15,6 +15,8 @@ import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -49,17 +51,48 @@ public class DiscordIntegration {
     }
 
     private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
-        formatter.parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> plugin.runTaskAsync(() -> {
-            try {
-                webhook.execute(formatted);
-            } catch (Exception e) {
-                plugin
-                    .getCoreLogger()
-                    .warn(
-                        "[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url."
-                    );
-            }
-        }));
+        formatter.parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted ->
+            plugin.runTaskAsync(() -> {
+                try {
+                    webhook.execute(formatted);
+                } catch (IOException e) {
+                    String msg = null;
+                    if (e instanceof FileNotFoundException) {
+                        msg = "The webhook url is not valid!";
+                    } else {
+                        String message = e.getMessage();
+                        if (message != null && message.contains("HTTP response code:")) {
+                            try {
+                                int responseCode = Integer.parseInt(message.substring(message.indexOf(":") + 2, message.indexOf(":") + 5));
+                                msg = switch (responseCode) {
+                                    case 400 ->
+                                        "Error - 400 response - bad request. Verify all urls are either blank or valid urls.";
+                                    case 401 ->
+                                        "Error - 401 response - unauthorized. Verify webhook url and discord server status.";
+                                    case 403 ->
+                                        "Error - 403 response - forbidden. Verify webhook url and discord server status.";
+                                    case 404 ->
+                                        "Error - 404 response - not found. Verify webhook url and discord server status.";
+                                    case 429 ->
+                                        "Error - 429 response - too many requests. This webhook has sent too many messages in too short amount of time.";
+                                    case 500 ->
+                                        "Error - 505 response - internal server error. Discord services may be temporarily down.";
+                                    default -> "Error - " + responseCode + " response - unexpected error code.";
+                                };
+                            } catch (IndexOutOfBoundsException | NumberFormatException ex) {
+                                plugin.getCoreLogger().debug("Secondary exception: " + ex);
+                            }
+                        }
+                    }
+                    if (msg == null) {
+                        msg = "Unknown error has occurred. Please make a bug report at https://github.com/RagingTech/NetworkJoinMessages/issues.";
+                    }
+                    plugin.getCoreLogger().severe("[DiscordIntegration] " + msg);
+                    plugin.getCoreLogger().debug("Exception: " + e);
+                    plugin.getCoreLogger().debug("Webhook: " + webhook.getJsonString());
+                }
+            })
+        );
     }
 
     // Event handlers
