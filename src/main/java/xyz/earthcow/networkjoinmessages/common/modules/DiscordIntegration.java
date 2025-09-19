@@ -18,7 +18,7 @@ import java.awt.*;
 import java.util.Date;
 import java.util.List;
 
-public class DiscordWebhookIntegration {
+public class DiscordIntegration {
 
     private final CorePlugin plugin;
     private final Formatter formatter;
@@ -28,7 +28,7 @@ public class DiscordWebhookIntegration {
     private YamlDocument discordConfig;
     private String webhookUrl;
 
-    public DiscordWebhookIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler) {
+    public DiscordIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler) {
         this.plugin = plugin;
         this.storage = storage;
         this.formatter = formatter;

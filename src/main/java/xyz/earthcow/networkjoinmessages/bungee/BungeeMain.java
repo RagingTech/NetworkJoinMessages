@@ -23,7 +23,7 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
-import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 import java.util.List;
 import java.util.UUID;
@@ -163,7 +163,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
     }
 
     @Override
-    public void registerDiscordListener(DiscordWebhookIntegration discordIntegration) {
+    public void registerDiscordListener(DiscordIntegration discordIntegration) {
         if (bungeeDiscordListener != null) return;
         bungeeDiscordListener = new BungeeDiscordListener(discordIntegration);
         getProxy()

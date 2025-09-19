@@ -5,13 +5,13 @@ import net.md_5.bungee.event.EventHandler;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
-import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 public class BungeeDiscordListener implements Listener {
 
-    private final DiscordWebhookIntegration discordIntegration;
+    private final DiscordIntegration discordIntegration;
 
-    public BungeeDiscordListener(DiscordWebhookIntegration discordIntegration) {
+    public BungeeDiscordListener(DiscordIntegration discordIntegration) {
         this.discordIntegration = discordIntegration;
     }
 

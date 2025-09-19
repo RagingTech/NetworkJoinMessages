@@ -1,7 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
 import xyz.earthcow.networkjoinmessages.common.Core;
-import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 import java.io.File;
 import java.util.List;
@@ -21,7 +21,7 @@ public interface CorePlugin {
 
     void fireEvent(Object event);
 
-    void registerDiscordListener(DiscordWebhookIntegration discordIntegration);
+    void registerDiscordListener(DiscordIntegration discordIntegration);
     void unregisterDiscordListener();
 
     PremiumVanish getVanishAPI();

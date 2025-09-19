@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
-import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
@@ -151,7 +151,7 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
-    public void registerDiscordListener(DiscordWebhookIntegration discordIntegration) {
+    public void registerDiscordListener(DiscordIntegration discordIntegration) {
         if (velocityDiscordListener != null) return;
         velocityDiscordListener = new VelocityDiscordListener(discordIntegration);
         proxy.getEventManager().register(this, velocityDiscordListener);

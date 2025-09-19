@@ -5,7 +5,7 @@ import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
-import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 
@@ -15,7 +15,7 @@ public class Core {
     private final Storage storage;
     private final MessageHandler messageHandler;
 
-    private final DiscordWebhookIntegration discordWebhookIntegration;
+    private final DiscordIntegration discordIntegration;
     private H2PlayerJoinTracker firstJoinTracker;
 
     private final CoreImportCommand coreImportCommand;
@@ -28,7 +28,7 @@ public class Core {
         this.storage = new Storage(plugin);
         this.formatter = new Formatter(plugin, storage);
         this.messageHandler = new MessageHandler(plugin, storage, formatter);
-        this.discordWebhookIntegration = new DiscordWebhookIntegration(plugin, storage, formatter, messageHandler);
+        this.discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler);
         loadConfigs();
 
         try {
@@ -47,7 +47,7 @@ public class Core {
     public void loadConfigs() {
         ConfigManager.setupConfigs(plugin);
         storage.setUpDefaultValuesFromConfig();
-        discordWebhookIntegration.loadVariables();
+        discordIntegration.loadVariables();
     }
 
     public CorePlugin getPlugin() {

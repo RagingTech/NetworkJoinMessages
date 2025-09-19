@@ -4,13 +4,13 @@ import com.velocitypowered.api.event.Subscribe;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 public class VelocityDiscordListener {
 
-    private final DiscordWebhookIntegration discordIntegration;
+    private final DiscordIntegration discordIntegration;
 
-    public VelocityDiscordListener(DiscordWebhookIntegration discordIntegration) {
+    public VelocityDiscordListener(DiscordIntegration discordIntegration) {
         this.discordIntegration = discordIntegration;
     }
 
