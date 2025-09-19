@@ -270,5 +270,6 @@ public class CorePlayerListener {
         plugin.fireEvent(networkLeaveEvent);
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
+        storage.setConnected(player, false);
     }
 }
