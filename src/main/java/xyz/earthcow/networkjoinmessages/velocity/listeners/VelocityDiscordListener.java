@@ -6,11 +6,11 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 
-public class VelocityDiscordIntegrationListener {
+public class VelocityDiscordListener {
 
     private final DiscordWebhookIntegration discordIntegration;
 
-    public VelocityDiscordIntegrationListener(DiscordWebhookIntegration discordIntegration) {
+    public VelocityDiscordListener(DiscordWebhookIntegration discordIntegration) {
         this.discordIntegration = discordIntegration;
     }
 

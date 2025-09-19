@@ -15,7 +15,7 @@ import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleCommand;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
-import xyz.earthcow.networkjoinmessages.bungee.listeners.BungeeDiscordIntegrationListener;
+import xyz.earthcow.networkjoinmessages.bungee.listeners.BungeeDiscordListener;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
@@ -43,7 +43,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     private PremiumVanish premiumVanish;
 
-    private BungeeDiscordIntegrationListener bungeeDiscordIntegrationListener = null;
+    private BungeeDiscordListener bungeeDiscordListener = null;
 
     @Override
     public void onEnable() {
@@ -164,19 +164,19 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
     @Override
     public void registerDiscordListener(DiscordWebhookIntegration discordIntegration) {
-        if (bungeeDiscordIntegrationListener != null) return;
-        bungeeDiscordIntegrationListener = new BungeeDiscordIntegrationListener(discordIntegration);
+        if (bungeeDiscordListener != null) return;
+        bungeeDiscordListener = new BungeeDiscordListener(discordIntegration);
         getProxy()
                 .getPluginManager()
-                .registerListener(this, bungeeDiscordIntegrationListener);
+                .registerListener(this, bungeeDiscordListener);
     }
 
     @Override
     public void unregisterDiscordListener() {
-        if (bungeeDiscordIntegrationListener == null) return;
+        if (bungeeDiscordListener == null) return;
         getProxy()
                 .getPluginManager()
-                .unregisterListener(bungeeDiscordIntegrationListener);
+                .unregisterListener(bungeeDiscordListener);
     }
 
     @Override

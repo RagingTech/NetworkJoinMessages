@@ -7,11 +7,11 @@ import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 
-public class BungeeDiscordIntegrationListener implements Listener {
+public class BungeeDiscordListener implements Listener {
 
     private final DiscordWebhookIntegration discordIntegration;
 
-    public BungeeDiscordIntegrationListener(DiscordWebhookIntegration discordIntegration) {
+    public BungeeDiscordListener(DiscordWebhookIntegration discordIntegration) {
         this.discordIntegration = discordIntegration;
     }
 

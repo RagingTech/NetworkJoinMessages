@@ -11,11 +11,9 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.bstats.charts.CustomChart;
-import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.Core;
-import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
@@ -25,7 +23,7 @@ import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
-import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityDiscordIntegrationListener;
+import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityDiscordListener;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -65,7 +63,7 @@ public class VelocityMain implements CorePlugin {
     private final Metrics.Factory metricsFactory;
     private boolean isLimboAPIAvailable = false;
 
-    private VelocityDiscordIntegrationListener velocityDiscordIntegrationListener = null;
+    private VelocityDiscordListener velocityDiscordListener = null;
 
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -154,15 +152,15 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public void registerDiscordListener(DiscordWebhookIntegration discordIntegration) {
-        if (velocityDiscordIntegrationListener != null) return;
-        velocityDiscordIntegrationListener = new VelocityDiscordIntegrationListener(discordIntegration);
-        proxy.getEventManager().register(this, velocityDiscordIntegrationListener);
+        if (velocityDiscordListener != null) return;
+        velocityDiscordListener = new VelocityDiscordListener(discordIntegration);
+        proxy.getEventManager().register(this, velocityDiscordListener);
     }
 
     @Override
     public void unregisterDiscordListener() {
-        if (velocityDiscordIntegrationListener == null) return;
-        proxy.getEventManager().unregisterListener(this, velocityDiscordIntegrationListener);
+        if (velocityDiscordListener == null) return;
+        proxy.getEventManager().unregisterListener(this, velocityDiscordListener);
     }
 
     @Override
