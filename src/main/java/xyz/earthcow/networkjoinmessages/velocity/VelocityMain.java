@@ -81,9 +81,10 @@ public class VelocityMain implements CorePlugin {
         final int PLUGIN_ID = 26526;
         Metrics metrics = metricsFactory.make(this, PLUGIN_ID);
 
-        this.core = new Core(this);
-        this.velocityLogger = new VelocityLogger(logger, core.getStorage());
+        this.velocityLogger = new VelocityLogger(logger);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
+
+        this.core = new Core(this, velocityLogger);
 
         proxy.getEventManager().register(this, new PlayerListener(new CorePlayerListener(core)));
 

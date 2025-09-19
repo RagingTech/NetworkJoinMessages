@@ -52,9 +52,10 @@ public class BungeeMain extends Plugin implements CorePlugin {
         Metrics metrics = new Metrics(this, PLUGIN_ID);
 
         this.audiences = BungeeAudiences.create(this);
-        this.core = new Core(this);
-        this.bungeeLogger = new BungeeLogger(getLogger(), core.getStorage());
+        this.bungeeLogger = new BungeeLogger(getLogger());
         this.console = new BungeeCommandSender(getProxy().getConsole());
+
+        this.core = new Core(this, bungeeLogger);
 
         instance = this;
 

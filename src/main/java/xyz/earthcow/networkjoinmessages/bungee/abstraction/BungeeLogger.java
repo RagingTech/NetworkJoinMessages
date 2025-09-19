@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
-import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
 import java.util.logging.Logger;
@@ -8,16 +7,15 @@ import java.util.logging.Logger;
 public class BungeeLogger implements CoreLogger {
 
     private final Logger bungeeLogger;
-    private final Storage storage;
+    private boolean debug = false;
 
-    public BungeeLogger(Logger bungeeLogger, Storage storage) {
+    public BungeeLogger(Logger bungeeLogger) {
         this.bungeeLogger = bungeeLogger;
-        this.storage = storage;
     }
 
     @Override
     public void debug(String message) {
-        if (storage.getDebug()) {
+        if (debug) {
             bungeeLogger.info("[DEBUG] " + message);
         }
     }
@@ -35,5 +33,10 @@ public class BungeeLogger implements CoreLogger {
     @Override
     public void severe(String message) {
         bungeeLogger.severe(message);
+    }
+
+    @Override
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }

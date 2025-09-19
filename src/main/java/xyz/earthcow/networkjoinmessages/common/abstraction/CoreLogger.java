@@ -5,4 +5,5 @@ public interface CoreLogger {
     void info(String message);
     void warn(String message);
     void severe(String message);
+    void setDebug(boolean debug);
 }

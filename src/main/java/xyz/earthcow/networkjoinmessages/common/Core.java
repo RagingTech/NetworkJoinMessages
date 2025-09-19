@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common;
 
+import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
@@ -23,7 +24,7 @@ public class Core {
     private final CoreReloadCommand coreReloadCommand;
     private final CoreToggleJoinCommand coreToggleJoinCommand;
 
-    public Core(CorePlugin plugin) {
+    public Core(CorePlugin plugin, CoreLogger coreLogger) {
         this.plugin = plugin;
         this.storage = new Storage(plugin);
         this.formatter = new Formatter(plugin, storage);
@@ -32,10 +33,10 @@ public class Core {
         loadConfigs();
 
         try {
-            firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
+            firstJoinTracker = new H2PlayerJoinTracker(coreLogger, "./" + plugin.getDataFolder().getPath() + "/joined");
         } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
-            plugin.getCoreLogger().debug("Exception: " + ex);
+            coreLogger.severe("Failed to load H2 first join tracker!");
+            coreLogger.debug("Exception: " + ex);
         }
 
         this.coreImportCommand = new CoreImportCommand(this);
