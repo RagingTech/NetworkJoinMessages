@@ -35,6 +35,7 @@ public class Core {
             firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
         } catch (Exception ex) {
             plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
+            plugin.getCoreLogger().debug("Exception: " + ex);
         }
 
         this.coreImportCommand = new CoreImportCommand(this);
