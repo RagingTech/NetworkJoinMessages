@@ -135,7 +135,7 @@ public class CorePlayerListener {
         // All checks have passed to reach this point
         // Call the custom NetworkJoinEvent
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
-            player.getUniqueId(),
+            player,
             storage.getServerDisplayName(server.getName()),
             isSilent,
             firstJoin,
@@ -173,7 +173,7 @@ public class CorePlayerListener {
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom SwapServerEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
-            player.getUniqueId(),
+            player,
             storage.getServerDisplayName(from),
             storage.getServerDisplayName(to),
             isSilent,
@@ -241,7 +241,7 @@ public class CorePlayerListener {
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkQuitEvent
         NetworkLeaveEvent networkLeaveEvent = new NetworkLeaveEvent(
-            player.getUniqueId(),
+            player,
             storage.getServerDisplayName(player.getCurrentServer().getName()),
             isSilent,
             Formatter.serialize(formattedMessage),

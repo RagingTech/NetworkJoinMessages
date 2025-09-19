@@ -1,9 +1,11 @@
 package xyz.earthcow.networkjoinmessages.common.events;
 
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+
 /**
- * Called when a player quits the network
+ * Called when a player leaves the network
  */
-public record NetworkLeaveEvent(java.util.UUID playerUniqueId, String serverLeft, boolean isSilenced, String message,
+public record NetworkLeaveEvent(CorePlayer player, String serverLeft, boolean isSilenced, String message,
                                 String cleanMessage) {
 
 }
