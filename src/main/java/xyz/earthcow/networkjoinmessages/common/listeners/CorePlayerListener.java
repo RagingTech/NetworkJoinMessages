@@ -133,6 +133,7 @@ public class CorePlayerListener {
         // Call the custom NetworkJoinEvent
         NetworkJoinEvent networkJoinEvent = new NetworkJoinEvent(
             player,
+            server.getName(),
             storage.getServerDisplayName(server.getName()),
             isSilent,
             firstJoin,
@@ -171,6 +172,8 @@ public class CorePlayerListener {
         // Call the custom SwapServerEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
             player,
+            from,
+            to,
             storage.getServerDisplayName(from),
             storage.getServerDisplayName(to),
             isSilent,
@@ -239,6 +242,7 @@ public class CorePlayerListener {
         // Call the custom NetworkQuitEvent
         NetworkLeaveEvent networkLeaveEvent = new NetworkLeaveEvent(
             player,
+            player.getCurrentServer().getName(),
             storage.getServerDisplayName(player.getCurrentServer().getName()),
             isSilent,
             Formatter.serialize(formattedMessage),
