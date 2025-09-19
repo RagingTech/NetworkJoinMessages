@@ -142,7 +142,6 @@ public class CorePlayerListener {
             Formatter.serialize(formattedMessage),
             Formatter.sanitize(formattedMessage)
         );
-        core.getDiscordWebhookIntegration().onNetworkJoin(networkJoinEvent);
         plugin.fireEvent(networkJoinEvent);
     }
 
@@ -172,7 +171,7 @@ public class CorePlayerListener {
         messageHandler.broadcastMessage(message, MessageType.SWAP, from, to, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
-        // Call the custom ServerSwapEvent
+        // Call the custom SwapServerEvent
         SwapServerEvent swapServerEvent = new SwapServerEvent(
             player.getUniqueId(),
             storage.getServerDisplayName(from),
@@ -181,7 +180,6 @@ public class CorePlayerListener {
             Formatter.serialize(formattedMessage),
             Formatter.sanitize(formattedMessage)
         );
-        core.getDiscordWebhookIntegration().onSwapServer(swapServerEvent);
         plugin.fireEvent(swapServerEvent);
     }
 
@@ -249,7 +247,6 @@ public class CorePlayerListener {
             Formatter.serialize(formattedMessage),
             Formatter.sanitize(formattedMessage)
         );
-        core.getDiscordWebhookIntegration().onNetworkQuit(networkLeaveEvent);
         plugin.fireEvent(networkLeaveEvent);
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());

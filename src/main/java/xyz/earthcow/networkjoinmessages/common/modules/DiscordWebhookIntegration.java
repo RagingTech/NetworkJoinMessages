@@ -27,25 +27,24 @@ public class DiscordWebhookIntegration {
 
     private YamlDocument discordConfig;
     private String webhookUrl;
-    private boolean enabled;
 
     public DiscordWebhookIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler) {
         this.plugin = plugin;
         this.storage = storage;
         this.formatter = formatter;
         this.messageHandler = messageHandler;
-        loadVariables();
     }
 
     public void loadVariables(){
         discordConfig = ConfigManager.getDiscordConfig();
-        enabled = discordConfig.getBoolean("Enabled");
-        if (!enabled) {
+        if (!discordConfig.getBoolean("Enabled")) {
+            plugin.unregisterDiscordListener();
             return;
         }
         // Set the main webhook url
         webhookUrl = discordConfig.getString("WebhookUrl");
 
+        plugin.registerDiscordListener(this);
         plugin.getCoreLogger().info("Discord Integration is enabled!");
     }
 
@@ -67,9 +66,6 @@ public class DiscordWebhookIntegration {
 
     // Event handlers
     public void onSwapServer(SwapServerEvent event) {
-        if (!enabled) {
-            return;
-        }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Ignore if the message is disabled
@@ -127,9 +123,6 @@ public class DiscordWebhookIntegration {
     }
 
     public void onNetworkJoin(NetworkJoinEvent event) {
-        if (!enabled) {
-            return;
-        }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Determine the key by checking if this is the first time the player joined
@@ -179,9 +172,6 @@ public class DiscordWebhookIntegration {
     }
 
     public void onNetworkQuit(NetworkLeaveEvent event) {
-        if (!enabled) {
-            return;
-        }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Ignore if the message is disabled

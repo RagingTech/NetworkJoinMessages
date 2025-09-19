@@ -18,12 +18,14 @@ import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
+import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityDiscordIntegrationListener;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -62,6 +64,8 @@ public class VelocityMain implements CorePlugin {
     private VelocityCommandSender console;
     private final Metrics.Factory metricsFactory;
     private boolean isLimboAPIAvailable = false;
+
+    private VelocityDiscordIntegrationListener velocityDiscordIntegrationListener = null;
 
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -146,6 +150,19 @@ public class VelocityMain implements CorePlugin {
     @Override
     public void fireEvent(Object event) {
         proxy.getEventManager().fireAndForget(event);
+    }
+
+    @Override
+    public void registerDiscordListener(DiscordWebhookIntegration discordIntegration) {
+        if (velocityDiscordIntegrationListener != null) return;
+        velocityDiscordIntegrationListener = new VelocityDiscordIntegrationListener(discordIntegration);
+        proxy.getEventManager().register(this, velocityDiscordIntegrationListener);
+    }
+
+    @Override
+    public void unregisterDiscordListener() {
+        if (velocityDiscordIntegrationListener == null) return;
+        proxy.getEventManager().unregisterListener(this, velocityDiscordIntegrationListener);
     }
 
     @Override

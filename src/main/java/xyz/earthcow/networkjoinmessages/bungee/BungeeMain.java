@@ -15,6 +15,7 @@ import xyz.earthcow.networkjoinmessages.bungee.commands.ToggleCommand;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
+import xyz.earthcow.networkjoinmessages.bungee.listeners.BungeeDiscordIntegrationListener;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
@@ -22,6 +23,7 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookIntegration;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +42,8 @@ public class BungeeMain extends Plugin implements CorePlugin {
     private BungeeAudiences audiences;
 
     private PremiumVanish premiumVanish;
+
+    private BungeeDiscordIntegrationListener bungeeDiscordIntegrationListener = null;
 
     @Override
     public void onEnable() {
@@ -156,6 +160,23 @@ public class BungeeMain extends Plugin implements CorePlugin {
         } else if (event instanceof SwapServerEvent) {
             getProxy().getPluginManager().callEvent(new BungeeSwapServerEvent((SwapServerEvent) event));
         }
+    }
+
+    @Override
+    public void registerDiscordListener(DiscordWebhookIntegration discordIntegration) {
+        if (bungeeDiscordIntegrationListener != null) return;
+        bungeeDiscordIntegrationListener = new BungeeDiscordIntegrationListener(discordIntegration);
+        getProxy()
+                .getPluginManager()
+                .registerListener(this, bungeeDiscordIntegrationListener);
+    }
+
+    @Override
+    public void unregisterDiscordListener() {
+        if (bungeeDiscordIntegrationListener == null) return;
+        getProxy()
+                .getPluginManager()
+                .unregisterListener(bungeeDiscordIntegrationListener);
     }
 
     @Override

@@ -28,9 +28,8 @@ public class Core {
         this.storage = new Storage(plugin);
         this.formatter = new Formatter(plugin, storage);
         this.messageHandler = new MessageHandler(plugin, storage, formatter);
-
+        this.discordWebhookIntegration = new DiscordWebhookIntegration(plugin, storage, formatter, messageHandler);
         loadConfigs();
-        discordWebhookIntegration = new DiscordWebhookIntegration(plugin, storage, formatter, messageHandler);
 
         try {
             firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
@@ -48,9 +47,7 @@ public class Core {
     public void loadConfigs() {
         ConfigManager.setupConfigs(plugin);
         storage.setUpDefaultValuesFromConfig();
-        if (discordWebhookIntegration != null) {
-            discordWebhookIntegration.loadVariables();
-        }
+        discordWebhookIntegration.loadVariables();
     }
 
     public CorePlugin getPlugin() {
@@ -71,10 +68,6 @@ public class Core {
 
     public H2PlayerJoinTracker getFirstJoinTracker() {
         return firstJoinTracker;
-    }
-
-    public DiscordWebhookIntegration getDiscordWebhookIntegration() {
-        return discordWebhookIntegration;
     }
 
     public CoreImportCommand getCoreImportCommand() {
