@@ -121,10 +121,7 @@ public class CorePlayerListener {
             if (player.hasPermission("networkjoinmessages.spoof")) {
                 core.getFormatter().parsePlaceholdersAndThen(
                         ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.JoinNotification"),
-                        player,
-                        formattedMsg -> {
-                            messageHandler.sendMessage(player, formattedMsg);
-                        }
+                        player, formattedMsg -> messageHandler.sendMessage(player, formattedMsg)
                 );
             }
         }

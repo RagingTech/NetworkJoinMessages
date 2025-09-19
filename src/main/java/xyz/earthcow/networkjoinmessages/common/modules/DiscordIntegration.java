@@ -49,19 +49,17 @@ public class DiscordIntegration {
     }
 
     private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
-        formatter.parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
-            plugin.runTaskAsync(() -> {
-                try {
-                    webhook.execute(formatted);
-                } catch (Exception e) {
-                    plugin
-                        .getCoreLogger()
-                        .warn(
-                            "[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url."
-                        );
-                }
-            });
-        });
+        formatter.parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> plugin.runTaskAsync(() -> {
+            try {
+                webhook.execute(formatted);
+            } catch (Exception e) {
+                plugin
+                    .getCoreLogger()
+                    .warn(
+                        "[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url."
+                    );
+            }
+        }));
     }
 
     // Event handlers

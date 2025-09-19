@@ -1,7 +1,6 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
 import net.kyori.adventure.text.Component;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -27,7 +26,7 @@ public class BungeeCommandSender implements CoreCommandSender {
 
     @Override
     public void sendMessage(String message) {
-        source.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+        source.sendMessage(new TextComponent(message));
     }
 
     @Override

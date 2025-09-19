@@ -1,9 +1,9 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
-import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;

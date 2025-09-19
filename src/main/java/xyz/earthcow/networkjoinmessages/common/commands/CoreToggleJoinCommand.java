@@ -83,14 +83,10 @@ public class CoreToggleJoinCommand implements Command {
 
     @Override
     public List<String> getTabCompletion(CoreCommandSender coreCommandSender, String[] args) {
-        switch (args.length) {
-            case 0:
-            case 1:
-                return COMMAND_ARGS;
-            case 2:
-                return ImmutableList.of("on", "off");
-            default:
-                return ImmutableList.of("No more arguments needed.");
-        }
+        return switch (args.length) {
+            case 0, 1 -> COMMAND_ARGS;
+            case 2 -> ImmutableList.of("on", "off");
+            default -> ImmutableList.of("No more arguments needed.");
+        };
     }
 }
