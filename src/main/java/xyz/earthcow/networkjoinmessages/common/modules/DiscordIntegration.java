@@ -171,7 +171,7 @@ public class DiscordIntegration {
         executeWebhook(discordWebhook, player);
     }
 
-    public void onNetworkQuit(NetworkLeaveEvent event) {
+    public void onNetworkLeave(NetworkLeaveEvent event) {
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Ignore if the message is disabled

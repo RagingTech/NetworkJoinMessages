@@ -26,7 +26,7 @@ public class VelocityDiscordListener {
 
     @Subscribe
     public void onNetworkLeave(NetworkLeaveEvent event) {
-        discordIntegration.onNetworkQuit(event);
+        discordIntegration.onNetworkLeave(event);
     }
 
 }

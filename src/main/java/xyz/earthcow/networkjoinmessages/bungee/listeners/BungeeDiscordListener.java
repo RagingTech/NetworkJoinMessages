@@ -27,7 +27,7 @@ public class BungeeDiscordListener implements Listener {
 
     @EventHandler
     public void onNetworkLeaveEvent(BungeeNetworkLeaveEvent event) {
-        discordIntegration.onNetworkQuit(event.getData());
+        discordIntegration.onNetworkLeave(event.getData());
     }
 
 }
