@@ -52,14 +52,20 @@ public class CorePlayerListener {
         switch (type) {
             case SWAP -> {
                 if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - suppress limbo swap");
                     return true;
                 }
 
                 if (!storage.isSwapServerMessageEnabled()) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - swap message is disabled");
                     return true;
                 }
 
                 if (storage.isBlacklisted(from, to)) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - blacklisted from " + from + " to " + to);
                     return true;
                 }
             }
@@ -69,27 +75,40 @@ public class CorePlayerListener {
                 if (firstJoin) {
                     core.getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
                     if (!storage.isFirstJoinNetworkMessageEnabled()) {
+                        plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                            " - first join message is disabled");
                         return true;
                     }
                 } else if (!storage.isJoinNetworkMessageEnabled()) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - join message is disabled");
                     return true;
                 }
 
                 // Blacklist Check
                 if (storage.isBlacklisted(player)) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - blacklist check failed; server: " + player.getCurrentServer().getName());
                     return true;
                 }
 
                 if (storage.getShouldSuppressLimboJoin() && player.isInLimbo()) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - suppress limbo join");
                     return true;
                 }
             }
             case LEAVE -> {
                 if (!storage.isConnected(player) || !storage.isLeaveNetworkMessageEnabled() || storage.isBlacklisted(player)) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - already disconnected or leave message is disabled or blacklisted; server: " +
+                        player.getCurrentServer().getName());
                     return true;
                 }
 
                 if (storage.getShouldSuppressLimboLeave() && player.isInLimbo()) {
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                        " - suppress limbo leave");
                     return true;
                 }
             }
