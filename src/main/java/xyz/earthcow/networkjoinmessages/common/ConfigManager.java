@@ -21,7 +21,7 @@ public class ConfigManager {
     private static YamlDocument createConfig(CorePlugin plugin, String filename) throws IOException {
         YamlDocument doc = YamlDocument.create(
             new File(plugin.getDataFolder(), filename),
-            Objects.requireNonNull(plugin.getClass().getResourceAsStream(filename)),
+            Objects.requireNonNull(plugin.getClass().getResourceAsStream("/" + filename)),
             GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT,
             UpdaterSettings.builder().setVersioning(new BasicVersioning("config-version"))
                 .setOptionSorting(UpdaterSettings.OptionSorting.SORT_BY_DEFAULTS).build()
