@@ -15,7 +15,6 @@ import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
-import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
@@ -84,9 +83,9 @@ public class VelocityMain implements CorePlugin {
         this.velocityLogger = new VelocityLogger(logger);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
-        this.core = new Core(this, velocityLogger);
+        this.core = new Core(this);
 
-        proxy.getEventManager().register(this, new PlayerListener(new CorePlayerListener(core)));
+        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
 
         registerCommands();
 
@@ -100,7 +99,7 @@ public class VelocityMain implements CorePlugin {
             velocityLogger.info("Successfully hooked into LimboAPI!");
         }
 
-        for (CustomChart chart : core.getStorage().getCustomCharts()) {
+        for (CustomChart chart : core.getCustomCharts()) {
             metrics.addCustomChart(chart);
         }
     }

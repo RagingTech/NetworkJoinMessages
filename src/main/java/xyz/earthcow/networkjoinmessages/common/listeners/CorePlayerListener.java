@@ -3,8 +3,6 @@ package xyz.earthcow.networkjoinmessages.common.listeners;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
@@ -12,24 +10,33 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
+import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 public class CorePlayerListener {
 
-    private final Core core;
     private final CorePlugin plugin;
     private final Storage storage;
     private final MessageHandler messageHandler;
 
+    private H2PlayerJoinTracker firstJoinTracker;
+
     @Nullable
     private final PremiumVanish premiumVanish;
     
-    public CorePlayerListener(Core core) {
-        this.core = core;
-        this.plugin = core.getPlugin();
-        this.storage = core.getStorage();
-        this.messageHandler = core.getMessageHandler();
+    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler) {
+        this.plugin = plugin;
+        this.storage = storage;
+        this.messageHandler = messageHandler;
         this.premiumVanish = plugin.getVanishAPI();
+
+        try {
+            this.firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
+        } catch (Exception ex) {
+            plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
+            plugin.getCoreLogger().debug("Exception: " + ex);
+        }
+
     }
 
     /**
@@ -73,7 +80,7 @@ public class CorePlayerListener {
                 boolean firstJoin = type.equals(MessageType.FIRST_JOIN);
 
                 if (firstJoin) {
-                    core.getFirstJoinTracker().markAsJoined(player.getUniqueId(), player.getName());
+                    firstJoinTracker.markAsJoined(player.getUniqueId(), player.getName());
                     if (!storage.isFirstJoinNetworkMessageEnabled()) {
                         plugin.getCoreLogger().debug("Skipping " + player.getName() +
                             " - first join message is disabled");
@@ -125,27 +132,24 @@ public class CorePlayerListener {
         storage.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
-        boolean firstJoin = !core.getFirstJoinTracker().hasJoined(player.getUniqueId());
+        boolean firstJoin = !firstJoinTracker.hasJoined(player.getUniqueId());
         MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
 
         if (shouldNotBroadcast(player, msgType)) {
             return;
         }
 
-        String message = firstJoin ? core.getMessageHandler().formatFirstJoinMessage(player) : core.getMessageHandler().formatJoinMessage(player);
+        String message = firstJoin ? messageHandler.formatFirstJoinMessage(player) : messageHandler.formatJoinMessage(player);
 
         boolean isSilent = isSilentEvent(player);
 
         if (isSilent) {
             if (player.hasPermission("networkjoinmessages.spoof")) {
-                core.getFormatter().parsePlaceholdersAndThen(
-                        storage.getSpoofJoinNotification(),
-                        player, formattedMsg -> messageHandler.sendMessage(player, formattedMsg)
-                );
+                messageHandler.sendMessage(player, storage.getSpoofJoinNotification());
             }
         }
 
-        core.getMessageHandler().broadcastMessage(message, msgType, player, isSilent);
+        messageHandler.broadcastMessage(message, msgType, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // All checks have passed to reach this point
@@ -271,5 +275,9 @@ public class CorePlayerListener {
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
         storage.setConnected(player, false);
+    }
+
+    public H2PlayerJoinTracker getPlayerJoinTracker() {
+        return firstJoinTracker;
     }
 }

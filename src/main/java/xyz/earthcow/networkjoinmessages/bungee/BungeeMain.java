@@ -22,7 +22,6 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 import java.util.List;
@@ -55,13 +54,13 @@ public class BungeeMain extends Plugin implements CorePlugin {
         this.bungeeLogger = new BungeeLogger(getLogger());
         this.console = new BungeeCommandSender(getProxy().getConsole());
 
-        this.core = new Core(this, bungeeLogger);
+        this.core = new Core(this);
 
         instance = this;
 
         getProxy()
             .getPluginManager()
-            .registerListener(this, new PlayerListener(new CorePlayerListener(core)));
+            .registerListener(this, new PlayerListener(core.getCorePlayerListener()));
 
         getProxy()
             .getPluginManager()
@@ -81,7 +80,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
             bungeeLogger.info("Successfully hooked into PremiumVanish!");
         }
 
-        for (CustomChart chart : core.getStorage().getCustomCharts()) {
+        for (CustomChart chart : core.getCustomCharts()) {
             metrics.addCustomChart(chart);
         }
 
