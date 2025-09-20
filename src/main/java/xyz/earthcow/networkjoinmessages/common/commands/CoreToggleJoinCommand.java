@@ -1,8 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
-import dev.dejvokep.boostedyaml.YamlDocument;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
@@ -18,14 +16,12 @@ public class CoreToggleJoinCommand implements Command {
     
     private final Storage storage;
     private final MessageHandler messageHandler;
-    private final YamlDocument config;
 
-    public CoreToggleJoinCommand(Storage storage, MessageHandler messageHandler, YamlDocument pluginConfig) {
+    public CoreToggleJoinCommand(Storage storage, MessageHandler messageHandler) {
         this.storage = storage;
         this.messageHandler = messageHandler;
-        this.config = pluginConfig;
     }
-    
+
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (!(coreCommandSender instanceof CorePlayer player)) {
@@ -36,7 +32,7 @@ public class CoreToggleJoinCommand implements Command {
         if (!player.hasPermission("networkjoinmessages.toggle")) {
             messageHandler.sendMessage(
                 player,
-                config.getString("Messages.Commands.NoPermission")
+                storage.getNoPermission()
             );
             return;
         }
@@ -44,7 +40,7 @@ public class CoreToggleJoinCommand implements Command {
         if (args.length < 1) {
             messageHandler.sendMessage(
                 player,
-                config.getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
+                storage.getToggleJoinMissingFirstArg()
             );
             return;
         }
@@ -52,7 +48,7 @@ public class CoreToggleJoinCommand implements Command {
         if (args.length < 2) {
             messageHandler.sendMessage(
                 player,
-                config.getString("Messages.Commands.ToggleJoin.MissingState")
+                storage.getToggleJoinMissingState()
             );
             return;
         }
@@ -63,7 +59,7 @@ public class CoreToggleJoinCommand implements Command {
         if (!COMMAND_ARGS.contains(mode)) {
             messageHandler.sendMessage(
                 player,
-                config.getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
+                storage.getToggleJoinMissingFirstArg()
             );
             return;
         }
@@ -73,7 +69,7 @@ public class CoreToggleJoinCommand implements Command {
         messageHandler.sendMessage(
             player,
             // Keeping <placeholder>s for users who update
-            config.getString("Messages.Commands.ToggleJoin.Confirmation")
+            storage.getToggleJoinConfirmation()
                 .replaceAll("<mode>", mode)
                 .replaceAll("%mode%", mode)
                 .replaceAll("<state>", String.valueOf(state))

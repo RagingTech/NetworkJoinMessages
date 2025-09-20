@@ -36,6 +36,8 @@ public class DiscordIntegration {
         this.formatter = formatter;
         this.messageHandler = messageHandler;
         this.discordConfig = discordConfig;
+
+        loadVariables();
     }
 
     public void loadVariables(){

@@ -1,8 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
-import dev.dejvokep.boostedyaml.YamlDocument;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
@@ -19,12 +17,10 @@ public class CoreSpoofCommand implements Command {
 
     private final Storage storage;
     private final MessageHandler messageHandler;
-    private final YamlDocument config;
 
-    public CoreSpoofCommand(Storage storage, MessageHandler messageHandler, YamlDocument pluginConfig) {
+    public CoreSpoofCommand(Storage storage, MessageHandler messageHandler) {
         this.storage = storage;
         this.messageHandler = messageHandler;
-        this.config = pluginConfig;
     }
 
     @Override
@@ -37,7 +33,7 @@ public class CoreSpoofCommand implements Command {
         if (!player.hasPermission("networkjoinmessages.spoof")) {
             messageHandler.sendMessage(
                 player,
-                config.getString("Messages.Commands.NoPermission")
+                storage.getNoPermission()
             );
             return;
         }
@@ -45,7 +41,7 @@ public class CoreSpoofCommand implements Command {
         if (args.length < 1) {
             messageHandler.sendMessage(
                 player,
-                config.getString("Messages.Commands.Spoof.NoArgument")
+                storage.getSpoofNoArgument()
             );
             return;
         }
@@ -65,7 +61,7 @@ public class CoreSpoofCommand implements Command {
                 if (args.length < 3) {
                     messageHandler.sendMessage(
                         player,
-                        config.getString("Messages.Commands.Spoof.SwapNoArgument")
+                        storage.getSpoofSwapNoArgument()
                     );
                     return;
                 }
@@ -79,7 +75,7 @@ public class CoreSpoofCommand implements Command {
                 if (!player.hasPermission("networkjoinmessages.silent")) {
                     messageHandler.sendMessage(
                         player,
-                        config.getString("Messages.Commands.Spoof.ToggleSilentNoPerm")
+                        storage.getSpoofToggleSilentNoPerm()
                     );
                     return;
                 }
@@ -87,7 +83,7 @@ public class CoreSpoofCommand implements Command {
                 storage.setSilentMessageState(player, state);
                 messageHandler.sendMessage(
                     player,
-                    config.getString("Messages.Commands.Spoof.ToggleSilent")
+                    storage.getSpoofToggleSilent()
                         .replaceAll("%state%", String.valueOf(state))
                         .replaceAll("<state>", String.valueOf(state))
                 );
@@ -111,12 +107,12 @@ public class CoreSpoofCommand implements Command {
                     return storage.getServerNames();
                 } else {
                     return ImmutableList.of(
-                        config.getString("Messages.Commands.NoMoreArgumentsNeeded")
+                        storage.getNoMoreArgumentsNeeded()
                     );
                 }
             default:
                 return ImmutableList.of(
-                    config.getString("Messages.Commands.NoMoreArgumentsNeeded")
+                    storage.getNoMoreArgumentsNeeded()
                 );
         }
     }

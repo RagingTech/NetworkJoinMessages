@@ -1,28 +1,32 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
-import dev.dejvokep.boostedyaml.YamlDocument;
-import xyz.earthcow.networkjoinmessages.common.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 import java.util.List;
 
 public class CoreReloadCommand implements Command {
 
-    private final Core core;
-    private final YamlDocument config;
+    private final Storage storage;
+    private final DiscordIntegration discordIntegration;
+    private final MessageHandler messageHandler;
 
-    public CoreReloadCommand(Core core, YamlDocument pluginConfig) {
-        this.core = core;
-        this.config = pluginConfig;
+    public CoreReloadCommand(Storage storage, DiscordIntegration discordIntegration, MessageHandler messageHandler) {
+        this.storage = storage;
+        this.discordIntegration = discordIntegration;
+        this.messageHandler = messageHandler;
     }
 
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
-            core.loadConfigs();
-            core.getMessageHandler().sendMessage(coreCommandSender,
-                config.getString("Messages.Commands.Reload.ConfigReloaded")
+            storage.setUpDefaultValuesFromConfig();
+            discordIntegration.loadVariables();
+
+            messageHandler.sendMessage(coreCommandSender,
+                storage.getReloadConfirmation()
             );
         }
     }

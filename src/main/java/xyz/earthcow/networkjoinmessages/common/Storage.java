@@ -49,7 +49,21 @@ public final class Storage {
     private List<String> leaveMessages;
 
     // Command messages
+    private String noMoreArgumentsNeeded;
+    private String noPermission;
+
+    private String spoofNoArgument;
+    private String spoofSwapNoArgument;
+    private String spoofToggleSilentNoPerm;
+    private String spoofToggleSilent;
     private String spoofJoinNotification;
+
+    private String toggleJoinMissingFirstArg;
+    private String toggleJoinMissingState;
+    private String toggleJoinConfirmation;
+
+    private String reloadConfirmation;
+
 
     private String silentPrefix;
     private String consoleSilentSwap;
@@ -106,6 +120,8 @@ public final class Storage {
     public Storage(@NotNull CorePlugin plugin, @NotNull ConfigManager configManager) {
         this.plugin = plugin;
         this.configManager = configManager;
+
+        setUpDefaultValuesFromConfig();
     }
 
     /**
@@ -142,7 +158,20 @@ public final class Storage {
         this.consoleSilentLeave = config.getString("Messages.Misc.ConsoleSilentLeave");
 
         // Command messages
+        this.noMoreArgumentsNeeded = config.getString("Messages.Commands.Spoof.NoMoreArgumentsNeeded");
+        this.noPermission = config.getString("Messages.Commands.Spoof.NoPermission");
+
+        this.spoofNoArgument = config.getString("Messages.Commands.Spoof.NoArgument");
+        this.spoofSwapNoArgument = config.getString("Messages.Commands.Spoof.SwapNoArgument");
+        this.spoofToggleSilentNoPerm = config.getString("Messages.Commands.Spoof.ToggleSilentNoPerm");
+        this.spoofToggleSilent = config.getString("Messages.Commands.Spoof.ToggleSilent");
         this.spoofJoinNotification = config.getString("Messages.Commands.Spoof.JoinNotification");
+
+        this.toggleJoinMissingFirstArg = config.getString("Messages.Commands.ToggleJoin.MissingFirstArgument");
+        this.toggleJoinMissingState = config.getString("Messages.Commands.ToggleJoin.MissingState");
+        this.toggleJoinConfirmation = config.getString("Messages.Commands.ToggleJoin.Confirmation");
+
+        this.reloadConfirmation = config.getString("Messages.Commands.Reload.ConfigReloaded");
 
 
         /// Settings
@@ -547,6 +576,46 @@ public final class Storage {
 
     public String getSpoofJoinNotification() {
         return spoofJoinNotification;
+    }
+
+    public String getNoMoreArgumentsNeeded() {
+        return noMoreArgumentsNeeded;
+    }
+
+    public String getNoPermission() {
+        return noPermission;
+    }
+
+    public String getSpoofNoArgument() {
+        return spoofNoArgument;
+    }
+
+    public String getSpoofSwapNoArgument() {
+        return spoofSwapNoArgument;
+    }
+
+    public String getSpoofToggleSilentNoPerm() {
+        return spoofToggleSilentNoPerm;
+    }
+
+    public String getSpoofToggleSilent() {
+        return spoofToggleSilent;
+    }
+
+    public String getToggleJoinMissingFirstArg() {
+        return toggleJoinMissingFirstArg;
+    }
+
+    public String getToggleJoinMissingState() {
+        return toggleJoinMissingState;
+    }
+
+    public String getToggleJoinConfirmation() {
+        return toggleJoinConfirmation;
+    }
+
+    public String getReloadConfirmation() {
+        return reloadConfirmation;
     }
 
     public boolean getNotifyAdminsOnSilentMove() {

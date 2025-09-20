@@ -17,7 +17,6 @@ public class Core {
     private final Storage storage;
     private final MessageHandler messageHandler;
 
-    private final DiscordIntegration discordIntegration;
     private H2PlayerJoinTracker firstJoinTracker;
 
     private final CoreImportCommand coreImportCommand;
@@ -33,8 +32,7 @@ public class Core {
         this.storage = new Storage(plugin, configManager);
         this.formatter = new Formatter(plugin, storage);
         this.messageHandler = new MessageHandler(plugin, storage, formatter);
-        this.discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler, configManager.getDiscordConfig());
-        loadConfigs();
+        DiscordIntegration discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler, configManager.getDiscordConfig());
 
         try {
             firstJoinTracker = new H2PlayerJoinTracker(coreLogger, "./" + plugin.getDataFolder().getPath() + "/joined");
@@ -44,15 +42,10 @@ public class Core {
         }
 
         this.coreImportCommand = new CoreImportCommand(this);
-        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler, configManager.getPluginConfig());
-        this.coreReloadCommand = new CoreReloadCommand(this, configManager.getPluginConfig());
-        this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler, configManager.getPluginConfig());
+        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler);
+        this.coreReloadCommand = new CoreReloadCommand(storage, discordIntegration, messageHandler);
+        this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 
-    }
-
-    public void loadConfigs() {
-        storage.setUpDefaultValuesFromConfig();
-        discordIntegration.loadVariables();
     }
 
     public CorePlugin getPlugin() {
