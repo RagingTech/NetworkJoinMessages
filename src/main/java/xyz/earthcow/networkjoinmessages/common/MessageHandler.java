@@ -227,7 +227,7 @@ public final class MessageHandler {
         return count + "";
     }
 
-    public String parseSwitchMessage(CorePlayer player, String fromName, String toName) {
+    public String parseSwapMessage(CorePlayer player, String fromName, String toName) {
         String from = storage.getServerDisplayName(fromName);
         String to = storage.getServerDisplayName(toName);
 

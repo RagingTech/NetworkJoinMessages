@@ -100,7 +100,7 @@ public class CoreSpoofCommand implements Command {
                 String toDisplayName = storage.getServerDisplayName(toName);
 
                 try {
-                    message = messageHandler.parseSwitchMessage(player, fromName, toName);
+                    message = messageHandler.parseSwapMessage(player, fromName, toName);
                 } catch (NullPointerException e) {
                     messageHandler.sendMessage(
                         player,

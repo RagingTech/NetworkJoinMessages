@@ -183,7 +183,7 @@ public class CorePlayerListener {
         }
 
         String message = messageHandler
-            .parseSwitchMessage(player, from, to);
+            .parseSwapMessage(player, from, to);
 
         // Silent
         boolean isSilent = isSilentEvent(player);
