@@ -9,10 +9,15 @@ import java.util.UUID;
 public interface CorePlayer extends CoreCommandSender {
     @NotNull
     UUID getUniqueId();
-    @Nullable
+
+    int getConnectionIdentity();
+
+    @NotNull
     CoreBackendServer getCurrentServer();
+
     @Nullable
     CoreBackendServer getLastKnownConnectedServer();
+
     void setLastKnownConnectedServer(CoreBackendServer server);
 
     @NotNull

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 
 import java.util.UUID;
 
@@ -53,7 +53,13 @@ public class VelocityPlayer implements CorePlayer {
     }
 
     @Override
-    public @Nullable CoreBackendServer getCurrentServer() {
+    public int getConnectionIdentity() {
+        // Velocity player objects are unique to each session/connection
+        return System.identityHashCode(velocityPlayer);
+    }
+
+    @Override
+    public @NotNull CoreBackendServer getCurrentServer() {
         ServerConnection serverConnection = velocityPlayer.getCurrentServer().orElse(null);
         if (serverConnection == null) {
             return lastKnownConnectedServer;
@@ -81,6 +87,7 @@ public class VelocityPlayer implements CorePlayer {
         if (!VelocityMain.getInstance().getIsLimboAPIAvailable()) {
             return false;
         }
+        //noinspection ConstantValue
         return ((ConnectedPlayer) velocityPlayer).getConnection().getState().name() == null;
     }
 }

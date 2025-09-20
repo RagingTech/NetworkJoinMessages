@@ -6,9 +6,17 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 public class VelocityLogger implements CoreLogger {
 
     private final Logger velocityLogger;
+    private boolean debug = false;
 
     public VelocityLogger(Logger velocityLogger) {
         this.velocityLogger = velocityLogger;
+    }
+
+    @Override
+    public void debug(String message) {
+        if (debug) {
+            velocityLogger.info("[DEBUG] {}", message);
+        }
     }
 
     @Override
@@ -24,5 +32,10 @@ public class VelocityLogger implements CoreLogger {
     @Override
     public void severe(String message) {
         velocityLogger.error(message);
+    }
+
+    @Override
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }

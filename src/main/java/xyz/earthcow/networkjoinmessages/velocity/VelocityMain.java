@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.velocity.general;
+package xyz.earthcow.networkjoinmessages.velocity;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
@@ -10,16 +10,19 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
+import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
-import xyz.earthcow.networkjoinmessages.velocity.commands.FakeCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ImportCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ReloadCommand;
+import xyz.earthcow.networkjoinmessages.velocity.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
+import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityDiscordListener;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -32,9 +35,9 @@ import java.util.stream.Collectors;
 @Plugin(
     id = "networkjoinmessages",
     name = "NetworkJoinMessages",
-    version = "2.3.2",
+    version = "3.0.0",
     url = "https://github.com/RagingTech/NetworkJoinMessages",
-    description = "A plugin handling join, leave and switch messages for proxy servers.",
+    description = "A plugin handling join, leave and swap messages for proxy servers.",
     authors = { "EarthCow" },
     dependencies = {
         @Dependency(id = "supervanish", optional = true),
@@ -50,18 +53,21 @@ public class VelocityMain implements CorePlugin {
     private static VelocityMain instance;
     private final PlayerManager manager = new PlayerManager();
     private final ProxyServer proxy;
-    private final VelocityLogger velocityLogger;
+    private final Logger logger;
     private final File dataFolder;
     private PremiumVanish premiumVanish;
-    private NetworkJoinMessagesCore core;
+    private Core core;
+    private VelocityLogger velocityLogger;
     private VelocityCommandSender console;
     private final Metrics.Factory metricsFactory;
     private boolean isLimboAPIAvailable = false;
 
+    private VelocityDiscordListener velocityDiscordListener = null;
+
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
         this.proxy = proxy;
-        this.velocityLogger = new VelocityLogger(logger);
+        this.logger = logger;
         this.dataFolder = dataDirectory.toFile();
         this.metricsFactory = metricsFactory;
 
@@ -74,43 +80,14 @@ public class VelocityMain implements CorePlugin {
         final int PLUGIN_ID = 26526;
         Metrics metrics = metricsFactory.make(this, PLUGIN_ID);
 
-        this.core = new NetworkJoinMessagesCore(this);
+        this.velocityLogger = new VelocityLogger(logger);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
-        proxy.getEventManager().register(this, new PlayerListener());
+        this.core = new Core(this);
 
-        CommandManager commandManager = proxy.getCommandManager();
-        commandManager.register(
-            commandManager
-                .metaBuilder("njoinimport")
-                .plugin(this)
-                .build(),
-            new ImportCommand()
-        );
-        commandManager.register(
-            commandManager
-                .metaBuilder("fakemessage")
-                .aliases("fm")
-                .plugin(this)
-                .build(),
-            new FakeCommand()
-        );
-        commandManager.register(
-            commandManager
-                .metaBuilder("networkjoinreload")
-                .aliases("njoinreload")
-                .plugin(this)
-                .build(),
-            new ReloadCommand()
-        );
-        commandManager.register(
-            commandManager
-                .metaBuilder("togglejoinmessage")
-                .aliases("njointoggle")
-                .plugin(this)
-                .build(),
-            new ToggleJoinCommand()
-        );
+        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
+
+        registerCommands();
 
         if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
             this.premiumVanish = new VelocityPremiumVanish();
@@ -121,11 +98,69 @@ public class VelocityMain implements CorePlugin {
             this.isLimboAPIAvailable = true;
             velocityLogger.info("Successfully hooked into LimboAPI!");
         }
+
+        for (CustomChart chart : core.getCustomCharts()) {
+            metrics.addCustomChart(chart);
+        }
+    }
+
+    private void registerCommands() {
+        CommandManager commandManager = proxy.getCommandManager();
+        commandManager.register(
+            commandManager
+                .metaBuilder("njoinimport")
+                .plugin(this)
+                .build(),
+            new ImportCommand(core.getCoreImportCommand())
+        );
+        commandManager.register(
+            commandManager
+                .metaBuilder("njoinspoof")
+                .plugin(this)
+                .build(),
+            new SpoofCommand(core.getCoreSpoofCommand())
+        );
+        commandManager.register(
+            commandManager
+                .metaBuilder("njoinreload")
+                .plugin(this)
+                .build(),
+            new ReloadCommand(core.getCoreReloadCommand())
+        );
+        commandManager.register(
+            commandManager
+                .metaBuilder("njointoggle")
+                .plugin(this)
+                .build(),
+            new ToggleJoinCommand(core.getCoreToggleCommand())
+        );
+    }
+
+    @Override
+    public void disable() {
+        proxy.getEventManager().unregisterListeners(this);
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinimport"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinspoof"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njoinreload"));
+        proxy.getCommandManager().unregister(proxy.getCommandManager().getCommandMeta("njointoggle"));
     }
 
     @Override
     public void fireEvent(Object event) {
         proxy.getEventManager().fireAndForget(event);
+    }
+
+    @Override
+    public void registerDiscordListener(DiscordIntegration discordIntegration) {
+        if (velocityDiscordListener != null) return;
+        velocityDiscordListener = new VelocityDiscordListener(discordIntegration);
+        proxy.getEventManager().register(this, velocityDiscordListener);
+    }
+
+    @Override
+    public void unregisterDiscordListener() {
+        if (velocityDiscordListener == null) return;
+        proxy.getEventManager().unregisterListener(this, velocityDiscordListener);
     }
 
     @Override
@@ -189,7 +224,7 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
-    public NetworkJoinMessagesCore getCore() {
+    public Core getCore() {
         return core;
     }
 

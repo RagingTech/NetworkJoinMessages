@@ -3,14 +3,14 @@
     <groupId>xyz.earthcow.networkjoinmessages</groupId>
     <artifactId>NetworkJoinMessages</artifactId>
     <!-- Version is used in plugin.yml -->
-     <version>2.3.2</version>
+     <version>3.0.0</version>
     <!--<version>dev+${revision}</version>--><!-- To be used with (replace x's) mvn clean package -Drevision=xxx -->
     <packaging>jar</packaging>
 
     <!-- Plugin Information -->
     <!-- Name, Description, and URL are used in plugin.yml -->
     <name>NetworkJoinMessages</name>
-    <description>A plugin handling join, leave and switch messages for proxy servers.</description>
+    <description>A plugin handling join, leave and swap messages for proxy servers.</description>
     <url>https://github.com/RagingTech/NetworkJoinMessages</url>
 
     <inceptionYear>2021</inceptionYear>
@@ -37,10 +37,11 @@
     <properties>
         <!--  Author and MainClass are used in plugin.yml -->
         <author>Tirco and EarthCow</author>
-        <mainClass>xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain</mainClass>
+        <mainClass>xyz.earthcow.networkjoinmessages.bungee.BungeeMain</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <revision>SNAPSHOT</revision>
+        <argLine/>
     </properties>
 
     <repositories>
@@ -142,26 +143,26 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-platform-bungeecord</artifactId>
-            <version>4.3.4</version>
+            <version>4.4.1</version>
         </dependency>
         <!-- MiniMessage -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
-            <version>4.19.0</version>
+            <version>4.24.0</version>
         </dependency>
         <!-- MiniPlaceholders -->
         <dependency>
             <groupId>io.github.miniplaceholders</groupId>
             <artifactId>miniplaceholders-api</artifactId>
-            <version>2.3.0</version>
+            <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
         <!-- Plain Text Serializer -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-serializer-plain</artifactId>
-            <version>4.19.0</version>
+            <version>4.24.0</version>
         </dependency>
         <!-- BoostedYAML -->
         <dependency>
@@ -185,7 +186,14 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.18.0</version>
+            <version>5.19.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito JUnit Extension -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.19.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -200,12 +208,26 @@
             </resource>
         </resources>
         <plugins>
+            <!-- Required for https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Surefire Plugin for Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.3</version>
                 <configuration>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>

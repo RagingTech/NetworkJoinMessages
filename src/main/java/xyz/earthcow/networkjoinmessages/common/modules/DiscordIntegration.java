@@ -4,64 +4,100 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.discordwebhook.DiscordWebhook;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
-import xyz.earthcow.networkjoinmessages.common.events.NetworkQuitEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
-import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
-import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class DiscordWebhookIntegration {
+public class DiscordIntegration {
 
-    private final CorePlugin corePlugin = NetworkJoinMessagesCore.getInstance().getPlugin();
+    private final CorePlugin plugin;
+    private final Formatter formatter;
+    private final Storage storage;
+    private final MessageHandler messageHandler;
 
-    private YamlDocument discordConfig;
+    private final YamlDocument discordConfig;
     private String webhookUrl;
-    private boolean enabled;
 
-    public DiscordWebhookIntegration() {
+    public DiscordIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler, YamlDocument discordConfig) {
+        this.plugin = plugin;
+        this.storage = storage;
+        this.formatter = formatter;
+        this.messageHandler = messageHandler;
+        this.discordConfig = discordConfig;
+
         loadVariables();
     }
 
     public void loadVariables(){
-        discordConfig = ConfigManager.getDiscordConfig();
-        enabled = discordConfig.getBoolean("Enabled");
-        if (!enabled) {
+        if (!discordConfig.getBoolean("Enabled")) {
+            plugin.unregisterDiscordListener();
             return;
         }
         // Set the main webhook url
         webhookUrl = discordConfig.getString("WebhookUrl");
 
-        corePlugin.getCoreLogger().info("Discord Integration is enabled!");
+        plugin.registerDiscordListener(this);
+        plugin.getCoreLogger().info("Discord Integration is enabled!");
     }
 
     private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
-        MessageHandler.getInstance().parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted -> {
-            corePlugin.runTaskAsync(() -> {
+        formatter.parsePlaceholdersAndThen(webhook.getJsonString(), parseTarget, formatted ->
+            plugin.runTaskAsync(() -> {
                 try {
                     webhook.execute(formatted);
-                } catch (Exception e) {
-                    corePlugin
-                        .getCoreLogger()
-                        .warn(
-                            "[DiscordIntegration] There is a problem with your configuration! Verify the webhook url and all config values. Make sure anything that is supposed to be a url is either blank or a valid url."
-                        );
+                } catch (IOException e) {
+                    String msg = null;
+                    if (e instanceof FileNotFoundException) {
+                        msg = "The webhook url is not valid!";
+                    } else {
+                        String message = e.getMessage();
+                        if (message != null && message.contains("HTTP response code:")) {
+                            try {
+                                int responseCode = Integer.parseInt(message.substring(message.indexOf(":") + 2, message.indexOf(":") + 5));
+                                msg = switch (responseCode) {
+                                    case 400 ->
+                                        "Error - 400 response - bad request. Verify all urls are either blank or valid urls.";
+                                    case 401 ->
+                                        "Error - 401 response - unauthorized. Verify webhook url and discord server status.";
+                                    case 403 ->
+                                        "Error - 403 response - forbidden. Verify webhook url and discord server status.";
+                                    case 404 ->
+                                        "Error - 404 response - not found. Verify webhook url and discord server status.";
+                                    case 429 ->
+                                        "Error - 429 response - too many requests. This webhook has sent too many messages in too short amount of time.";
+                                    case 500 ->
+                                        "Error - 505 response - internal server error. Discord services may be temporarily down.";
+                                    default -> "Error - " + responseCode + " response - unexpected error code.";
+                                };
+                            } catch (IndexOutOfBoundsException | NumberFormatException ex) {
+                                plugin.getCoreLogger().debug("Secondary exception: " + ex);
+                            }
+                        }
+                    }
+                    if (msg == null) {
+                        msg = "Unknown error has occurred. Please make a bug report at https://github.com/RagingTech/NetworkJoinMessages/issues.";
+                    }
+                    plugin.getCoreLogger().severe("[DiscordIntegration] " + msg);
+                    plugin.getCoreLogger().debug("Exception: " + e);
+                    plugin.getCoreLogger().debug("Webhook: " + webhook.getJsonString());
                 }
-            });
-        });
+            })
+        );
     }
 
     // Event handlers
     public void onSwapServer(SwapServerEvent event) {
-        if (!enabled) {
-            return;
-        }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Ignore if the message is disabled
@@ -69,9 +105,9 @@ public class DiscordWebhookIntegration {
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
-        CorePlayer player = event.getPlayer();
-        String toServer = event.getServerTo();
-        String fromServer = event.getServerFrom();
+        CorePlayer player = event.player();
+        String toServer = event.serverTo();
+        String fromServer = event.serverFrom();
         // Check if custom webhook is enabled
         if (
                 discordConfig.getBoolean(
@@ -119,9 +155,6 @@ public class DiscordWebhookIntegration {
     }
 
     public void onNetworkJoin(NetworkJoinEvent event) {
-        if (!enabled) {
-            return;
-        }
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Determine the key by checking if this is the first time the player joined
@@ -131,7 +164,7 @@ public class DiscordWebhookIntegration {
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
-        CorePlayer player = event.getPlayer();
+        CorePlayer player = event.player();
         // Check if custom webhook is enabled
         if (discordConfig.getBoolean(key + ".CustomWebhook.Enabled")) {
             discordWebhook.setUsername(
@@ -170,10 +203,7 @@ public class DiscordWebhookIntegration {
         executeWebhook(discordWebhook, player);
     }
 
-    public void onNetworkQuit(NetworkQuitEvent event) {
-        if (!enabled) {
-            return;
-        }
+    public void onNetworkLeave(NetworkLeaveEvent event) {
         // Ignore if the event is silenced
         if (event.isSilenced()) return;
         // Ignore if the message is disabled
@@ -181,7 +211,7 @@ public class DiscordWebhookIntegration {
         // Construct the webhook
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
-        CorePlayer player = event.getPlayer();
+        CorePlayer player = event.player();
         // Check if custom webhook is enabled
         if (
                 discordConfig.getBoolean(
@@ -227,30 +257,37 @@ public class DiscordWebhookIntegration {
     }
 
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
-        String displayTo = MessageHandler.getInstance().getServerDisplayName(toServer);
-        String displayFrom = MessageHandler.getInstance().getServerDisplayName(fromServer);
-        return
-            MessageHandler.sanitize(
-                    MessageHandler.getInstance()
-                        .formatMessage(txt, player)
-                )
-                    .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                    .replace("%to%", displayTo)
-                    .replace("%to_clean%", MessageHandler.sanitize(displayTo))
-                    .replace("%from%", displayFrom)
-                    .replace("%from_clean%", MessageHandler.sanitize(displayFrom))
-                    .replace(
-                            "%playercount_from%", MessageHandler.getInstance()
-                                    .getServerPlayerCount(fromServer, true, player)
-                    )
-                    .replace(
-                            "%playercount_to%", MessageHandler.getInstance()
-                                    .getServerPlayerCount(toServer, false, player)
-                    )
-                    .replace(
-                            "%playercount_network%", MessageHandler.getInstance()
-                                    .getNetworkPlayerCount(player, false)
-                    );
+        String displayTo = storage.getServerDisplayName(toServer);
+        String displayFrom = storage.getServerDisplayName(fromServer);
+
+        if (txt.contains("%playercount_from%")) {
+            txt = txt.replace(
+                "%playercount_from%", messageHandler
+                    .getServerPlayerCount(fromServer, true, player)
+            );
+        }
+
+        if (txt.contains("%playercount_to%")) {
+            txt = txt.replace(
+                "%playercount_to%", messageHandler
+                    .getServerPlayerCount(fromServer, false, player)
+            );
+        }
+
+        if (txt.contains("%playercount_network%")) {
+            txt = txt.replace(
+                "%playercount_network%",
+                messageHandler
+                    .getNetworkPlayerCount(player, false)
+            );
+        }
+
+        return txt
+                .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
+                .replace("%to%", displayTo)
+                .replace("%to_clean%", Formatter.sanitize(displayTo))
+                .replace("%from%", displayFrom)
+                .replace("%from_clean%", Formatter.sanitize(displayFrom));
     }
 
     private String getSwapConfigValue(String key, CorePlayer player, String toServer, String fromServer) {
@@ -263,25 +300,27 @@ public class DiscordWebhookIntegration {
     }
 
     private String replacePlaceholdersJoinLeave(String txt, CorePlayer player, boolean leaving) {
-        return
-            MessageHandler.sanitize(
-                    MessageHandler.getInstance()
-                        .formatMessage(txt, player)
-                )
-                    .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                    .replace(
-                            "%playercount_server%", MessageHandler.getInstance()
-                                    .getServerPlayerCount(
-                                            player.getCurrentServer(),
-                                            leaving,
-                                            player
-                                    )
+        if (txt.contains("%playercount_server%")) {
+            txt = txt.replace(
+                "%playercount_server%", messageHandler
+                    .getServerPlayerCount(
+                        player.getCurrentServer(),
+                        leaving,
+                        player
                     )
-                    .replace(
-                            "%playercount_network%",
-                            MessageHandler.getInstance()
-                                    .getNetworkPlayerCount(player, leaving)
-                    );
+            );
+        }
+
+        if (txt.contains("%playercount_network%")) {
+            txt = txt.replace(
+                "%playercount_network%",
+                messageHandler
+                    .getNetworkPlayerCount(player, leaving)
+            );
+        }
+
+        return txt
+                .replace("%embedavatarurl%", getEmbedAvatarUrl(player));
     }
 
     private String getJoinLeaveConfigValue(String key, CorePlayer player, boolean leaving) {
@@ -334,7 +373,7 @@ public class DiscordWebhookIntegration {
         String hexColor = discordConfig.getString(key + ".Color");
 
         if (hexColor.isEmpty()) {
-            corePlugin
+            plugin
                 .getCoreLogger()
                 .warn("A color was missing from embed config!");
             hexColor = "#000000";
@@ -345,7 +384,7 @@ public class DiscordWebhookIntegration {
             hexColor = "#" + hexColor;
         }
         if (hexColor.length() != 7) {
-            corePlugin
+            plugin
                 .getCoreLogger()
                 .warn("An invalid color: " + hexColor + " was provided!");
             hexColor = "#000000";

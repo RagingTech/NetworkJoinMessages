@@ -1,13 +1,16 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
 public interface CorePlugin {
-    NetworkJoinMessagesCore getCore();
+    Core getCore();
+
+    void disable();
 
     ServerType getServerType();
     File getDataFolder();
@@ -17,6 +20,9 @@ public interface CorePlugin {
     CoreBackendServer getServer(String serverName);
 
     void fireEvent(Object event);
+
+    void registerDiscordListener(DiscordIntegration discordIntegration);
+    void unregisterDiscordListener();
 
     PremiumVanish getVanishAPI();
 

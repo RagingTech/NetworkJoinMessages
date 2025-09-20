@@ -4,22 +4,22 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeCommandSender;
-import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
-import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
 
-public class FakeCommand extends Command implements TabExecutor {
+public class SpoofCommand extends Command implements TabExecutor {
 
-    private final CoreFakeCommand coreFakeCommand = NetworkJoinMessagesCore.getInstance().coreFakeCommand;
+    private final CoreSpoofCommand coreSpoofCommand;
 
-    public FakeCommand() {
-        super("fakemessage", NetworkJoinMessagesCore.getInstance().coreFakeCommand.getRequiredPermission(), "fm");
+    public SpoofCommand(CoreSpoofCommand coreSpoofCommand) {
+        super("njoinspoof", coreSpoofCommand.getRequiredPermission());
+        this.coreSpoofCommand = coreSpoofCommand;
     }
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
-        coreFakeCommand.execute(
+        coreSpoofCommand.execute(
             commandSender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) commandSender).getUniqueId())
                 :
@@ -29,7 +29,7 @@ public class FakeCommand extends Command implements TabExecutor {
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        return coreFakeCommand.getTabCompletion(
+        return coreSpoofCommand.getTabCompletion(
             sender instanceof ProxiedPlayer ?
                 BungeeMain.getInstance().getOrCreatePlayer(((ProxiedPlayer) sender).getUniqueId())
                 :

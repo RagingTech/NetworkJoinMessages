@@ -2,20 +2,23 @@ package xyz.earthcow.networkjoinmessages.velocity.commands;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
-import xyz.earthcow.networkjoinmessages.common.commands.CoreFakeCommand;
-import xyz.earthcow.networkjoinmessages.common.general.NetworkJoinMessagesCore;
+import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityCommandSender;
-import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
 
 import java.util.List;
 
-public class FakeCommand implements SimpleCommand {
+public class SpoofCommand implements SimpleCommand {
 
-    private final CoreFakeCommand coreFakeCommand = NetworkJoinMessagesCore.getInstance().coreFakeCommand;
+    private final CoreSpoofCommand coreSpoofCommand;
+
+    public SpoofCommand(CoreSpoofCommand coreSpoofCommand) {
+        this.coreSpoofCommand = coreSpoofCommand;
+    }
 
     @Override
     public void execute(SimpleCommand.Invocation invocation) {
-        coreFakeCommand.execute(
+        coreSpoofCommand.execute(
             invocation.source() instanceof Player ?
                 // If the CommandSource is a Player
                 VelocityMain.getInstance().getOrCreatePlayer(((Player) invocation.source()).getUniqueId())
@@ -29,12 +32,12 @@ public class FakeCommand implements SimpleCommand {
     public boolean hasPermission(final SimpleCommand.Invocation invocation) {
         return invocation
             .source()
-            .hasPermission(coreFakeCommand.getRequiredPermission());
+            .hasPermission(coreSpoofCommand.getRequiredPermission());
     }
 
     @Override
     public List<String> suggest(final Invocation invocation) {
-        return coreFakeCommand.getTabCompletion(
+        return coreSpoofCommand.getTabCompletion(
             invocation.source() instanceof Player ?
                 VelocityMain.getInstance().getOrCreatePlayer(((Player) invocation.source()).getUniqueId())
                 :

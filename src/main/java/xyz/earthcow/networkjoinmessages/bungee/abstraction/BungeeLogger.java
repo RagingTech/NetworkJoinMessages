@@ -7,9 +7,17 @@ import java.util.logging.Logger;
 public class BungeeLogger implements CoreLogger {
 
     private final Logger bungeeLogger;
+    private boolean debug = false;
 
     public BungeeLogger(Logger bungeeLogger) {
         this.bungeeLogger = bungeeLogger;
+    }
+
+    @Override
+    public void debug(String message) {
+        if (debug) {
+            bungeeLogger.info("[DEBUG] " + message);
+        }
     }
 
     @Override
@@ -25,5 +33,10 @@ public class BungeeLogger implements CoreLogger {
     @Override
     public void severe(String message) {
         bungeeLogger.severe(message);
+    }
+
+    @Override
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }

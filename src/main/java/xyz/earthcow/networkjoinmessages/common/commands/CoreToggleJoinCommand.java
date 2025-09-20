@@ -1,49 +1,54 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
+import xyz.earthcow.networkjoinmessages.common.MessageHandler;
+import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
-import xyz.earthcow.networkjoinmessages.common.general.ConfigManager;
-import xyz.earthcow.networkjoinmessages.common.general.Storage;
-import xyz.earthcow.networkjoinmessages.common.util.MessageHandler;
 
 import java.util.List;
 
 public class CoreToggleJoinCommand implements Command {
 
     private final List<String> COMMAND_ARGS = ImmutableList.of(
-        "join", "leave", "quit", "switch", "all"
+        "join", "leave", "swap", "all"
     );
+    
+    private final Storage storage;
+    private final MessageHandler messageHandler;
+
+    public CoreToggleJoinCommand(Storage storage, MessageHandler messageHandler) {
+        this.storage = storage;
+        this.messageHandler = messageHandler;
+    }
 
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
-        if (!(coreCommandSender instanceof CorePlayer)) {
+        if (!(coreCommandSender instanceof CorePlayer player)) {
             coreCommandSender.sendMessage("Only players can run this command!");
             return;
         }
 
-        CorePlayer player = (CorePlayer) coreCommandSender;
-
-        if (!player.hasPermission("networkjoinmessages.togglemessage")) {
-            MessageHandler.getInstance().sendMessage(
+        if (!player.hasPermission("networkjoinmessages.toggle")) {
+            messageHandler.sendMessage(
                 player,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.NoPermission")
+                storage.getNoPermission()
             );
             return;
         }
 
         if (args.length < 1) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
+                storage.getToggleJoinMissingFirstArg()
             );
             return;
         }
 
         if (args.length < 2) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingState")
+                storage.getToggleJoinMissingState()
             );
             return;
         }
@@ -52,39 +57,38 @@ public class CoreToggleJoinCommand implements Command {
         boolean state = args[1].equalsIgnoreCase("on") || args[1].equalsIgnoreCase("true");
 
         if (!COMMAND_ARGS.contains(mode)) {
-            MessageHandler.getInstance().sendMessage(
+            messageHandler.sendMessage(
                 player,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.MissingFirstArgument")
+                storage.getToggleJoinMissingFirstArg()
             );
             return;
         }
 
-        Storage.getInstance().setSendMessageState(mode, player.getUniqueId(), state);
+        storage.setSendMessageState(mode, player.getUniqueId(), state);
 
-        MessageHandler.getInstance().sendMessage(
+        messageHandler.sendMessage(
             player,
-            ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.Confirmation")
+            // Keeping <placeholder>s for users who update
+            storage.getToggleJoinConfirmation()
                 .replaceAll("<mode>", mode)
+                .replaceAll("%mode%", mode)
                 .replaceAll("<state>", String.valueOf(state))
+                .replaceAll("%state%", String.valueOf(state))
         );
 
     }
 
     @Override
     public String getRequiredPermission() {
-        return "networkjoinmessages.togglemessage";
+        return "networkjoinmessages.toggle";
     }
 
     @Override
     public List<String> getTabCompletion(CoreCommandSender coreCommandSender, String[] args) {
-        switch (args.length) {
-            case 0:
-            case 1:
-                return COMMAND_ARGS;
-            case 2:
-                return ImmutableList.of("on", "off");
-            default:
-                return ImmutableList.of("No more arguments needed.");
-        }
+        return switch (args.length) {
+            case 0, 1 -> COMMAND_ARGS;
+            case 2 -> ImmutableList.of("on", "off");
+            default -> ImmutableList.of("No more arguments needed.");
+        };
     }
 }

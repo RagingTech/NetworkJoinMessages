@@ -4,14 +4,19 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
-import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
 
 public class PlayerListener {
 
-    private final CorePlayerListener corePlayerListener = new CorePlayerListener();
+    private final CorePlayerListener corePlayerListener;
+
+    public PlayerListener(CorePlayerListener corePlayerListener) {
+        this.corePlayerListener = corePlayerListener;
+    }
 
     @Subscribe
     public void onPreConnect(ServerPreConnectEvent event) {
@@ -30,6 +35,12 @@ public class PlayerListener {
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        corePlayerListener.onDisconnect(VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer())));
+        // Check that the player disconnected is not a duplicate user session (the same account tries to join the server while already joined)
+        CorePlayer corePlayer = VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer()));
+        if (corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
+            return;
+        }
+
+        corePlayerListener.onDisconnect(corePlayer);
     }
 }

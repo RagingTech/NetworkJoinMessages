@@ -8,7 +8,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 
@@ -51,7 +51,13 @@ public class BungeePlayer implements CorePlayer {
     }
 
     @Override
-    public @Nullable CoreBackendServer getCurrentServer() {
+    public int getConnectionIdentity() {
+        // Bungee player objects are unique to each session/connection
+        return System.identityHashCode(bungeePlayer);
+    }
+
+    @Override
+    public @NotNull CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {
             return lastKnownConnectedServer;

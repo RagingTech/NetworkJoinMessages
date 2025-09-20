@@ -1,7 +1,7 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
 import net.md_5.bungee.api.config.ServerInfo;
-import xyz.earthcow.networkjoinmessages.bungee.general.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 

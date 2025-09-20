@@ -9,31 +9,35 @@ api-version: 1.21
 main: ${mainClass}
 
 commands:
-    fakemessage:
-        description: Send a fake join or leave message from the proxy
-        permission: networkjoinmessages.fakemessage
+    njoinspoof:
+        description: Send a fake join or leave message from the proxy.
+        permission: networkjoinmessages.spoof
         usage: /<command>
-        aliases: [fm]
-    networkjoinreload:
-        description: reloads the configuration file
+    njoinreload:
+        description: Reloads the configuration file.
         permission: networkjoinmessages.reload
         usage: /<command>
-        aliases: [njoinreload]
-    togglejoinmessage:
+    njointoggle:
         description: Toggles incoming join messages.
-        permission: networkjoinmessages.togglemessage
+        permission: networkjoinmessages.toggle
         usage: /<command>
-        aliases: [njointoggle]
+    njoinimport:
+        description: Imports usercache.json files.
+        permission: networkjoinmessages.import
+        usage: /<command>
 permissions:
-    networkjoinmessages.fakemessage:
-        description: "Allows the use of the fakemessage command."
+    networkjoinmessages.spoof:
+        description: "Allows the use of the /njoinspoof command."
         default: op
     networkjoinmessages.reload:
-        description: "Allows the use of the reload command."
+        description: "Allows the use of the /njoinreload command."
         default: op
-    networkjoinmessages.togglemessage:
-        description: "Allows the use of the togglemessage command."
+    networkjoinmessages.toggle:
+        description: "Allows the use of the /njointoggle command."
+        default: op
+    networkjoinmessages.import:
+        description: "Allows the use of the /njoinimport command."
         default: op
     networkjoinmessages.silent:
-        description: "lets you join the server without notifications."
+        description: "The holder will not trigger any messages."
         default: false

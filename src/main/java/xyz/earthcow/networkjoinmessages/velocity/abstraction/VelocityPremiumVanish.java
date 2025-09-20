@@ -3,7 +3,7 @@ package xyz.earthcow.networkjoinmessages.velocity.abstraction;
 import com.velocitypowered.api.proxy.Player;
 import de.myzelyam.api.vanish.VelocityVanishAPI;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
-import xyz.earthcow.networkjoinmessages.velocity.general.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 
 import java.util.List;
 import java.util.UUID;

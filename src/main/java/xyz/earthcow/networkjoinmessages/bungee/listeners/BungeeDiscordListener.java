@@ -1,0 +1,33 @@
+package xyz.earthcow.networkjoinmessages.bungee.listeners;
+
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
+import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
+import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
+import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
+
+public class BungeeDiscordListener implements Listener {
+
+    private final DiscordIntegration discordIntegration;
+
+    public BungeeDiscordListener(DiscordIntegration discordIntegration) {
+        this.discordIntegration = discordIntegration;
+    }
+
+    @EventHandler
+    public void onSwapServerEvent(BungeeSwapServerEvent event) {
+        discordIntegration.onSwapServer(event.getData());
+    }
+
+    @EventHandler
+    public void onNetworkJoinEvent(BungeeNetworkJoinEvent event) {
+        discordIntegration.onNetworkJoin(event.getData());
+    }
+
+    @EventHandler
+    public void onNetworkLeaveEvent(BungeeNetworkLeaveEvent event) {
+        discordIntegration.onNetworkLeave(event.getData());
+    }
+
+}
