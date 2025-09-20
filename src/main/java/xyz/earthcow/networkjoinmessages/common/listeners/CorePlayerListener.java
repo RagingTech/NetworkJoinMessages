@@ -262,7 +262,7 @@ public class CorePlayerListener {
         messageHandler.broadcastMessage(message, MessageType.LEAVE, player, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
-        // Call the custom NetworkQuitEvent
+        // Call the custom NetworkLeaveEvent
         NetworkLeaveEvent networkLeaveEvent = new NetworkLeaveEvent(
             player,
             player.getCurrentServer().getName(),

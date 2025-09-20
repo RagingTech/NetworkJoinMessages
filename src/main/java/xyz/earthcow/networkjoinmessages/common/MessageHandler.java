@@ -61,7 +61,7 @@ public final class MessageHandler {
     /**
      * Send a message globally, based on the players current server with silent false
      * @param text - The text to be displayed
-     * @param type - What type of message should be sent (switch/join/leave)
+     * @param type - What type of message should be sent (swap/join/leave)
      * @param parseTarget - The player to fetch the server from and parse placeholders against
      */
     public void broadcastMessage(String text, MessageType type, CorePlayer parseTarget) {
@@ -71,7 +71,7 @@ public final class MessageHandler {
     /**
      * Send a message globally, with silent false
      * @param text - The text to be displayed
-     * @param type - What type of message should be sent (switch/join/leave)
+     * @param type - What type of message should be sent (swap/join/leave)
      * @param from - The server the player came from
      * @param to - The server the player went to
      * @param parseTarget - The player to parse placeholders against
@@ -83,7 +83,7 @@ public final class MessageHandler {
     /**
      * Send a message globally, based on the players current server with silent false
      * @param text - The text to be displayed
-     * @param type - What type of message should be sent (switch/join/leave)
+     * @param type - What type of message should be sent (swap/join/leave)
      * @param parseTarget - The player to fetch the server from and parse placeholders against
      * @param silent - Whether this message should be silent
      */
@@ -94,7 +94,7 @@ public final class MessageHandler {
     /**
      * Send a message globally, with silent false
      * @param text - The text to be displayed
-     * @param type - What type of message should be sent (switch/join/leave)
+     * @param type - What type of message should be sent (swap/join/leave)
      * @param from - The server the player came from
      * @param to - The server the player went to
      * @param parseTarget - The player to parse placeholders against

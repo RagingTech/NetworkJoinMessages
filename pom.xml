@@ -10,7 +10,7 @@
     <!-- Plugin Information -->
     <!-- Name, Description, and URL are used in plugin.yml -->
     <name>NetworkJoinMessages</name>
-    <description>A plugin handling join, leave and switch messages for proxy servers.</description>
+    <description>A plugin handling join, leave and swap messages for proxy servers.</description>
     <url>https://github.com/RagingTech/NetworkJoinMessages</url>
 
     <inceptionYear>2021</inceptionYear>

@@ -27,7 +27,7 @@ public final class Storage {
     private final List<UUID> onlinePlayers = new ArrayList<>();
     private final List<UUID> noJoinMessage = new ArrayList<>();
     private final List<UUID> noLeaveMessage = new ArrayList<>();
-    private final List<UUID> noSwitchMessage = new ArrayList<>();
+    private final List<UUID> noSwapMessage = new ArrayList<>();
 
     //region Configuration fields
 
@@ -309,10 +309,10 @@ public final class Storage {
     }
     private void setSwapState(UUID id, boolean state) {
         if (state) {
-            noSwitchMessage.remove(id);
+            noSwapMessage.remove(id);
         } else {
-            if (!noSwitchMessage.contains(id)) {
-                noSwitchMessage.add(id);
+            if (!noSwapMessage.contains(id)) {
+                noSwapMessage.add(id);
             }
         }
     }
@@ -338,7 +338,7 @@ public final class Storage {
     public List<UUID> getIgnorePlayers(MessageType type) {
         return switch (type) {
             case JOIN, FIRST_JOIN -> noJoinMessage;
-            case SWAP -> noSwitchMessage;
+            case SWAP -> noSwapMessage;
             case LEAVE -> noLeaveMessage;
         };
     }

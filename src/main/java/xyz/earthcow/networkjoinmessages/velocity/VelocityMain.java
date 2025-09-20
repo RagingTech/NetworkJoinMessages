@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
     name = "NetworkJoinMessages",
     version = "3.0.0",
     url = "https://github.com/RagingTech/NetworkJoinMessages",
-    description = "A plugin handling join, leave and switch messages for proxy servers.",
+    description = "A plugin handling join, leave and swap messages for proxy servers.",
     authors = { "EarthCow" },
     dependencies = {
         @Dependency(id = "supervanish", optional = true),

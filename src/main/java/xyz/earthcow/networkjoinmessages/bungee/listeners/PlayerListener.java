@@ -22,7 +22,7 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void prePlayerSwitchServer(ServerConnectEvent e) {
+    public void onPreServerConnected(ServerConnectEvent e) {
         ProxiedPlayer player = e.getPlayer();
         if (player == null) {
             return;
@@ -35,12 +35,12 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerSwitchServer(ServerConnectedEvent e) {
+    public void onServerConnected(ServerConnectedEvent e) {
         corePlayerListener.onServerConnected(BungeeMain.getInstance().getOrPutPlayer(new BungeePlayer(e.getPlayer())), new BungeeServer(e.getServer().getInfo()), null);
     }
 
     @EventHandler
-    public void onPostQuit(PlayerDisconnectEvent event) {
+    public void onDisconnect(PlayerDisconnectEvent event) {
         // Check that the player disconnected is not a duplicate user session (the same account tries to join the server while already joined)
         CorePlayer corePlayer = BungeeMain.getInstance().getOrPutPlayer(new BungeePlayer(event.getPlayer()));
         if (corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
