@@ -92,7 +92,7 @@ Messages:
       JoinNotification: |-
         &7[NetworkJoin] You joined the server while silenced.
         &7To have messages automatically enabled for you until
-        &7next reboot, use the command &f/fm toggle&7.
+        &7next reboot, use the command &f/njoinspoof toggle&7.
     ToggleJoin:
       MissingFirstArgument: |-
         &6Please specify which messages you would like to disable/enable.
