@@ -237,15 +237,15 @@ public final class MessageHandler {
             .replace("%from%", from)
             .replace("%from_clean%", fromName);
 
-        if (msg.contains("%from_clean%")) {
+        if (msg.contains("%playercount_from%")) {
             msg = msg.replace("%playercount_from%", getServerPlayerCount(fromName, true, player));
         }
 
-        if (msg.contains("%from_clean%")) {
+        if (msg.contains("%playercount_to%")) {
             msg = msg.replace("%playercount_to%", getServerPlayerCount(toName, false, player));
         }
 
-        if (msg.contains("%from_clean%")) {
+        if (msg.contains("%playercount_network%")) {
             msg = msg.replace("%playercount_network%", getNetworkPlayerCount(player, false));
         }
 
