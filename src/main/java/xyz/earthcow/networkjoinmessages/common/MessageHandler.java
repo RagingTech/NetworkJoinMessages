@@ -1,6 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
@@ -173,7 +174,15 @@ public final class MessageHandler {
         return getServerPlayerCount(plugin.getServer(serverName), leaving, player);
     }
 
-    public String getServerPlayerCount(@NotNull CoreBackendServer backendServer, boolean leaving, CorePlayer player) {
+    public String getServerPlayerCount(@Nullable CoreBackendServer backendServer, boolean leaving, CorePlayer player) {
+        if (backendServer == null) {
+            if (leaving) {
+                return "0";
+            } else {
+                return "1";
+            }
+        }
+
         List<CorePlayer> players = backendServer.getPlayersConnected();
 
         PremiumVanish premiumVanish = plugin.getVanishAPI();
