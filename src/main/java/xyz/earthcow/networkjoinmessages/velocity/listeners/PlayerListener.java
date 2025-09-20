@@ -38,7 +38,6 @@ public class PlayerListener {
         // Check that the player disconnected is not a duplicate user session (the same account tries to join the server while already joined)
         CorePlayer corePlayer = VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer()));
         if (corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
-            // TODO: Debug message here
             return;
         }
 
