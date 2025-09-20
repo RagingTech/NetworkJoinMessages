@@ -98,7 +98,7 @@ Messages:
         <red>Please specify which messages you would like to disable/enable.
         <gray>Valid arguments are:<white> join, leave, switch, all
       MissingState: |-
-        <red>Please specify which state you would like to set the message to.
+        <red>Please specify which state you would like to enter.
         <gray>Valid arguments are: <green>on <gray>/ <red>off <gray>or <green>true <gray>/ <red>false<white>.
       Confirmation: |-
         <gray>Receive messages for <white>%mode%<gray> has been set to <white>%state%

@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
+import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
@@ -9,11 +10,13 @@ import java.util.List;
 
 public class CoreReloadCommand implements Command {
 
+    private final ConfigManager configManager;
     private final Storage storage;
     private final DiscordIntegration discordIntegration;
     private final MessageHandler messageHandler;
 
-    public CoreReloadCommand(Storage storage, DiscordIntegration discordIntegration, MessageHandler messageHandler) {
+    public CoreReloadCommand(ConfigManager configManager, Storage storage, DiscordIntegration discordIntegration, MessageHandler messageHandler) {
+        this.configManager = configManager;
         this.storage = storage;
         this.discordIntegration = discordIntegration;
         this.messageHandler = messageHandler;
@@ -22,6 +25,7 @@ public class CoreReloadCommand implements Command {
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
+            configManager.reload();
             storage.setUpDefaultValuesFromConfig();
             discordIntegration.loadVariables();
 

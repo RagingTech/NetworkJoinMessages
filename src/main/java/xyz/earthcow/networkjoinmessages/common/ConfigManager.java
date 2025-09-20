@@ -15,6 +15,8 @@ import java.util.Objects;
 
 public class ConfigManager {
 
+    private final CoreLogger logger;
+
     private YamlDocument pluginConfig;
     private YamlDocument discordConfig;
 
@@ -34,7 +36,7 @@ public class ConfigManager {
     }
 
     public ConfigManager(CorePlugin plugin) {
-        CoreLogger logger = plugin.getCoreLogger();
+        this.logger = plugin.getCoreLogger();
         logger.info("Attempting to load config files...");
         try {
             pluginConfig = createConfig(plugin, "config.yml");
@@ -54,6 +56,15 @@ public class ConfigManager {
 
     public YamlDocument getDiscordConfig() {
         return discordConfig;
+    }
+
+    public void reload() {
+        try {
+            pluginConfig.reload();
+            discordConfig.reload();
+        } catch (IOException e) {
+            logger.severe("Could not reload config files! Additional info: " + e);
+        }
     }
 
 }
