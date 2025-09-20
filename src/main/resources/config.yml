@@ -3,11 +3,11 @@
 
 # Set server aliases
 Servers:
-  lobby: "&9Lobby"
-  survival: "&6Survival Server"
-  mining: "&9Mining Server"
-  staff: "&4Staff Server"
-  ???: "&7Unknown Server"
+  lobby: "<blue>Lobby</blue>"
+  survival: "<gold>Survival Server</gold>"
+  mining: "<blue>Mining Server</blue>"
+  staff: "<dark_red><click:run_command:'/server staff'><hover:show_text:'<gray>Click to TP!'>Staff Server</hover></click></dark_red>"
+  ???: "<gray>Unknown Server</gray>"
 Messages:
   # These player placeholders work in any of the following three message types
   # %player%              - Player username
@@ -25,14 +25,14 @@ Messages:
   # %playercount_network% - Amount of players on the network
 
   # Message sent when a player swaps servers - leave blank to use the list of messages defined below
-  SwapServerMessage: "&6&l%player%&r &7[%from%&7] (%playercount_from%) -> [%to%&7] (%playercount_to%)"
+  SwapServerMessage: "<gold><bold>%player%</bold> <gray>[%from%] (%playercount_from%) -> [%to%] (%playercount_to%)"
 
   # A list of swap messages to be selected at random each time a player swaps servers
   # IMPORTANT - SwapServerMessage (directly above) must be empty to enable this option
   SwapServerMessages:
-    - "&6&l%player%&r &7[%from%&7] (%playercount_from%) -> [%to%&7] (%playercount_to%)"
-    - "&6&l%player%&r &7[%from%&7] -> [%to%&7]"
-    - "&6&l%player%&r just went from &7[%from%&7] to [%to%&7]!!!"
+    - "<gold>%player% <gray>[%from%] (%playercount_from%) -> [%to%] (%playercount_to%)"
+    - "<gold>%player% <gray>[%from%] -> [%to%]"
+    - "<gold>%player% <yellow>just went from <gray>[%from%] <yellow>to <gray>[%to%]<yellow>!!!"
 
   # These placeholders are available for the join and leave network messages
   # %server_name%         - Name of the server they connected to
@@ -41,75 +41,75 @@ Messages:
   # %playercount_network% - Amount of players on the network
 
   # Message sent when a player joins the network for the first time - leave blank to use the list of messages defined below
-  FirstJoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network for the first time!!"
+  FirstJoinNetworkMessage: "<gold>%displayname% <gray>(%player%) <gold>has connected to the network for the first time!!"
 
   # A list of first join messages to be selected at random each time a player joins for the first time
   # IMPORTANT - FirstJoinNetworkMessage (directly above) must be empty to enable this option
   FirstJoinNetworkMessages:
-    - "&6%displayname% &7(%player%&7) &6has connected to the network for the first time!!"
-    - "&6Everyone welcome &7(%player%&7) &6to the network!!"
-    - "&6(%player%&6) is new here!!"
+    - "<gold>%displayname% <gray>(%player%) <yellow>has connected to the network for the first time!!"
+    - "<gold>Everyone welcome <gray>(%player%) <yellow>to the network!!"
+    - "<gold>(%player%) <yellow>is new here!!"
 
   # Message sent when a player joins the network - leave blank to use the list of messages defined below
-  JoinNetworkMessage: "&6%displayname% &7(%player%&7) &6has connected to the network!"
+  JoinNetworkMessage: "<gold>%displayname% <gray>(%player%) <yellow>has connected to the network!"
 
   # A list of join messages to be selected at random each time a player joins
   # IMPORTANT - JoinNetworkMessage (directly above) must be empty to enable this option
   JoinNetworkMessages:
-    - "&6%displayname% &7(%player%&7) &6has connected to the network!"
-    - "&6%displayname% &6just landed!"
-    - "&6%displayname% &6joined us on the network!"
+    - "<gold>%displayname% <gray>(%player%) <yellow>has connected to the network!"
+    - "<gold>%displayname% <yellow>just landed!"
+    - "<gold>%displayname% <yellow>joined us on the network!"
 
   # Message sent when a player leaves the network - leave blank to use the list of messages defined below
-  LeaveNetworkMessage: "&6%player% &6has disconnected from the network!"
+  LeaveNetworkMessage: "<gold>%player% <yellow>has disconnected from the network!"
 
   # A list of leave messages to be selected at random each time a player leaves
   # IMPORTANT - LeaveNetworkMessage (directly above) must be empty to enable this option
   LeaveNetworkMessages:
-    - "&6%player% &6has disconnected from the network!"
-    - "&6%player% &6decided to stop playing :("
-    - "&6%player% &6quit"
-    - "&6%player% &6went to do something else"
+    - "<gold>%player% <yellow>has disconnected from the network!"
+    - "<gold>%player% <yellow>decided to stop playing <red>:("
+    - "<gold>%player% <yellow>quit"
+    - "<gold>%player% <yellow>went to do something else"
 
   # Configurable Command Messages!
   Commands:
     NoMoreArgumentsNeeded: "No more arguments needed."
-    NoPermission: "&cYou do not have the permission to use this command."
+    NoPermission: "<red>You do not have the permission to use this command."
     Spoof:
       NoArgument: |
-        &6Arguments:
-        - &cjoin
-        - &cleave
-        - &cswap&6 (to) (from)
+        <red>Arguments:
+        - join
+        - leave
+        - swap <to> <from>
       SwapNoArgument: |
-        &6Arguments:
-        - &cjoin
-        - &cleave
-        - &cswap&6 (to) (from)
-        &4Error: Please specify &cTO&4 and &cFROM
-      ToggleSilentNoPerm: "&cYou do not have the permission to join the server silently."
-      ToggleSilent: "&eYour SilentMode has now been set to &6<state>"
+        <red> Arguments:
+        - join
+        - leave
+        - swap <to> <from>
+        <dark_red>Please specify <red>TO<dark_red> and <red>FROM
+      ToggleSilentNoPerm: "<red>You do not have the permission to join the server silently."
+      ToggleSilent: "<gray>Your silent mode has now been set to <gold><state>"
       JoinNotification: |-
-        &7[NetworkJoin] You joined the server while silenced.
-        &7To have messages automatically enabled for you until
-        &7next reboot, use the command &f/njoinspoof toggle&7.
+        <gray>[NetworkJoin] You joined the server while silenced.
+        <gray>To have messages automatically enabled for you until
+        <gray>next reboot, use the command <white>/njoinspoof toggle<gray>.
     ToggleJoin:
       MissingFirstArgument: |-
-        &6Please specify which messages you would like to disable/enable.
-        &6Valid arguments are:&f join, leave, switch, all
+        <red>Please specify which messages you would like to disable/enable.
+        <gray>Valid arguments are:<white> join, leave, switch, all
       MissingState: |-
-        &6Please specify which state you would like to set the message to.
-        &6Valid arguments are: &aon &7/ &coff &6or &atrue &7/ &cfalse&f.
+        <red>Please specify which state you would like to set the message to.
+        <gray>Valid arguments are: <green>on <gray>/ <red>off <gray>or <green>true <gray>/ <red>false<white>.
       Confirmation: |-
-        &6Receive messages for &f<mode>&6 has been set to &f<state>
-        &6This will last until the network reboots.
+        <gray>Receive messages for <white><mode><gray> has been set to <white><state>
+        <gray>This will last until the network reboots.
     Reload:
-      ConfigReloaded: Config Reloaded!
+      ConfigReloaded: "Config Reloaded!"
   Misc:
-    SilentPrefix: "&7[Silent] "
-    ConsoleSilentSwap: "&1Swap message was silenced. %player% %from% -> %to%"
-    ConsoleSilentJoin: "&6Join message was silenced. %player% joined the network"
-    ConsoleSilentLeave: "&cLeave message was silenced. %player% left the network"
+    SilentPrefix: "<gray>[Silent] </gray>"
+    ConsoleSilentSwap: "<gray>Swap message was silenced. %player% %from% -> %to%"
+    ConsoleSilentJoin: "<gray>Join message was silenced. %player% joined the network"
+    ConsoleSilentLeave: "<gray>Leave message was silenced. %player% left the network"
 Settings:
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
