@@ -38,7 +38,7 @@ public class Core {
         this.corePlayerListener = new CorePlayerListener(plugin, storage, messageHandler);
 
         this.coreImportCommand = new CoreImportCommand(corePlayerListener.getPlayerJoinTracker());
-        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler);
+        this.coreSpoofCommand = new CoreSpoofCommand(plugin, storage, messageHandler);
         this.coreReloadCommand = new CoreReloadCommand(storage, discordIntegration, messageHandler);
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 

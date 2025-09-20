@@ -1,10 +1,16 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
+import net.kyori.adventure.text.Component;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
+import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
+import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.List;
@@ -15,10 +21,12 @@ public class CoreSpoofCommand implements Command {
         "join", "leave", "swap", "toggle"
     );
 
+    private final CorePlugin plugin;
     private final Storage storage;
     private final MessageHandler messageHandler;
 
-    public CoreSpoofCommand(Storage storage, MessageHandler messageHandler) {
+    public CoreSpoofCommand(CorePlugin plugin, Storage storage, MessageHandler messageHandler) {
+        this.plugin = plugin;
         this.storage = storage;
         this.messageHandler = messageHandler;
     }
@@ -46,16 +54,36 @@ public class CoreSpoofCommand implements Command {
             return;
         }
 
+        String currentServerName = player.getCurrentServer().getName();
+        String currentServerDisplayName = storage.getServerDisplayName(currentServerName);
+
         String message;
+        Component formattedMessage;
 
         switch (args[0].toLowerCase()) {
             case "join":
                 message = messageHandler.formatJoinMessage(player);
+                formattedMessage = Formatter.deserialize(message);
+
                 messageHandler.broadcastMessage(message, MessageType.JOIN, player);
+
+                plugin.fireEvent(new NetworkJoinEvent(
+                    player, currentServerName, currentServerDisplayName, false, false,
+                    Formatter.serialize(formattedMessage),
+                    Formatter.sanitize(formattedMessage)
+                ));
                 return;
             case "leave":
                 message = messageHandler.formatLeaveMessage(player);
+                formattedMessage = Formatter.deserialize(message);
+
                 messageHandler.broadcastMessage(message, MessageType.LEAVE, player);
+
+                plugin.fireEvent(new NetworkLeaveEvent(
+                    player, currentServerName, currentServerDisplayName, false,
+                    Formatter.serialize(formattedMessage),
+                    Formatter.sanitize(formattedMessage)
+                ));
                 return;
             case "swap":
                 if (args.length < 3) {
@@ -68,8 +96,19 @@ public class CoreSpoofCommand implements Command {
                 String fromName = args[1];
                 String toName = args[2];
 
+                String fromDisplayName = storage.getServerDisplayName(fromName);
+                String toDisplayName = storage.getServerDisplayName(toName);
+
                 message = messageHandler.parseSwitchMessage(player, fromName, toName);
+                formattedMessage = Formatter.deserialize(message);
+
                 messageHandler.broadcastMessage(message, MessageType.SWAP, fromName, toName, player);
+
+                plugin.fireEvent(new SwapServerEvent(
+                    player, fromName, toName, fromDisplayName, toDisplayName, false,
+                    Formatter.serialize(formattedMessage),
+                    Formatter.sanitize(formattedMessage)
+                ));
                 return;
             case "toggle":
                 if (!player.hasPermission("networkjoinmessages.silent")) {
