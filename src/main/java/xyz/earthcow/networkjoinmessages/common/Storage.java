@@ -18,6 +18,7 @@ import java.util.*;
 public final class Storage {
 
     private final CorePlugin plugin;
+    private final ConfigManager configManager;
 
     // User data that should persist after they leave
     // User data that shouldn't persist after they leave can be stored in CorePlayer
@@ -46,6 +47,9 @@ public final class Storage {
     private List<String> firstJoinMessages;
     private List<String> joinMessages;
     private List<String> leaveMessages;
+
+    // Command messages
+    private String spoofJoinNotification;
 
     private String silentPrefix;
     private String consoleSilentSwap;
@@ -99,15 +103,16 @@ public final class Storage {
 
     //endregion
 
-    public Storage(@NotNull CorePlugin plugin) {
+    public Storage(@NotNull CorePlugin plugin, @NotNull ConfigManager configManager) {
         this.plugin = plugin;
+        this.configManager = configManager;
     }
 
     /**
      * Grab values from config and save them here
      */
     public void setUpDefaultValuesFromConfig() {
-        YamlDocument config = ConfigManager.getPluginConfig();
+        YamlDocument config = configManager.getPluginConfig();
 
         // Load server display names using their real names as defaults
         for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
@@ -135,6 +140,9 @@ public final class Storage {
         this.consoleSilentSwap = config.getString("Messages.Misc.ConsoleSilentSwap");
         this.consoleSilentJoin = config.getString("Messages.Misc.ConsoleSilentJoin");
         this.consoleSilentLeave = config.getString("Messages.Misc.ConsoleSilentLeave");
+
+        // Command messages
+        this.spoofJoinNotification = config.getString("Messages.Commands.Spoof.JoinNotification");
 
 
         /// Settings
@@ -537,6 +545,10 @@ public final class Storage {
         return getMessage(leaveNetworkMessage, leaveMessages);
     }
 
+    public String getSpoofJoinNotification() {
+        return spoofJoinNotification;
+    }
+
     public boolean getNotifyAdminsOnSilentMove() {
         return notifyAdminsOnSilentMove;
     }
@@ -628,20 +640,20 @@ public final class Storage {
         }));
 
         customCharts.add(new SimplePie("server_blacklist_is_default", () ->
-            String.valueOf(blacklistedServers.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.ServerBlacklist")))
+            String.valueOf(blacklistedServers.equals(Objects.requireNonNull(configManager.getPluginConfig().getDefaults()).getStringList("Settings.ServerBlacklist")))
         ));
         customCharts.add(new SimplePie("blacklist_is_whitelist", () -> String.valueOf(useBlacklistAsWhitelist)));
 
         customCharts.add(new SimplePie("swap_requires", () -> swapServerMessageRequires));
 
         customCharts.add(new SimplePie("ignore_first_join_list_is_default", () ->
-            String.valueOf(serverFirstJoinMessageDisabled.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreFirstJoinMessagesList")))
+            String.valueOf(serverFirstJoinMessageDisabled.equals(Objects.requireNonNull(configManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreFirstJoinMessagesList")))
         ));
         customCharts.add(new SimplePie("ignore_join_list_is_default", () ->
-            String.valueOf(serverJoinMessageDisabled.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreJoinMessagesList")))
+            String.valueOf(serverJoinMessageDisabled.equals(Objects.requireNonNull(configManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreJoinMessagesList")))
         ));
         customCharts.add(new SimplePie("ignore_leave_list_is_default", () ->
-            String.valueOf(serverLeaveMessageDisabled.equals(Objects.requireNonNull(ConfigManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreLeaveMessagesList")))
+            String.valueOf(serverLeaveMessageDisabled.equals(Objects.requireNonNull(configManager.getPluginConfig().getDefaults()).getStringList("Settings.IgnoreLeaveMessagesList")))
         ));
 
         // Other plugins
@@ -661,7 +673,7 @@ public final class Storage {
 
         // Discord integration
         customCharts.add(new SimplePie("discord_integration_enabled", () ->
-            String.valueOf(ConfigManager.getDiscordConfig().getBoolean("Enabled"))
+            String.valueOf(configManager.getDiscordConfig().getBoolean("Enabled"))
         ));
 
         return customCharts;

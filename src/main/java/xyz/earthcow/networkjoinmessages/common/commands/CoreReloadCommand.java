@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.commands;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
@@ -9,9 +10,11 @@ import java.util.List;
 public class CoreReloadCommand implements Command {
 
     private final Core core;
+    private final YamlDocument config;
 
-    public CoreReloadCommand(Core core) {
+    public CoreReloadCommand(Core core, YamlDocument pluginConfig) {
         this.core = core;
+        this.config = pluginConfig;
     }
 
     @Override
@@ -19,7 +22,7 @@ public class CoreReloadCommand implements Command {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
             core.loadConfigs();
             core.getMessageHandler().sendMessage(coreCommandSender,
-                ConfigManager.getPluginConfig().getString("Messages.Commands.Reload.ConfigReloaded")
+                config.getString("Messages.Commands.Reload.ConfigReloaded")
             );
         }
     }

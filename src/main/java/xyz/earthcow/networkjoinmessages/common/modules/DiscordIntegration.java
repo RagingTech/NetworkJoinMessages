@@ -27,18 +27,18 @@ public class DiscordIntegration {
     private final Storage storage;
     private final MessageHandler messageHandler;
 
-    private YamlDocument discordConfig;
+    private final YamlDocument discordConfig;
     private String webhookUrl;
 
-    public DiscordIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler) {
+    public DiscordIntegration(CorePlugin plugin, Storage storage, Formatter formatter, MessageHandler messageHandler, YamlDocument discordConfig) {
         this.plugin = plugin;
         this.storage = storage;
         this.formatter = formatter;
         this.messageHandler = messageHandler;
+        this.discordConfig = discordConfig;
     }
 
     public void loadVariables(){
-        discordConfig = ConfigManager.getDiscordConfig();
         if (!discordConfig.getBoolean("Enabled")) {
             plugin.unregisterDiscordListener();
             return;

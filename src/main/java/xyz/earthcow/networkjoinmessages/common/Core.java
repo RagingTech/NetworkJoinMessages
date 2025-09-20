@@ -12,6 +12,7 @@ import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 
 public class Core {
     private final CorePlugin plugin;
+
     private final Formatter formatter;
     private final Storage storage;
     private final MessageHandler messageHandler;
@@ -26,10 +27,13 @@ public class Core {
 
     public Core(CorePlugin plugin, CoreLogger coreLogger) {
         this.plugin = plugin;
-        this.storage = new Storage(plugin);
+
+        ConfigManager configManager = new ConfigManager(plugin);
+
+        this.storage = new Storage(plugin, configManager);
         this.formatter = new Formatter(plugin, storage);
         this.messageHandler = new MessageHandler(plugin, storage, formatter);
-        this.discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler);
+        this.discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler, configManager.getDiscordConfig());
         loadConfigs();
 
         try {
@@ -40,14 +44,13 @@ public class Core {
         }
 
         this.coreImportCommand = new CoreImportCommand(this);
-        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler);
-        this.coreReloadCommand = new CoreReloadCommand(this);
-        this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
+        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler, configManager.getPluginConfig());
+        this.coreReloadCommand = new CoreReloadCommand(this, configManager.getPluginConfig());
+        this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler, configManager.getPluginConfig());
 
     }
 
     public void loadConfigs() {
-        ConfigManager.setupConfigs(plugin);
         storage.setUpDefaultValuesFromConfig();
         discordIntegration.loadVariables();
     }

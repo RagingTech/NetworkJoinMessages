@@ -15,10 +15,10 @@ import java.util.Objects;
 
 public class ConfigManager {
 
-    private static YamlDocument pluginConfig;
-    private static YamlDocument discordConfig;
+    private YamlDocument pluginConfig;
+    private YamlDocument discordConfig;
 
-    private static YamlDocument createConfig(CorePlugin plugin, String filename) throws IOException {
+    private YamlDocument createConfig(CorePlugin plugin, String filename) throws IOException {
         YamlDocument doc = YamlDocument.create(
             new File(plugin.getDataFolder(), filename),
             Objects.requireNonNull(plugin.getClass().getResourceAsStream("/" + filename)),
@@ -33,7 +33,7 @@ public class ConfigManager {
         return doc;
     }
 
-    public static void setupConfigs(CorePlugin plugin) {
+    public ConfigManager(CorePlugin plugin) {
         CoreLogger logger = plugin.getCoreLogger();
         logger.info("Attempting to load config files...");
         try {
@@ -48,11 +48,11 @@ public class ConfigManager {
         logger.info("Successfully loaded all plugin config files!");
     }
 
-    public static YamlDocument getPluginConfig() {
+    public YamlDocument getPluginConfig() {
         return pluginConfig;
     }
 
-    public static YamlDocument getDiscordConfig() {
+    public YamlDocument getDiscordConfig() {
         return discordConfig;
     }
 

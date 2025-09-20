@@ -139,7 +139,7 @@ public class CorePlayerListener {
         if (isSilent) {
             if (player.hasPermission("networkjoinmessages.spoof")) {
                 core.getFormatter().parsePlaceholdersAndThen(
-                        ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.JoinNotification"),
+                        storage.getSpoofJoinNotification(),
                         player, formattedMsg -> messageHandler.sendMessage(player, formattedMsg)
                 );
             }
