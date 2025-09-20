@@ -259,24 +259,35 @@ public class DiscordIntegration {
     private String replacePlaceholdersSwap(String txt, CorePlayer player, String toServer, String fromServer) {
         String displayTo = storage.getServerDisplayName(toServer);
         String displayFrom = storage.getServerDisplayName(fromServer);
+
+        if (txt.contains("%playercount_from%")) {
+            txt = txt.replace(
+                "%playercount_from%", messageHandler
+                    .getServerPlayerCount(fromServer, true, player)
+            );
+        }
+
+        if (txt.contains("%playercount_to%")) {
+            txt = txt.replace(
+                "%playercount_to%", messageHandler
+                    .getServerPlayerCount(fromServer, false, player)
+            );
+        }
+
+        if (txt.contains("%playercount_network%")) {
+            txt = txt.replace(
+                "%playercount_network%",
+                messageHandler
+                    .getNetworkPlayerCount(player, false)
+            );
+        }
+
         return txt
                 .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
                 .replace("%to%", displayTo)
                 .replace("%to_clean%", Formatter.sanitize(displayTo))
                 .replace("%from%", displayFrom)
-                .replace("%from_clean%", Formatter.sanitize(displayFrom))
-                .replace(
-                        "%playercount_from%", messageHandler
-                                .getServerPlayerCount(fromServer, true, player)
-                )
-                .replace(
-                        "%playercount_to%", messageHandler
-                                .getServerPlayerCount(toServer, false, player)
-                )
-                .replace(
-                        "%playercount_network%", messageHandler
-                                .getNetworkPlayerCount(player, false)
-                );
+                .replace("%from_clean%", Formatter.sanitize(displayFrom));
     }
 
     private String getSwapConfigValue(String key, CorePlayer player, String toServer, String fromServer) {
@@ -289,21 +300,27 @@ public class DiscordIntegration {
     }
 
     private String replacePlaceholdersJoinLeave(String txt, CorePlayer player, boolean leaving) {
+        if (txt.contains("%playercount_server%")) {
+            txt = txt.replace(
+                "%playercount_server%", messageHandler
+                    .getServerPlayerCount(
+                        player.getCurrentServer(),
+                        leaving,
+                        player
+                    )
+            );
+        }
+
+        if (txt.contains("%playercount_network%")) {
+            txt = txt.replace(
+                "%playercount_network%",
+                messageHandler
+                    .getNetworkPlayerCount(player, leaving)
+            );
+        }
+
         return txt
-                .replace("%embedavatarurl%", getEmbedAvatarUrl(player))
-                .replace(
-                        "%playercount_server%", messageHandler
-                                .getServerPlayerCount(
-                                        player.getCurrentServer(),
-                                        leaving,
-                                        player
-                                )
-                )
-                .replace(
-                        "%playercount_network%",
-                        messageHandler
-                                .getNetworkPlayerCount(player, leaving)
-                );
+                .replace("%embedavatarurl%", getEmbedAvatarUrl(player));
     }
 
     private String getJoinLeaveConfigValue(String key, CorePlayer player, boolean leaving) {
