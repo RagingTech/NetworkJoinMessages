@@ -99,7 +99,16 @@ public class CoreSpoofCommand implements Command {
                 String fromDisplayName = storage.getServerDisplayName(fromName);
                 String toDisplayName = storage.getServerDisplayName(toName);
 
-                message = messageHandler.parseSwitchMessage(player, fromName, toName);
+                try {
+                    message = messageHandler.parseSwitchMessage(player, fromName, toName);
+                } catch (NullPointerException e) {
+                    messageHandler.sendMessage(
+                        player,
+                        "<red>Spoof requires valid server names if they contain player count placeholders."
+                    );
+                    return;
+                }
+
                 formattedMessage = Formatter.deserialize(message);
 
                 messageHandler.broadcastMessage(message, MessageType.SWAP, fromName, toName, player);
