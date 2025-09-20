@@ -88,7 +88,7 @@ Messages:
         - swap <to> <from>
         <dark_red>Please specify <red>TO<dark_red> and <red>FROM
       ToggleSilentNoPerm: "<red>You do not have the permission to join the server silently."
-      ToggleSilent: "<gray>Your silent mode has now been set to <gold><state>"
+      ToggleSilent: "<gray>Your silent mode has now been set to <gold>%state%"
       JoinNotification: |-
         <gray>[NetworkJoin] You joined the server while silenced.
         <gray>To have messages automatically enabled for you until
@@ -101,7 +101,7 @@ Messages:
         <red>Please specify which state you would like to set the message to.
         <gray>Valid arguments are: <green>on <gray>/ <red>off <gray>or <green>true <gray>/ <red>false<white>.
       Confirmation: |-
-        <gray>Receive messages for <white><mode><gray> has been set to <white><state>
+        <gray>Receive messages for <white>%mode%<gray> has been set to <white>%state%
         <gray>This will last until the network reboots.
     Reload:
       ConfigReloaded: "Config Reloaded!"

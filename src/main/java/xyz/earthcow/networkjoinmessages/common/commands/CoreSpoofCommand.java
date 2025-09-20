@@ -85,6 +85,7 @@ public class CoreSpoofCommand implements Command {
                 messageHandler.sendMessage(
                     player,
                     ConfigManager.getPluginConfig().getString("Messages.Commands.Spoof.ToggleSilent")
+                        .replaceAll("%state%", String.valueOf(state))
                         .replaceAll("<state>", String.valueOf(state))
                 );
         }

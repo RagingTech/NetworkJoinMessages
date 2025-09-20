@@ -69,9 +69,12 @@ public class CoreToggleJoinCommand implements Command {
 
         messageHandler.sendMessage(
             player,
+            // Keeping <placeholder>s for users who update
             ConfigManager.getPluginConfig().getString("Messages.Commands.ToggleJoin.Confirmation")
                 .replaceAll("<mode>", mode)
+                .replaceAll("%mode%", mode)
                 .replaceAll("<state>", String.valueOf(state))
+                .replaceAll("%state%", String.valueOf(state))
         );
 
     }
