@@ -6,10 +6,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Handles the sending of messages to command senders
@@ -174,66 +171,48 @@ public final class MessageHandler {
         return getServerPlayerCount(plugin.getServer(serverName), leaving, player);
     }
 
-    public String getServerPlayerCount(@Nullable CoreBackendServer backendServer, boolean leaving, CorePlayer player) {
-        if (backendServer == null) {
-            if (leaving) {
-                return "0";
-            } else {
-                return "1";
-            }
-        }
-
-        List<CorePlayer> players = backendServer.getPlayersConnected();
-
-        PremiumVanish premiumVanish = plugin.getVanishAPI();
-
-        boolean vanished = false;
-        if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
-                List<UUID> vanishedPlayers = premiumVanish.getInvisiblePlayers();
-                // Filter out vanished players
-                players = players.stream().filter(corePlayer -> !vanishedPlayers.contains(corePlayer.getUniqueId())).toList();
-                vanished = vanishedPlayers.contains(player.getUniqueId());
-        }
-
+    private String getPlayerCount(Collection<CorePlayer> players, CorePlayer player, boolean leaving) {
         int count = players.size();
+        PremiumVanish premiumVanish = plugin.getVanishAPI();
+        boolean vanished = false;
+
+        if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
+            Set<UUID> vanishedPlayers = new HashSet<>(premiumVanish.getInvisiblePlayers());
+            count -= vanishedPlayers.size();
+
+            if (player != null) {
+                vanished = vanishedPlayers.contains(player.getUniqueId());
+            }
+
+            // Rebuild player collection without vanished ones
+            players = players.stream()
+                .filter(p -> !vanishedPlayers.contains(p.getUniqueId()))
+                .toList();
+        }
 
         if (player != null && !vanished) {
-            // If the player is technically on the server, and they are leaving subtract them from count
-            // Otherwise, if the player is not on the server, and they are not leaving add them to the count
-            if (players.stream().anyMatch(corePlayer -> corePlayer.getUniqueId().equals(player.getUniqueId()))) {
-                if (leaving) {
-                    count--;
-                }
-            } else {
-                if (!leaving) {
-                    count++;
-                }
+            UUID playerId = player.getUniqueId();
+            boolean isPresent = players.stream().anyMatch(p -> p.getUniqueId().equals(playerId));
+
+            if (isPresent && leaving) {
+                count--;
+            } else if (!isPresent && !leaving) {
+                count++;
             }
         }
 
-        return count + "";
+        return Integer.toString(count);
+    }
+
+    public String getServerPlayerCount(@Nullable CoreBackendServer backendServer, boolean leaving, CorePlayer player) {
+        if (backendServer == null) {
+            return leaving ? "0" : "1";
+        }
+        return getPlayerCount(backendServer.getPlayersConnected(), player, leaving);
     }
 
     public String getNetworkPlayerCount(CorePlayer player, boolean leaving) {
-        Collection<CorePlayer> players = plugin.getAllPlayers();
-        int count = players.size();
-
-        PremiumVanish premiumVanish = plugin.getVanishAPI();
-
-        boolean vanished = false;
-        if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
-            count -= premiumVanish.getInvisiblePlayers().size();
-            if (player != null) {
-                vanished = premiumVanish.isVanished(player.getUniqueId());
-            }
-        }
-
-        if (player != null && !vanished && leaving) {
-            if (players.stream().map(CorePlayer::getUniqueId).toList().contains(player.getUniqueId())) {
-                count--;
-            }
-        }
-        return count + "";
+        return getPlayerCount(plugin.getAllPlayers(), player, leaving);
     }
 
     public String parseSwapMessage(CorePlayer player, String fromName, String toName) {
