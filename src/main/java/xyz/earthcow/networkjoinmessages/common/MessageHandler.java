@@ -230,14 +230,26 @@ public final class MessageHandler {
     public String parseSwitchMessage(CorePlayer player, String fromName, String toName) {
         String from = storage.getServerDisplayName(fromName);
         String to = storage.getServerDisplayName(toName);
-        return storage.getSwapServerMessage()
+
+        String msg = storage.getSwapServerMessage()
             .replace("%to%", to)
             .replace("%to_clean%", toName)
             .replace("%from%", from)
-            .replace("%from_clean%", fromName)
-            .replace("%playercount_from%", getServerPlayerCount(fromName, true, player))
-            .replace("%playercount_to%", getServerPlayerCount(toName, false, player))
-            .replace("%playercount_network%", getNetworkPlayerCount(player, false));
+            .replace("%from_clean%", fromName);
+
+        if (msg.contains("%from_clean%")) {
+            msg = msg.replace("%playercount_from%", getServerPlayerCount(fromName, true, player));
+        }
+
+        if (msg.contains("%from_clean%")) {
+            msg = msg.replace("%playercount_to%", getServerPlayerCount(toName, false, player));
+        }
+
+        if (msg.contains("%from_clean%")) {
+            msg = msg.replace("%playercount_network%", getNetworkPlayerCount(player, false));
+        }
+
+        return msg;
     }
 
     public String formatFirstJoinMessage(CorePlayer player) {
