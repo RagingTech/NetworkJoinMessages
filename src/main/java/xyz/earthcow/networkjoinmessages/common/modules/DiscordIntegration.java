@@ -105,8 +105,8 @@ public class DiscordIntegration {
         DiscordWebhook discordWebhook = new DiscordWebhook(webhookUrl);
         // Define variables
         CorePlayer player = event.player();
-        String toServer = event.serverToDisplay();
-        String fromServer = event.serverFromDisplay();
+        String toServer = event.serverTo();
+        String fromServer = event.serverFrom();
         // Check if custom webhook is enabled
         if (
                 discordConfig.getBoolean(
