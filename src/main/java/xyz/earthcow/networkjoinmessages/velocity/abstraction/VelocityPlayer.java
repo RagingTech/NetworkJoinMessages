@@ -59,7 +59,7 @@ public class VelocityPlayer implements CorePlayer {
     }
 
     @Override
-    public @NotNull CoreBackendServer getCurrentServer() {
+    public @Nullable CoreBackendServer getCurrentServer() {
         ServerConnection serverConnection = velocityPlayer.getCurrentServer().orElse(null);
         if (serverConnection == null) {
             return lastKnownConnectedServer;

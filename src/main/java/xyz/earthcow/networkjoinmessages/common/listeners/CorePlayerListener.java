@@ -56,6 +56,14 @@ public class CorePlayerListener {
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type, @NotNull String from, @NotNull String to, boolean fromLimbo) {
+        if (player.getCurrentServer() == null) {
+            plugin.getCoreLogger().debug("Player, " + player.getName() + ", has no current server. No message will be" +
+                " sent for them. This typically indicates the server they attempted to join was unavailable. If this" +
+                " is a mistake, please report it to the developer by creating a new issue" +
+                " https://github.com/RagingTech/NetworkJoinMessages/issues/new");
+            return true;
+        }
+
         switch (type) {
             case SWAP -> {
                 if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
