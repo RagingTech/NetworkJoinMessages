@@ -9,6 +9,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
@@ -22,12 +23,16 @@ public class CorePlayerListener {
     private H2PlayerJoinTracker firstJoinTracker;
 
     @Nullable
+    private final SayanVanishHook sayanVanishHook;
+
+    @Nullable
     private final PremiumVanish premiumVanish;
     
-    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler) {
+    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook) {
         this.plugin = plugin;
         this.storage = storage;
         this.messageHandler = messageHandler;
+        this.sayanVanishHook = sayanVanishHook;
         this.premiumVanish = plugin.getVanishAPI();
 
         try {
@@ -48,7 +53,9 @@ public class CorePlayerListener {
         // Event is silent if, the player has a silent message state OR
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
         return storage.getSilentMessageState(player) ||
-                (premiumVanish != null && storage.getTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
+                (sayanVanishHook != null && storage.getSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
+                ||
+                (premiumVanish != null && storage.getPVTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {

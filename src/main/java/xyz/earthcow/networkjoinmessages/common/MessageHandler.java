@@ -3,6 +3,7 @@ package xyz.earthcow.networkjoinmessages.common;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
+import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
@@ -17,10 +18,14 @@ public final class MessageHandler {
     private final Storage storage;
     private final Formatter formatter;
 
-    public MessageHandler(CorePlugin plugin, Storage storage, Formatter formatter) {
+    @Nullable
+    private final SayanVanishHook sayanVanishHook;
+
+    public MessageHandler(CorePlugin plugin, Storage storage, Formatter formatter, @Nullable SayanVanishHook sayanVanishHook) {
         this.plugin = plugin;
         this.storage = storage;
         this.formatter = formatter;
+        this.sayanVanishHook = sayanVanishHook;
     }
 
     /**
@@ -176,8 +181,22 @@ public final class MessageHandler {
         PremiumVanish premiumVanish = plugin.getVanishAPI();
         boolean vanished = false;
 
-        if (premiumVanish != null && storage.getRemoveVanishedPlayersFromPlayerCount()) {
+        if (premiumVanish != null && storage.getPVRemoveVanishedPlayersFromPlayerCount()) {
             Set<UUID> vanishedPlayers = new HashSet<>(premiumVanish.getInvisiblePlayers());
+            count -= vanishedPlayers.size();
+
+            if (player != null) {
+                vanished = vanishedPlayers.contains(player.getUniqueId());
+            }
+
+            // Rebuild player collection without vanished ones
+            players = players.stream()
+                .filter(p -> !vanishedPlayers.contains(p.getUniqueId()))
+                .toList();
+        }
+
+        if (sayanVanishHook != null && storage.getSVRemoveVanishedPlayersFromPlayerCount()) {
+            Collection<UUID> vanishedPlayers = sayanVanishHook.getVanishedPlayers();
             count -= vanishedPlayers.size();
 
             if (player != null) {

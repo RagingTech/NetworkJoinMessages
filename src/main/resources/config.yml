@@ -184,6 +184,12 @@ Settings:
     - SomeOtherServerName
 
 OtherPlugins:
+  SayanVanish:
+    # Vanished players will not trigger messages aside from
+    # silent messages sent to players with networkjoinmessages.silent permission
+    TreatVanishedPlayersAsSilent: true
+    # Vanished players will not be counted in the player count placeholders
+    RemoveVanishedPlayersFromPlayerCount: true
   PremiumVanish:
     # Vanished players will not trigger messages aside from
     # silent messages sent to players with networkjoinmessages.silent permission
@@ -200,4 +206,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 7
+config-version: 8

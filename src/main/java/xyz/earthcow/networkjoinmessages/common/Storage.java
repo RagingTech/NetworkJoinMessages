@@ -107,9 +107,12 @@ public final class Storage {
     private String swapServerMessageRequires = "ANY";
 
     /// Other plugins
+    // SayanVanish
+    private boolean SVTreatVanishedPlayersAsSilent;
+    private boolean SVRemoveVanishedPlayersFromPlayerCount;
     // PremiumVanish
-    private boolean treatVanishedPlayersAsSilent;
-    private boolean removeVanishedPlayersFromPlayerCount;
+    private boolean PVTreatVanishedPlayersAsSilent;
+    private boolean PVRemoveVanishedPlayersFromPlayerCount;
     // LimboAPI
     private boolean shouldSuppressLimboSwap;
     private boolean shouldSuppressLimboJoin;
@@ -207,8 +210,11 @@ public final class Storage {
         this.serverJoinMessageDisabled = config.getStringList("Settings.IgnoreJoinMessagesList");
         this.serverLeaveMessageDisabled = config.getStringList("Settings.IgnoreLeaveMessagesList");
 
-        this.treatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
-        this.removeVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
+        this.SVTreatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.SayanVanish.TreatVanishedPlayersAsSilent");
+        this.SVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.SayanVanish.RemoveVanishedPlayersFromPlayerCount");
+
+        this.PVTreatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
+        this.PVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
 
         this.shouldSuppressLimboSwap = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         this.shouldSuppressLimboJoin = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
@@ -638,12 +644,20 @@ public final class Storage {
         return leaveNetworkMessageEnabled;
     }
 
-    public boolean getTreatVanishedPlayersAsSilent() {
-        return treatVanishedPlayersAsSilent;
+    public boolean getSVTreatVanishedPlayersAsSilent() {
+        return SVTreatVanishedPlayersAsSilent;
     }
 
-    public boolean getRemoveVanishedPlayersFromPlayerCount() {
-        return removeVanishedPlayersFromPlayerCount;
+    public boolean getSVRemoveVanishedPlayersFromPlayerCount() {
+        return SVRemoveVanishedPlayersFromPlayerCount;
+    }
+
+    public boolean getPVTreatVanishedPlayersAsSilent() {
+        return PVTreatVanishedPlayersAsSilent;
+    }
+
+    public boolean getPVRemoveVanishedPlayersFromPlayerCount() {
+        return PVRemoveVanishedPlayersFromPlayerCount;
     }
 
     public boolean getShouldSuppressLimboSwap() {
@@ -726,14 +740,18 @@ public final class Storage {
         ));
 
         // Other plugins
-        customCharts.add(new SimplePie("premium_vanish_vanished_are_silent", () -> String.valueOf(treatVanishedPlayersAsSilent)));
-        customCharts.add(new SimplePie("premium_vanish_remove_vanished_from_player_count", () -> String.valueOf(removeVanishedPlayersFromPlayerCount)));
+        customCharts.add(new SimplePie("sayan_vanish_vanished_are_silent", () -> String.valueOf(SVTreatVanishedPlayersAsSilent)));
+        customCharts.add(new SimplePie("sayan_vanish_remove_vanished_from_player_count", () -> String.valueOf(SVRemoveVanishedPlayersFromPlayerCount)));
+
+        customCharts.add(new SimplePie("premium_vanish_vanished_are_silent", () -> String.valueOf(PVTreatVanishedPlayersAsSilent)));
+        customCharts.add(new SimplePie("premium_vanish_remove_vanished_from_player_count", () -> String.valueOf(PVRemoveVanishedPlayersFromPlayerCount)));
 
         customCharts.add(new SimplePie("limbo_api_suppress_swap", () -> String.valueOf(shouldSuppressLimboSwap)));
         customCharts.add(new SimplePie("limbo_api_suppress_join", () -> String.valueOf(shouldSuppressLimboJoin)));
         customCharts.add(new SimplePie("limbo_api_suppress_leave", () -> String.valueOf(shouldSuppressLimboLeave)));
 
         // Present plugins
+        customCharts.add(new SimplePie("sayan_vanish_is_present", () -> String.valueOf(plugin.isPluginLoaded("SayanVanish"))));
         customCharts.add(new SimplePie("premium_vanish_is_present", () -> String.valueOf(plugin.isPluginLoaded("PremiumVanish"))));
         customCharts.add(new SimplePie("limbo_api_is_present", () -> String.valueOf(plugin.isPluginLoaded("LimboAPI"))));
         customCharts.add(new SimplePie("papi_bridge_is_present", () -> String.valueOf(plugin.isPluginLoaded("PAPIProxyBridge"))));
