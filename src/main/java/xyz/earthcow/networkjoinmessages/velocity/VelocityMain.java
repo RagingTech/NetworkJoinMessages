@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Plugin(
     id = "networkjoinmessages",
     name = "NetworkJoinMessages",
-    version = "3.0.0",
+    version = "3.0.1-SNAPSHOT",
     url = "https://github.com/RagingTech/NetworkJoinMessages",
     description = "A plugin handling join, leave and swap messages for proxy servers.",
     authors = { "EarthCow" },
@@ -45,7 +45,8 @@ import java.util.stream.Collectors;
         @Dependency(id = "luckperms", optional = true),
         @Dependency(id = "papiproxybridge", optional = true),
         @Dependency(id = "miniplaceholders", optional = true),
-        @Dependency(id = "limboapi", optional = true)
+        @Dependency(id = "limboapi", optional = true),
+        @Dependency(id = "sayanvanish", optional = true)
     }
 )
 public class VelocityMain implements CorePlugin {

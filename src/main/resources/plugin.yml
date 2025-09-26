@@ -3,7 +3,7 @@ version: ${version}
 description: ${description}
 author: ${author}
 website: ${url}
-softdepend: [PremiumVanish, LuckPerms, PAPIProxyBridge]
+softdepend: [PremiumVanish, LuckPerms, PAPIProxyBridge, SayanVanish]
 api-version: 1.21
 
 main: ${mainClass}
