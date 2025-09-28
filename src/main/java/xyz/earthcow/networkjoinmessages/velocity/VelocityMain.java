@@ -10,6 +10,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
@@ -51,8 +52,10 @@ import java.util.stream.Collectors;
 )
 public class VelocityMain implements CorePlugin {
 
+    @Getter
     private static VelocityMain instance;
     private final PlayerManager manager = new PlayerManager();
+    @Getter
     private final ProxyServer proxy;
     private final Logger logger;
     private final File dataFolder;
@@ -187,17 +190,9 @@ public class VelocityMain implements CorePlugin {
 
     // Getters
 
-    public static VelocityMain getInstance() {
-        return instance;
-    }
-
     @Override
     public PlayerManager getPlayerManager(){
         return manager;
-    }
-
-    public ProxyServer getProxy() {
-        return proxy;
     }
 
     public boolean getIsLimboAPIAvailable() {
