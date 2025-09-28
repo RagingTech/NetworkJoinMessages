@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common;
 
+import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
@@ -13,6 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 
 import java.util.Collection;
 
+@Getter
 public class Core {
     private final CorePlugin plugin;
 
@@ -50,33 +52,5 @@ public class Core {
         this.coreReloadCommand = new CoreReloadCommand(configManager, storage, discordIntegration, messageHandler);
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 
-    }
-
-    public CorePlugin getPlugin() {
-        return plugin;
-    }
-
-    public Collection<CustomChart> getCustomCharts() {
-        return customCharts;
-    }
-
-    public CorePlayerListener getCorePlayerListener() {
-        return corePlayerListener;
-    }
-
-    public CoreImportCommand getCoreImportCommand() {
-        return coreImportCommand;
-    }
-
-    public CoreSpoofCommand getCoreSpoofCommand() {
-        return coreSpoofCommand;
-    }
-
-    public CoreReloadCommand getCoreReloadCommand() {
-        return coreReloadCommand;
-    }
-
-    public CoreToggleJoinCommand getCoreToggleCommand() {
-        return coreToggleJoinCommand;
     }
 }
