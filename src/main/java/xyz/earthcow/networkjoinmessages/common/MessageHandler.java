@@ -146,7 +146,7 @@ public final class MessageHandler {
         // Send message to console
         handleSilentConsoleMessage(type, from, to, parseTarget);
 
-        if (!storage.getNotifyAdminsOnSilentMove()) {
+        if (!storage.isNotifyAdminsOnSilentMove()) {
             return;
         }
 
@@ -181,7 +181,7 @@ public final class MessageHandler {
         PremiumVanish premiumVanish = plugin.getVanishAPI();
         boolean vanished = false;
 
-        if (premiumVanish != null && storage.getPVRemoveVanishedPlayersFromPlayerCount()) {
+        if (premiumVanish != null && storage.isPVRemoveVanishedPlayersFromPlayerCount()) {
             Set<UUID> vanishedPlayers = new HashSet<>(premiumVanish.getInvisiblePlayers());
             count -= vanishedPlayers.size();
 
@@ -195,7 +195,7 @@ public final class MessageHandler {
                 .toList();
         }
 
-        if (sayanVanishHook != null && storage.getSVRemoveVanishedPlayersFromPlayerCount()) {
+        if (sayanVanishHook != null && storage.isSVRemoveVanishedPlayersFromPlayerCount()) {
             Collection<UUID> vanishedPlayers = sayanVanishHook.getVanishedPlayers();
             count -= vanishedPlayers.size();
 

@@ -1,6 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.NotNull;
@@ -49,25 +50,39 @@ public final class Storage {
     private List<String> leaveMessages;
 
     // Command messages
+    @Getter
     private String noMoreArgumentsNeeded;
+    @Getter
     private String noPermission;
 
+    @Getter
     private String spoofNoArgument;
+    @Getter
     private String spoofSwapNoArgument;
+    @Getter
     private String spoofToggleSilentNoPerm;
+    @Getter
     private String spoofToggleSilent;
+    @Getter
     private String spoofJoinNotification;
 
+    @Getter
     private String toggleJoinMissingFirstArg;
+    @Getter
     private String toggleJoinMissingState;
+    @Getter
     private String toggleJoinConfirmation;
 
+    @Getter
     private String reloadConfirmation;
 
-
+    @Getter
     private String silentPrefix;
+    @Getter
     private String consoleSilentSwap;
+    @Getter
     private String consoleSilentJoin;
+    @Getter
     private String consoleSilentLeave;
 
     /**
@@ -77,11 +92,16 @@ public final class Storage {
     private boolean silentJoinDefaultState;
 
     // Whether specific message types are enabled
+    @Getter
     private boolean swapServerMessageEnabled;
+    @Getter
     private boolean firstJoinNetworkMessageEnabled;
+    @Getter
     private boolean joinNetworkMessageEnabled;
+    @Getter
     private boolean leaveNetworkMessageEnabled;
 
+    @Getter
     private boolean notifyAdminsOnSilentMove;
 
     private boolean swapViewableByJoined;
@@ -108,14 +128,21 @@ public final class Storage {
 
     /// Other plugins
     // SayanVanish
+    @Getter
     private boolean SVTreatVanishedPlayersAsSilent;
+    @Getter
     private boolean SVRemoveVanishedPlayersFromPlayerCount;
     // PremiumVanish
+    @Getter
     private boolean PVTreatVanishedPlayersAsSilent;
+    @Getter
     private boolean PVRemoveVanishedPlayersFromPlayerCount;
     // LimboAPI
+    @Getter
     private boolean shouldSuppressLimboSwap;
+    @Getter
     private boolean shouldSuppressLimboJoin;
+    @Getter
     private boolean shouldSuppressLimboLeave;
 
     //endregion
@@ -239,22 +266,6 @@ public final class Storage {
                     );
                 this.swapServerMessageRequires = "ANY";
         }
-    }
-
-    public String getSilentPrefix() {
-        return silentPrefix;
-    }
-
-    public String getConsoleSilentSwap() {
-        return consoleSilentSwap;
-    }
-
-    public String getConsoleSilentJoin() {
-        return consoleSilentJoin;
-    }
-
-    public String getConsoleSilentLeave() {
-        return consoleSilentLeave;
     }
 
     public boolean getSilentMessageState(CorePlayer player) {
@@ -578,98 +589,6 @@ public final class Storage {
 
     public String getLeaveNetworkMessage() {
         return getMessage(leaveNetworkMessage, leaveMessages);
-    }
-
-    public String getSpoofJoinNotification() {
-        return spoofJoinNotification;
-    }
-
-    public String getNoMoreArgumentsNeeded() {
-        return noMoreArgumentsNeeded;
-    }
-
-    public String getNoPermission() {
-        return noPermission;
-    }
-
-    public String getSpoofNoArgument() {
-        return spoofNoArgument;
-    }
-
-    public String getSpoofSwapNoArgument() {
-        return spoofSwapNoArgument;
-    }
-
-    public String getSpoofToggleSilentNoPerm() {
-        return spoofToggleSilentNoPerm;
-    }
-
-    public String getSpoofToggleSilent() {
-        return spoofToggleSilent;
-    }
-
-    public String getToggleJoinMissingFirstArg() {
-        return toggleJoinMissingFirstArg;
-    }
-
-    public String getToggleJoinMissingState() {
-        return toggleJoinMissingState;
-    }
-
-    public String getToggleJoinConfirmation() {
-        return toggleJoinConfirmation;
-    }
-
-    public String getReloadConfirmation() {
-        return reloadConfirmation;
-    }
-
-    public boolean getNotifyAdminsOnSilentMove() {
-        return notifyAdminsOnSilentMove;
-    }
-
-    public boolean isSwapServerMessageEnabled() {
-        return swapServerMessageEnabled;
-    }
-
-    public boolean isFirstJoinNetworkMessageEnabled() {
-        return firstJoinNetworkMessageEnabled;
-    }
-
-    public boolean isJoinNetworkMessageEnabled() {
-        return joinNetworkMessageEnabled;
-    }
-
-    public boolean isLeaveNetworkMessageEnabled() {
-        return leaveNetworkMessageEnabled;
-    }
-
-    public boolean getSVTreatVanishedPlayersAsSilent() {
-        return SVTreatVanishedPlayersAsSilent;
-    }
-
-    public boolean getSVRemoveVanishedPlayersFromPlayerCount() {
-        return SVRemoveVanishedPlayersFromPlayerCount;
-    }
-
-    public boolean getPVTreatVanishedPlayersAsSilent() {
-        return PVTreatVanishedPlayersAsSilent;
-    }
-
-    public boolean getPVRemoveVanishedPlayersFromPlayerCount() {
-        return PVRemoveVanishedPlayersFromPlayerCount;
-    }
-
-    public boolean getShouldSuppressLimboSwap() {
-        return shouldSuppressLimboSwap;
-    }
-
-    public boolean getShouldSuppressLimboJoin() {
-        return shouldSuppressLimboJoin;
-    }
-
-    public boolean getShouldSuppressLimboLeave() {
-        return shouldSuppressLimboLeave;
     }
 
     public Collection<CustomChart> getCustomCharts() {

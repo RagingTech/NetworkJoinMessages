@@ -53,9 +53,9 @@ public class CorePlayerListener {
         // Event is silent if, the player has a silent message state OR
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
         return storage.getSilentMessageState(player) ||
-                (sayanVanishHook != null && storage.getSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
+                (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
                 ||
-                (premiumVanish != null && storage.getPVTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
+                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
@@ -73,7 +73,7 @@ public class CorePlayerListener {
 
         switch (type) {
             case SWAP -> {
-                if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
+                if (storage.isShouldSuppressLimboSwap() && fromLimbo) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo swap");
                     return true;
@@ -114,7 +114,7 @@ public class CorePlayerListener {
                     return true;
                 }
 
-                if (storage.getShouldSuppressLimboJoin() && player.isInLimbo()) {
+                if (storage.isShouldSuppressLimboJoin() && player.isInLimbo()) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo join");
                     return true;
@@ -128,7 +128,7 @@ public class CorePlayerListener {
                     return true;
                 }
 
-                if (storage.getShouldSuppressLimboLeave() && player.isInLimbo()) {
+                if (storage.isShouldSuppressLimboLeave() && player.isInLimbo()) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo leave");
                     return true;

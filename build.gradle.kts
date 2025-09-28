@@ -48,6 +48,11 @@ dependencies {
     implementation("org.bstats:bstats-velocity:3.0.2")
 
     // Utilities
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+    testCompileOnly("org.projectlombok:lombok:1.18.42")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("org.jetbrains:annotations:16.0.1")
     implementation("com.h2database:h2:2.2.224")
