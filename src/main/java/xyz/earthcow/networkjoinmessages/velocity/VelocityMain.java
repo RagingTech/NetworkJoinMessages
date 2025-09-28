@@ -136,7 +136,7 @@ public class VelocityMain implements CorePlugin {
                 .metaBuilder("njointoggle")
                 .plugin(this)
                 .build(),
-            new ToggleJoinCommand(core.getCoreToggleCommand())
+            new ToggleJoinCommand(core.getCoreToggleJoinCommand())
         );
     }
 

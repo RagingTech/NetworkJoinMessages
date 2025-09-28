@@ -76,7 +76,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
             .registerCommand(this, new ReloadCommand(core.getCoreReloadCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new ToggleCommand(core.getCoreToggleCommand()));
+            .registerCommand(this, new ToggleCommand(core.getCoreToggleJoinCommand()));
 
         if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
             this.premiumVanish = new BungeePremiumVanish();
