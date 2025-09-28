@@ -5,7 +5,6 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
@@ -30,11 +29,6 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public String getName() {
         return velocityPlayer.getUsername();
-    }
-
-    @Override
-    public void sendMessage(String message) {
-        velocityPlayer.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
     }
 
     @Override

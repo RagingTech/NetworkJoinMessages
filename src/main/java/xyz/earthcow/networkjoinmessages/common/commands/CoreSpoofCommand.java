@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.common.commands;
 
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
 import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
@@ -34,7 +35,7 @@ public class CoreSpoofCommand implements Command {
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (!(coreCommandSender instanceof CorePlayer player)) {
-            coreCommandSender.sendMessage("Only players can run this command!");
+            coreCommandSender.sendMessage(Component.text("Only players can run this command!", NamedTextColor.RED));
             return;
         }
 
