@@ -32,6 +32,7 @@ public class Core {
         SayanVanishHook sayanVanishHook;
         if (plugin.isPluginLoaded("SayanVanish")) {
             sayanVanishHook = new SayanVanishHook();
+            plugin.getCoreLogger().info("Successfully hooked into SayanVanish!");
         } else {
             sayanVanishHook = null;
         }
