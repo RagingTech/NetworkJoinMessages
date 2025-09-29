@@ -9,6 +9,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
@@ -22,12 +23,16 @@ public class CorePlayerListener {
     private H2PlayerJoinTracker firstJoinTracker;
 
     @Nullable
+    private final SayanVanishHook sayanVanishHook;
+
+    @Nullable
     private final PremiumVanish premiumVanish;
     
-    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler) {
+    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook) {
         this.plugin = plugin;
         this.storage = storage;
         this.messageHandler = messageHandler;
+        this.sayanVanishHook = sayanVanishHook;
         this.premiumVanish = plugin.getVanishAPI();
 
         try {
@@ -47,8 +52,24 @@ public class CorePlayerListener {
     private boolean isSilentEvent(@NotNull CorePlayer player) {
         // Event is silent if, the player has a silent message state OR
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
+        plugin.getCoreLogger().debug("Checking if the event for player " + player + " should been silent:");
+        plugin.getCoreLogger().debug(String.format(
+                "silent message state: %s, SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, " +
+                "SayanVanish player is vanished: %s, PremiumVanish hook is NOT null: %s, " +
+                "PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s"
+        ,
+            storage.getSilentMessageState(player),
+            sayanVanishHook != null,
+            storage.isSVTreatVanishedPlayersAsSilent(),
+            sayanVanishHook != null ? sayanVanishHook.isVanished(player) : "NA",
+            premiumVanish != null,
+            storage.isPVTreatVanishedPlayersAsSilent(),
+            premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA"
+        ));
         return storage.getSilentMessageState(player) ||
-                (premiumVanish != null && storage.getTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
+                (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
+                ||
+                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
@@ -56,9 +77,17 @@ public class CorePlayerListener {
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type, @NotNull String from, @NotNull String to, boolean fromLimbo) {
+        if (player.getCurrentServer() == null) {
+            plugin.getCoreLogger().debug("Player, " + player.getName() + ", has no current server. No message will be" +
+                " sent for them. This typically indicates the server they attempted to join was unavailable. If this" +
+                " is a mistake, please report it to the developer by creating a new issue" +
+                " https://github.com/RagingTech/NetworkJoinMessages/issues/new");
+            return true;
+        }
+
         switch (type) {
             case SWAP -> {
-                if (storage.getShouldSuppressLimboSwap() && fromLimbo) {
+                if (storage.isShouldSuppressLimboSwap() && fromLimbo) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo swap");
                     return true;
@@ -99,7 +128,7 @@ public class CorePlayerListener {
                     return true;
                 }
 
-                if (storage.getShouldSuppressLimboJoin() && player.isInLimbo()) {
+                if (storage.isShouldSuppressLimboJoin() && player.isInLimbo()) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo join");
                     return true;
@@ -113,7 +142,7 @@ public class CorePlayerListener {
                     return true;
                 }
 
-                if (storage.getShouldSuppressLimboLeave() && player.isInLimbo()) {
+                if (storage.isShouldSuppressLimboLeave() && player.isInLimbo()) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo leave");
                     return true;

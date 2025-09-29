@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.bungee;
 
+import lombok.Getter;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 public class BungeeMain extends Plugin implements CorePlugin {
 
+    @Getter
     private static BungeeMain instance;
     private final PlayerManager manager = new PlayerManager();
 
@@ -38,6 +40,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
     private CoreCommandSender console;
 
     private BungeeLogger bungeeLogger;
+    @Getter
     private BungeeAudiences audiences;
 
     private PremiumVanish premiumVanish;
@@ -73,7 +76,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
             .registerCommand(this, new ReloadCommand(core.getCoreReloadCommand()));
         getProxy()
             .getPluginManager()
-            .registerCommand(this, new ToggleCommand(core.getCoreToggleCommand()));
+            .registerCommand(this, new ToggleCommand(core.getCoreToggleJoinCommand()));
 
         if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
             this.premiumVanish = new BungeePremiumVanish();
@@ -98,10 +101,6 @@ public class BungeeMain extends Plugin implements CorePlugin {
         getProxy().getScheduler().cancel(this);
     }
 
-    public static BungeeMain getInstance() {
-        return instance;
-    }
-
     @Override
     public PlayerManager getPlayerManager(){
         return manager;
@@ -116,10 +115,6 @@ public class BungeeMain extends Plugin implements CorePlugin {
     @Override
     public CoreCommandSender getConsole() {
         return console;
-    }
-
-    public BungeeAudiences getAudiences() {
-        return audiences;
     }
 
     @Override

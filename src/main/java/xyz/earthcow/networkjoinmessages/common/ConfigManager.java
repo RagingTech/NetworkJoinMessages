@@ -6,6 +6,7 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import lombok.Getter;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 
@@ -17,7 +18,9 @@ public class ConfigManager {
 
     private final CoreLogger logger;
 
+    @Getter
     private YamlDocument pluginConfig;
+    @Getter
     private YamlDocument discordConfig;
 
     private YamlDocument createConfig(CorePlugin plugin, String filename) throws IOException {
@@ -48,14 +51,6 @@ public class ConfigManager {
         }
 
         logger.info("Successfully loaded all plugin config files!");
-    }
-
-    public YamlDocument getPluginConfig() {
-        return pluginConfig;
-    }
-
-    public YamlDocument getDiscordConfig() {
-        return discordConfig;
     }
 
     public void reload() {

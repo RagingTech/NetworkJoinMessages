@@ -2,7 +2,6 @@ package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
@@ -22,11 +21,6 @@ public class BungeeCommandSender implements CoreCommandSender {
         } else {
             return "Unknown";
         }
-    }
-
-    @Override
-    public void sendMessage(String message) {
-        source.sendMessage(new TextComponent(message));
     }
 
     @Override

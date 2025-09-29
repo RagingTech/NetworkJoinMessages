@@ -2,8 +2,6 @@ package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.NotNull;
@@ -31,11 +29,6 @@ public class BungeePlayer implements CorePlayer {
     }
 
     @Override
-    public void sendMessage(String message) {
-        bungeePlayer.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
-    }
-
-    @Override
     public void sendMessage(Component component) {
         audience.sendMessage(component);
     }
@@ -57,7 +50,7 @@ public class BungeePlayer implements CorePlayer {
     }
 
     @Override
-    public @NotNull CoreBackendServer getCurrentServer() {
+    public @Nullable CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {
             return lastKnownConnectedServer;

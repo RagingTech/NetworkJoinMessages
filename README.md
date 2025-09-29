@@ -15,7 +15,7 @@ A modern continuation of [BungeeJoinMessages](https://github.com/Tirco/BungeeJoi
   - [PAPIProxyBridge](https://www.spigotmc.org/resources/papiproxybridge.108415/)
   - [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders)
 - Support for legacy and MiniMessage formatting
-- Support for [PremiumVanish](https://www.spigotmc.org/resources/premiumvanish-stay-hidden-bungee-velocity-support.14404/) and [LimboAPI](https://github.com/Elytrium/LimboAPI)
+- Support for [SayanVanish](https://modrinth.com/plugin/sayanvanish), [PremiumVanish](https://www.spigotmc.org/resources/premiumvanish-stay-hidden-bungee-velocity-support.14404/) and [LimboAPI](https://github.com/Elytrium/LimboAPI)
 
 ## Installation
 1. Download the latest release from [SpigotMC](https://www.spigotmc.org/resources/118643/)

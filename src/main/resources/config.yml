@@ -90,9 +90,9 @@ Messages:
       ToggleSilentNoPerm: "<red>You do not have the permission to join the server silently."
       ToggleSilent: "<gray>Your silent mode has now been set to <gold>%state%"
       JoinNotification: |-
-        <gray>[NetworkJoin] You joined the server while silenced.
-        <gray>To have messages automatically enabled for you until
-        <gray>next reboot, use the command <white>/njoinspoof toggle<gray>.
+        <gray>[NetworkJoin] You joined the server while silenced or vanished.
+        <gray>If vanished, unvanish, or if silenced use <white>/njoinspoof toggle
+        <gray>to re-enable join, leave, and swap messages.
     ToggleJoin:
       MissingFirstArgument: |-
         <red>Please specify which messages you would like to disable/enable.
@@ -184,6 +184,12 @@ Settings:
     - SomeOtherServerName
 
 OtherPlugins:
+  SayanVanish:
+    # Vanished players will not trigger messages aside from
+    # silent messages sent to players with networkjoinmessages.silent permission
+    TreatVanishedPlayersAsSilent: true
+    # Vanished players will not be counted in the player count placeholders
+    RemoveVanishedPlayersFromPlayerCount: true
   PremiumVanish:
     # Vanished players will not trigger messages aside from
     # silent messages sent to players with networkjoinmessages.silent permission
@@ -200,4 +206,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 7
+config-version: 8
