@@ -29,6 +29,8 @@ public class Core {
     public Core(CorePlugin plugin) {
         this.plugin = plugin;
 
+        ConfigManager configManager = new ConfigManager(plugin);
+
         SayanVanishHook sayanVanishHook;
         if (plugin.isPluginLoaded("SayanVanish")) {
             sayanVanishHook = new SayanVanishHook();
@@ -36,8 +38,6 @@ public class Core {
         } else {
             sayanVanishHook = null;
         }
-
-        ConfigManager configManager = new ConfigManager(plugin);
 
         Storage storage = new Storage(plugin, configManager);
         Formatter formatter = new Formatter(plugin, storage);
