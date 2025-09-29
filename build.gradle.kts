@@ -42,6 +42,7 @@ dependencies {
     // Proxy APIs
     compileOnly("net.md-5:bungeecord-api:1.21-R0.2")
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     compileOnly("com.velocitypowered:velocity-proxy:3.4.0-SNAPSHOT") {
         exclude(group = "com.velocitypowered", module = "velocity-proxy-log4j2-plugin")
     }
