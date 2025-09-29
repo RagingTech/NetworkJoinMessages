@@ -15,6 +15,7 @@ import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 import xyz.earthcow.networkjoinmessages.common.Core;
+import xyz.earthcow.networkjoinmessages.common.BuildConstants;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 @Plugin(
     id = "networkjoinmessages",
     name = "NetworkJoinMessages",
-    version = "3.0.1-SNAPSHOT",
+    version = BuildConstants.VERSION,
     url = "https://github.com/RagingTech/NetworkJoinMessages",
     description = "A plugin handling join, leave and swap messages for proxy servers.",
     authors = { "EarthCow" },

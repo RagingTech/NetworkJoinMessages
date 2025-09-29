@@ -3,6 +3,9 @@ plugins {
     `maven-publish`
     // Shade plugin
     id("com.gradleup.shadow") version "8.3.8"
+    // Blossom plugin for Pebble templating
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.3"
+    id("net.kyori.blossom") version "2.1.0"
 }
 
 group = property("group") as String
@@ -94,6 +97,16 @@ dependencies {
     testImplementation("net.luckperms:api:5.4")
     testImplementation("net.kyori:adventure-text-serializer-plain:4.24.0")
     testImplementation("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
+}
+
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("version", project.version.toString())
+            }
+        }
+    }
 }
 
 configurations.all {
