@@ -28,6 +28,10 @@ public final class MessageHandler {
         this.sayanVanishHook = sayanVanishHook;
     }
 
+    public void updateCachedLeaveMessage(CorePlayer player) {
+        formatter.parsePlaceholdersAndThen(formatLeaveMessage(player), player, player::setCachedLeaveMessage);
+    }
+
     /**
      * Sends a message to the specified command sender.
      * If the command sender is a CorePlayer object

@@ -161,6 +161,8 @@ public class CorePlayerListener {
         storage.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
+        messageHandler.updateCachedLeaveMessage(player);
+
         boolean firstJoin = !firstJoinTracker.hasJoined(player.getUniqueId());
         MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
 
@@ -203,6 +205,8 @@ public class CorePlayerListener {
      */
     private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
         player.setLastKnownConnectedServer(server);
+
+        messageHandler.updateCachedLeaveMessage(player);
 
         String to = server.getName();
         String from = storage.getFrom(player);
@@ -282,13 +286,13 @@ public class CorePlayerListener {
             return;
         }
 
-        String message = messageHandler.formatLeaveMessage(player);
+        String message = player.getCachedLeaveMessage();
 
         // Silent
         boolean isSilent = isSilentEvent(player);
 
-        // Broadcast message
-        messageHandler.broadcastMessage(message, MessageType.LEAVE, player, isSilent);
+        // Broadcast message - NULL parseTarget skips parsing placeholders
+        messageHandler.broadcastMessage(message, MessageType.LEAVE, null, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkLeaveEvent

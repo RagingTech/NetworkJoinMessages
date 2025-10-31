@@ -17,6 +17,7 @@ public class VelocityPlayer implements CorePlayer {
     private final Player velocityPlayer;
     private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
+    private String cachedLeaveMessage;
 
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
@@ -83,5 +84,14 @@ public class VelocityPlayer implements CorePlayer {
         }
         //noinspection ConstantValue
         return ((ConnectedPlayer) velocityPlayer).getConnection().getState().name() == null;
+    }
+
+    @Override
+    public String getCachedLeaveMessage() {
+        return cachedLeaveMessage;
+    }
+    @Override
+    public void setCachedLeaveMessage(String cachedLeaveMessage) {
+        this.cachedLeaveMessage = cachedLeaveMessage;
     }
 }

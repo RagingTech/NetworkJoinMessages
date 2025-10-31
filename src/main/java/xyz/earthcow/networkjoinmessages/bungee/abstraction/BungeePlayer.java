@@ -16,6 +16,7 @@ public class BungeePlayer implements CorePlayer {
     private final ProxiedPlayer bungeePlayer;
     private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
+    private String cachedLeaveMessage;
 
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
         this.bungeePlayer = bungeePlayer;
@@ -76,5 +77,14 @@ public class BungeePlayer implements CorePlayer {
     @Override
     public boolean isInLimbo() {
         return false;
+    }
+
+    @Override
+    public String getCachedLeaveMessage() {
+        return cachedLeaveMessage;
+    }
+    @Override
+    public void setCachedLeaveMessage(String cachedLeaveMessage) {
+        this.cachedLeaveMessage = cachedLeaveMessage;
     }
 }

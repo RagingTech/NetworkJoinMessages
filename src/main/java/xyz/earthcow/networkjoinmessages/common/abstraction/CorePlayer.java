@@ -24,4 +24,7 @@ public interface CorePlayer extends CoreCommandSender {
     Audience getAudience();
 
     boolean isInLimbo();
+
+    String getCachedLeaveMessage();
+    void setCachedLeaveMessage(String cachedLeaveMessage);
 }
