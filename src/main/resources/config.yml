@@ -111,6 +111,13 @@ Messages:
     ConsoleSilentJoin: "<gray>Join message was silenced. %player% joined the network"
     ConsoleSilentLeave: "<gray>Leave message was silenced. %player% left the network"
 Settings:
+  # As PAPIProxyBridge is unable to parse placeholders for offline players, a cache for the leave network message must
+  # be implemented. By default, this cache will only be updated when a player joins, swaps, leaves, or the plugin is
+  # reloaded but for placeholders that frequently change such as experience level, armor rating, etc. you may wish for
+  # this cache to occur more often.
+  # Designate how long in seconds the leave network message will be cached or use 0 for default behavior.
+  LeaveNetworkMessageCacheDuration: 0
+
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
   SilentJoinDefaultState: true
@@ -206,4 +213,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 8
+config-version: 9
