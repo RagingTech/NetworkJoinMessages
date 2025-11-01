@@ -14,6 +14,10 @@ import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class CorePlayerListener {
 
     private final CorePlugin plugin;
@@ -21,6 +25,7 @@ public class CorePlayerListener {
     private final MessageHandler messageHandler;
 
     private H2PlayerJoinTracker firstJoinTracker;
+    private final List<UUID> processingLeave = new ArrayList<>();
 
     @Nullable
     private final SayanVanishHook sayanVanishHook;
@@ -52,7 +57,7 @@ public class CorePlayerListener {
     private boolean isSilentEvent(@NotNull CorePlayer player) {
         // Event is silent if, the player has a silent message state OR
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
-        plugin.getCoreLogger().debug("Checking if the event for player " + player + " should been silent:");
+        plugin.getCoreLogger().debug("Checking if the event for player " + player.getName() + " should been silent:");
         plugin.getCoreLogger().debug(String.format(
                 "silent message state: %s, SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, " +
                 "SayanVanish player is vanished: %s, PremiumVanish hook is NOT null: %s, " +
@@ -275,10 +280,17 @@ public class CorePlayerListener {
      * @param player Trigger player
      */
     public void onDisconnect(@NotNull CorePlayer player) {
+        if (processingLeave.contains(player.getUniqueId())) {
+            plugin.getCoreLogger().debug("Disconnect event ignored for player " + player.getName() +
+                    ", due to another disconnect event already processing them");
+            return;
+        }
+        processingLeave.add(player.getUniqueId());
 
         if (shouldNotBroadcast(player, MessageType.LEAVE)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             storage.setConnected(player, false);
+            processingLeave.remove(player.getUniqueId());
             return;
         }
 
@@ -304,6 +316,7 @@ public class CorePlayerListener {
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
         storage.setConnected(player, false);
+        processingLeave.remove(player.getUniqueId());
     }
 
     public H2PlayerJoinTracker getPlayerJoinTracker() {
