@@ -85,6 +85,9 @@ public final class Storage {
     @Getter
     private String consoleSilentLeave;
 
+    @Getter
+    private int leaveCacheDuration;
+
     /**
      * The default silent state of a player joining with the networkjoinmessages.silent permission
      * Default: true - Someone joining with the permission will be silent (not send a join message)
@@ -205,6 +208,8 @@ public final class Storage {
 
 
         /// Settings
+
+        this.leaveCacheDuration = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
 
         this.silentJoinDefaultState = config.getBoolean("Settings.SilentJoinDefaultState");
 
@@ -593,6 +598,8 @@ public final class Storage {
 
     public Collection<CustomChart> getCustomCharts() {
         List<CustomChart> customCharts = new ArrayList<>();
+
+        customCharts.add(new SimplePie("leave_cache_duration", () -> String.valueOf(swapServerMessageEnabled)));
 
         customCharts.add(new SimplePie("swap_enabled", () -> String.valueOf(swapServerMessageEnabled)));
         customCharts.add(new SimplePie("first_join_enabled", () -> String.valueOf(firstJoinNetworkMessageEnabled)));
