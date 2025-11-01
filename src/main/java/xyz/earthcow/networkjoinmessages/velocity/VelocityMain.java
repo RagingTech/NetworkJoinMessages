@@ -10,6 +10,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.scheduler.ScheduledTask;
 import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
@@ -28,10 +29,12 @@ import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityDiscordListen
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Plugin(
@@ -68,6 +71,8 @@ public class VelocityMain implements CorePlugin {
     private boolean isLimboAPIAvailable = false;
 
     private VelocityDiscordListener velocityDiscordListener = null;
+
+    private final List<ScheduledTask> tasks = new ArrayList<>();
 
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -169,8 +174,22 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
-    public void runTaskLater(Runnable task, int timeInSecondsLater) {
-        proxy.getScheduler().buildTask(this, task).delay(timeInSecondsLater, TimeUnit.SECONDS).schedule();
+    public void cancelTask(int taskId) {
+        try {
+            tasks.get(taskId).cancel();
+        } catch (IndexOutOfBoundsException ignored) {
+        }
+    }
+
+    @Override
+    public int runTaskRepeatedly(Runnable task, int timeInSecondsLater) {
+        tasks.add(
+            proxy.getScheduler().buildTask(this, scheduledTask -> {
+                task.run();
+                tasks.remove(scheduledTask);
+            }).delay(timeInSecondsLater, TimeUnit.SECONDS).repeat(timeInSecondsLater, TimeUnit.SECONDS).schedule()
+        );
+        return tasks.size() - 1;
     }
 
     @Override

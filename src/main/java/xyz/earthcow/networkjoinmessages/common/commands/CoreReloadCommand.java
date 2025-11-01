@@ -31,6 +31,7 @@ public class CoreReloadCommand implements Command {
             configManager.reload();
             storage.setUpDefaultValuesFromConfig();
             discordIntegration.loadVariables();
+            messageHandler.initCacheTasks();
 
             // Update all player's cached leave message
             plugin.runTaskAsync(() -> {

@@ -162,6 +162,7 @@ public class CorePlayerListener {
         player.setLastKnownConnectedServer(server);
 
         messageHandler.updateCachedLeaveMessage(player);
+        messageHandler.startLeaveCacheTaskForPlayer(player);
 
         boolean firstJoin = !firstJoinTracker.hasJoined(player.getUniqueId());
         MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
@@ -283,6 +284,7 @@ public class CorePlayerListener {
         if (shouldNotBroadcast(player, MessageType.LEAVE)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             storage.setConnected(player, false);
+            messageHandler.stopLeaveCacheTaskForPlayer(player);
             return;
         }
 
@@ -308,6 +310,7 @@ public class CorePlayerListener {
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
         storage.setConnected(player, false);
+        messageHandler.stopLeaveCacheTaskForPlayer(player);
     }
 
     public H2PlayerJoinTracker getPlayerJoinTracker() {

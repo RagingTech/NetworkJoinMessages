@@ -14,7 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 import java.util.*;
 
 /**
- * Singleton class for holding config values and user data that should persist after the user leaves the proxy
+ * Class for holding config values and user data that should persist after the user leaves the proxy
  */
 public final class Storage {
 
@@ -270,6 +270,16 @@ public final class Storage {
                             "Defaulting to ANY."
                     );
                 this.swapServerMessageRequires = "ANY";
+        }
+
+        // Verify leave cache duration
+        if (leaveCacheDuration < 0) {
+            plugin.getCoreLogger()
+                    .info(
+                            "Setting error: Settings.LeaveNetworkMessageCacheDuration " +
+                                    "requires a non-negative value. Defaulting to 0 behavior."
+                    );
+            this.leaveCacheDuration = 0;
         }
     }
 
