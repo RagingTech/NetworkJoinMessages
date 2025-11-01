@@ -291,8 +291,8 @@ public class CorePlayerListener {
         // Silent
         boolean isSilent = isSilentEvent(player);
 
-        // Broadcast message - NULL parseTarget skips parsing placeholders
-        messageHandler.broadcastMessage(message, MessageType.LEAVE, null, isSilent);
+        // Broadcast message - NULL parseTarget skips parsing placeholders in sendMessage
+        messageHandler.broadcastMessage(message, MessageType.LEAVE, player.getCurrentServer().getName(), "", null, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkLeaveEvent
