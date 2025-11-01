@@ -33,13 +33,12 @@ public class CoreReloadCommand implements Command {
             discordIntegration.loadVariables();
 
             // Update all player's cached leave message
-            plugin.runTaskAsync(() ->
-                    plugin.getAllPlayers().forEach(messageHandler::updateCachedLeaveMessage)
-            );
-
-            messageHandler.sendMessage(coreCommandSender,
-                storage.getReloadConfirmation()
-            );
+            plugin.runTaskAsync(() -> {
+                plugin.getAllPlayers().forEach(messageHandler::updateCachedLeaveMessage);
+                messageHandler.sendMessage(coreCommandSender,
+                        storage.getReloadConfirmation()
+                );
+            });
         }
     }
 
