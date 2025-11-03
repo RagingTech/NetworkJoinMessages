@@ -27,4 +27,7 @@ public interface CorePlayer extends CoreCommandSender {
 
     String getCachedLeaveMessage();
     void setCachedLeaveMessage(String cachedLeaveMessage);
+
+    boolean isDisconnecting();
+    void setDisconnecting();
 }
