@@ -609,7 +609,7 @@ public final class Storage {
     public Collection<CustomChart> getCustomCharts() {
         List<CustomChart> customCharts = new ArrayList<>();
 
-        customCharts.add(new SimplePie("leave_cache_duration", () -> String.valueOf(swapServerMessageEnabled)));
+        customCharts.add(new SimplePie("leave_cache_duration", () -> String.valueOf(leaveCacheDuration)));
 
         customCharts.add(new SimplePie("swap_enabled", () -> String.valueOf(swapServerMessageEnabled)));
         customCharts.add(new SimplePie("first_join_enabled", () -> String.valueOf(firstJoinNetworkMessageEnabled)));
