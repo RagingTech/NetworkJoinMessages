@@ -52,7 +52,7 @@ public class CorePlayerListener {
     private boolean isSilentEvent(@NotNull CorePlayer player) {
         // Event is silent if, the player has a silent message state OR
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
-        plugin.getCoreLogger().debug("Checking if the event for player " + player + " should been silent:");
+        plugin.getCoreLogger().debug("Checking if the event for player " + player.getName() + " should been silent:");
         plugin.getCoreLogger().debug(String.format(
                 "silent message state: %s, SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, " +
                 "SayanVanish player is vanished: %s, PremiumVanish hook is NOT null: %s, " +
@@ -161,6 +161,9 @@ public class CorePlayerListener {
         storage.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
+        messageHandler.updateCachedLeaveMessage(player);
+        messageHandler.startLeaveCacheTaskForPlayer(player);
+
         boolean firstJoin = !firstJoinTracker.hasJoined(player.getUniqueId());
         MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
 
@@ -203,6 +206,8 @@ public class CorePlayerListener {
      */
     private void handlePlayerSwap(@NotNull CorePlayer player, @NotNull CoreBackendServer server, boolean fromLimbo) {
         player.setLastKnownConnectedServer(server);
+
+        messageHandler.updateCachedLeaveMessage(player);
 
         String to = server.getName();
         String from = storage.getFrom(player);
@@ -275,20 +280,27 @@ public class CorePlayerListener {
      * @param player Trigger player
      */
     public void onDisconnect(@NotNull CorePlayer player) {
+        if (player.isDisconnecting()) {
+            plugin.getCoreLogger().debug("Disconnect event ignored for player " + player.getName() +
+                    ", due to another disconnect event already processing them");
+            return;
+        }
+        player.setDisconnecting();
 
         if (shouldNotBroadcast(player, MessageType.LEAVE)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
             storage.setConnected(player, false);
+            messageHandler.stopLeaveCacheTaskForPlayer(player);
             return;
         }
 
-        String message = messageHandler.formatLeaveMessage(player);
+        String message = player.getCachedLeaveMessage();
 
         // Silent
         boolean isSilent = isSilentEvent(player);
 
-        // Broadcast message
-        messageHandler.broadcastMessage(message, MessageType.LEAVE, player, isSilent);
+        // Broadcast message - NULL parseTarget skips parsing placeholders in sendMessage
+        messageHandler.broadcastMessage(message, MessageType.LEAVE, player.getCurrentServer().getName(), "", null, isSilent);
 
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkLeaveEvent
@@ -304,6 +316,7 @@ public class CorePlayerListener {
 
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
         storage.setConnected(player, false);
+        messageHandler.stopLeaveCacheTaskForPlayer(player);
     }
 
     public H2PlayerJoinTracker getPlayerJoinTracker() {

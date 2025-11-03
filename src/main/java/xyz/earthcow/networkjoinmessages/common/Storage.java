@@ -14,7 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 import java.util.*;
 
 /**
- * Singleton class for holding config values and user data that should persist after the user leaves the proxy
+ * Class for holding config values and user data that should persist after the user leaves the proxy
  */
 public final class Storage {
 
@@ -84,6 +84,9 @@ public final class Storage {
     private String consoleSilentJoin;
     @Getter
     private String consoleSilentLeave;
+
+    @Getter
+    private int leaveCacheDuration;
 
     /**
      * The default silent state of a player joining with the networkjoinmessages.silent permission
@@ -206,6 +209,8 @@ public final class Storage {
 
         /// Settings
 
+        this.leaveCacheDuration = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
+
         this.silentJoinDefaultState = config.getBoolean("Settings.SilentJoinDefaultState");
 
         this.swapServerMessageEnabled = config.getBoolean("Settings.SwapServerMessageEnabled");
@@ -265,6 +270,16 @@ public final class Storage {
                             "Defaulting to ANY."
                     );
                 this.swapServerMessageRequires = "ANY";
+        }
+
+        // Verify leave cache duration
+        if (leaveCacheDuration < 0) {
+            plugin.getCoreLogger()
+                    .info(
+                            "Setting error: Settings.LeaveNetworkMessageCacheDuration " +
+                                    "requires a non-negative value. Defaulting to 0 behavior."
+                    );
+            this.leaveCacheDuration = 0;
         }
     }
 
@@ -593,6 +608,8 @@ public final class Storage {
 
     public Collection<CustomChart> getCustomCharts() {
         List<CustomChart> customCharts = new ArrayList<>();
+
+        customCharts.add(new SimplePie("leave_cache_duration", () -> String.valueOf(swapServerMessageEnabled)));
 
         customCharts.add(new SimplePie("swap_enabled", () -> String.valueOf(swapServerMessageEnabled)));
         customCharts.add(new SimplePie("first_join_enabled", () -> String.valueOf(firstJoinNetworkMessageEnabled)));

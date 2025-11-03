@@ -180,8 +180,13 @@ public class BungeeMain extends Plugin implements CorePlugin {
     }
 
     @Override
-    public void runTaskLater(Runnable task, int timeInSecondsLater) {
-        getProxy().getScheduler().schedule(this, task, timeInSecondsLater, TimeUnit.SECONDS);
+    public void cancelTask(int taskId) {
+        getProxy().getScheduler().cancel(taskId);
+    }
+
+    @Override
+    public int runTaskRepeatedly(Runnable task, int timeInSecondsLater) {
+        return getProxy().getScheduler().schedule(this, task, timeInSecondsLater, timeInSecondsLater, TimeUnit.SECONDS).getId();
     }
 
     @Override

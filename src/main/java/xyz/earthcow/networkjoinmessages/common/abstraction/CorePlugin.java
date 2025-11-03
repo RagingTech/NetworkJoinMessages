@@ -26,7 +26,8 @@ public interface CorePlugin {
 
     PremiumVanish getVanishAPI();
 
-    void runTaskLater(Runnable task, int timeInSecondsLater);
+    void cancelTask(int taskId);
+    int runTaskRepeatedly(Runnable task, int timeInSecondsLater);
     void runTaskAsync(Runnable task);
 
     boolean isPluginLoaded(String pluginName);

@@ -18,6 +18,8 @@ public final class MessageHandler {
     private final Storage storage;
     private final Formatter formatter;
 
+    private final Map<UUID, Integer> taskIds = new HashMap<>();
+
     @Nullable
     private final SayanVanishHook sayanVanishHook;
 
@@ -26,6 +28,36 @@ public final class MessageHandler {
         this.storage = storage;
         this.formatter = formatter;
         this.sayanVanishHook = sayanVanishHook;
+        initCacheTasks();
+    }
+
+    public void initCacheTasks() {
+        taskIds.values().forEach(plugin::cancelTask);
+        taskIds.clear();
+        if (storage.getLeaveCacheDuration() == 0) return;
+        for (CorePlayer player : plugin.getAllPlayers()) {
+            startLeaveCacheTaskForPlayer(player);
+        }
+    }
+
+    public void startLeaveCacheTaskForPlayer(CorePlayer player) {
+        if (storage.getLeaveCacheDuration() == 0) return;
+        taskIds.put(
+                player.getUniqueId(),
+                plugin.runTaskRepeatedly(() -> updateCachedLeaveMessage(player), storage.getLeaveCacheDuration())
+        );
+    }
+
+    public void stopLeaveCacheTaskForPlayer(CorePlayer player) {
+        if (taskIds.isEmpty()) return;
+        Integer taskId = taskIds.remove(player.getUniqueId());
+        if (taskId == null) return;
+        plugin.cancelTask(taskId);
+    }
+
+    public void updateCachedLeaveMessage(CorePlayer player) {
+        plugin.getCoreLogger().debug("Updating cached leave message for player " + player.getName());
+        formatter.parsePlaceholdersAndThen(formatLeaveMessage(player), player, player::setCachedLeaveMessage);
     }
 
     /**
