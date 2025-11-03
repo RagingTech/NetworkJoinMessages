@@ -184,10 +184,8 @@ public class VelocityMain implements CorePlugin {
     @Override
     public int runTaskRepeatedly(Runnable task, int timeInSecondsLater) {
         tasks.add(
-            proxy.getScheduler().buildTask(this, scheduledTask -> {
-                task.run();
-                tasks.remove(scheduledTask);
-            }).delay(timeInSecondsLater, TimeUnit.SECONDS).repeat(timeInSecondsLater, TimeUnit.SECONDS).schedule()
+            proxy.getScheduler().buildTask(this, task)
+                    .delay(timeInSecondsLater, TimeUnit.SECONDS).repeat(timeInSecondsLater, TimeUnit.SECONDS).schedule()
         );
         return tasks.size() - 1;
     }
