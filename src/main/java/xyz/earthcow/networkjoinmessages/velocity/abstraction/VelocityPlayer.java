@@ -17,6 +17,7 @@ public class VelocityPlayer implements CorePlayer {
     private final Player velocityPlayer;
     private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
+    private boolean disconnecting = false;
 
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
@@ -83,5 +84,15 @@ public class VelocityPlayer implements CorePlayer {
         }
         //noinspection ConstantValue
         return ((ConnectedPlayer) velocityPlayer).getConnection().getState().name() == null;
+    }
+
+    @Override
+    public boolean isDisconnecting() {
+        return disconnecting;
+    }
+
+    @Override
+    public void setDisconnecting() {
+        this.disconnecting = true;
     }
 }

@@ -275,6 +275,8 @@ public class CorePlayerListener {
      * @param player Trigger player
      */
     public void onDisconnect(@NotNull CorePlayer player) {
+        if (player.isDisconnecting()) return;
+        player.setDisconnecting();
 
         if (shouldNotBroadcast(player, MessageType.LEAVE)) {
             plugin.getPlayerManager().removePlayer(player.getUniqueId());
