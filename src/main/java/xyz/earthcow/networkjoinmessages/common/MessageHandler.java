@@ -56,6 +56,7 @@ public final class MessageHandler {
     }
 
     public void updateCachedLeaveMessage(CorePlayer player) {
+        plugin.getCoreLogger().debug("Updating cached leave message for player " + player.getName());
         formatter.parsePlaceholdersAndThen(formatLeaveMessage(player), player, player::setCachedLeaveMessage);
     }
 
