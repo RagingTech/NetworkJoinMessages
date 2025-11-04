@@ -6,6 +6,7 @@ import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 
 import java.util.List;
 
@@ -14,15 +15,17 @@ public class CoreReloadCommand implements Command {
     private final CorePlugin plugin;
     private final ConfigManager configManager;
     private final Storage storage;
-    private final DiscordIntegration discordIntegration;
+    private final Formatter formatter;
     private final MessageHandler messageHandler;
+    private final DiscordIntegration discordIntegration;
 
-    public CoreReloadCommand(CorePlugin plugin, ConfigManager configManager, Storage storage, DiscordIntegration discordIntegration, MessageHandler messageHandler) {
+    public CoreReloadCommand(CorePlugin plugin, ConfigManager configManager, Storage storage, Formatter formatter, MessageHandler messageHandler, DiscordIntegration discordIntegration) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.storage = storage;
-        this.discordIntegration = discordIntegration;
+        this.formatter = formatter;
         this.messageHandler = messageHandler;
+        this.discordIntegration = discordIntegration;
     }
 
     @Override
@@ -30,6 +33,7 @@ public class CoreReloadCommand implements Command {
         if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
             configManager.reload();
             storage.setUpDefaultValuesFromConfig();
+            formatter.setPPBRequestTimeout(storage.getPPBRequestTimeout());
             discordIntegration.loadVariables();
             messageHandler.initCacheTasks();
 

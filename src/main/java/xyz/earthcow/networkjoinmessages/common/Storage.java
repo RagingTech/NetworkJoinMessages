@@ -130,6 +130,9 @@ public final class Storage {
     private String swapServerMessageRequires = "ANY";
 
     /// Other plugins
+    // PAPIProxyBridge
+    @Getter
+    private long PPBRequestTimeout;
     // SayanVanish
     @Getter
     private boolean SVTreatVanishedPlayersAsSilent;
@@ -241,6 +244,8 @@ public final class Storage {
         this.serverFirstJoinMessageDisabled = config.getStringList("Settings.IgnoreFirstJoinMessagesList");
         this.serverJoinMessageDisabled = config.getStringList("Settings.IgnoreJoinMessagesList");
         this.serverLeaveMessageDisabled = config.getStringList("Settings.IgnoreLeaveMessagesList");
+
+        this.PPBRequestTimeout = config.getLong("OtherPlugins.PAPIProxyBridge.RequestTimeout");
 
         this.SVTreatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.SayanVanish.TreatVanishedPlayersAsSilent");
         this.SVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.SayanVanish.RemoveVanishedPlayersFromPlayerCount");

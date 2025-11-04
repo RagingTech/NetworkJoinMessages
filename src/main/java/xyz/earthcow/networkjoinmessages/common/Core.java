@@ -40,7 +40,7 @@ public class Core {
         }
 
         Storage storage = new Storage(plugin, configManager);
-        Formatter formatter = new Formatter(plugin, storage);
+        Formatter formatter = new Formatter(plugin, storage, storage.getPPBRequestTimeout());
         MessageHandler messageHandler = new MessageHandler(plugin, storage, formatter, sayanVanishHook);
         DiscordIntegration discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler, configManager.getDiscordConfig());
 
@@ -50,7 +50,7 @@ public class Core {
 
         this.coreImportCommand = new CoreImportCommand(corePlayerListener.getPlayerJoinTracker());
         this.coreSpoofCommand = new CoreSpoofCommand(plugin, storage, messageHandler);
-        this.coreReloadCommand = new CoreReloadCommand(plugin, configManager, storage, discordIntegration, messageHandler);
+        this.coreReloadCommand = new CoreReloadCommand(plugin, configManager, storage, formatter, messageHandler, discordIntegration);
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
 
     }

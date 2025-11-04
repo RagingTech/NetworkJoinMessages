@@ -31,6 +31,10 @@ public final class Formatter {
     public static final Pattern essentialsPattern = Pattern.compile("§x(§[0-9a-fA-F]){6}");
 
     public Formatter(@NotNull CorePlugin plugin, @NotNull Storage storage) {
+        this(plugin, storage, 1500);
+    }
+
+    public Formatter(@NotNull CorePlugin plugin, @NotNull Storage storage, long PPBRequestTimeout) {
         this.storage = storage;
         // Get compatibility with other plugins, initialize hooks
 
@@ -47,6 +51,7 @@ public final class Formatter {
         if (plugin.isPluginLoaded("PAPIProxyBridge")) {
             try {
                 this.placeholderAPI = PlaceholderAPI.createInstance();
+                placeholderAPI.setRequestTimeout(PPBRequestTimeout);
                 plugin.getCoreLogger().info("Successfully hooked into PAPIProxyBridge!");
             } catch (NoClassDefFoundError ignored) {}
         }
@@ -217,6 +222,12 @@ public final class Formatter {
             placeholderAPI.formatPlaceholders(message, parseTarget.getUniqueId()).thenAccept(then);
         } else {
             then.accept(message);
+        }
+    }
+
+    public void setPPBRequestTimeout(long ppbRequestTimeout) {
+        if (placeholderAPI != null) {
+            placeholderAPI.setRequestTimeout(ppbRequestTimeout);
         }
     }
 }

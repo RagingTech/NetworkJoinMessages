@@ -191,6 +191,9 @@ Settings:
     - SomeOtherServerName
 
 OtherPlugins:
+  PAPIProxyBridge:
+    # The maximum amount of time in milliseconds to wait for PlaceholderAPI placeholders before timing out
+    RequestTimeout: 1500
   SayanVanish:
     # Vanished players will not trigger messages aside from
     # silent messages sent to players with networkjoinmessages.silent permission
@@ -213,4 +216,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 9
+config-version: 10
