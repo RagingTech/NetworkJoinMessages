@@ -99,7 +99,7 @@ public class VelocityMain implements CorePlugin {
 
         registerCommands();
 
-        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
+        if (isPluginLoaded("premiumvanish")) {
             this.premiumVanish = new VelocityPremiumVanish();
             velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
