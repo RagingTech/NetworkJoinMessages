@@ -3,6 +3,7 @@ package xyz.earthcow.networkjoinmessages.common;
 import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
@@ -26,7 +27,7 @@ public class Core {
     private final CoreReloadCommand coreReloadCommand;
     private final CoreToggleJoinCommand coreToggleJoinCommand;
 
-    public Core(CorePlugin plugin) {
+    public Core(CorePlugin plugin, PremiumVanish premiumVanish) {
         this.plugin = plugin;
 
         ConfigManager configManager = new ConfigManager(plugin);
@@ -46,7 +47,7 @@ public class Core {
 
         this.customCharts = storage.getCustomCharts();
 
-        this.corePlayerListener = new CorePlayerListener(plugin, storage, messageHandler, sayanVanishHook);
+        this.corePlayerListener = new CorePlayerListener(plugin, storage, messageHandler, sayanVanishHook, premiumVanish);
 
         this.coreImportCommand = new CoreImportCommand(corePlayerListener.getPlayerJoinTracker());
         this.coreSpoofCommand = new CoreSpoofCommand(plugin, storage, messageHandler);

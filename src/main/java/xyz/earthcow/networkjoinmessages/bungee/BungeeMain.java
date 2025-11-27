@@ -57,7 +57,12 @@ public class BungeeMain extends Plugin implements CorePlugin {
         this.bungeeLogger = new BungeeLogger(getLogger());
         this.console = new BungeeCommandSender(getProxy().getConsole());
 
-        this.core = new Core(this);
+        if (isPluginLoaded("PremiumVanish")) {
+            this.premiumVanish = new BungeePremiumVanish();
+            bungeeLogger.info("Successfully hooked into PremiumVanish!");
+        }
+
+        this.core = new Core(this, premiumVanish);
 
         instance = this;
 
@@ -77,11 +82,6 @@ public class BungeeMain extends Plugin implements CorePlugin {
         getProxy()
             .getPluginManager()
             .registerCommand(this, new ToggleCommand(core.getCoreToggleJoinCommand()));
-
-        if (getProxy().getPluginManager().getPlugin("PremiumVanish") != null) {
-            this.premiumVanish = new BungeePremiumVanish();
-            bungeeLogger.info("Successfully hooked into PremiumVanish!");
-        }
 
         for (CustomChart chart : core.getCustomCharts()) {
             metrics.addCustomChart(chart);

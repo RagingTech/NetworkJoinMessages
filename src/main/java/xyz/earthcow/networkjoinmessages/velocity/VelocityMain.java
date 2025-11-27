@@ -93,16 +93,16 @@ public class VelocityMain implements CorePlugin {
         this.velocityLogger = new VelocityLogger(logger);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
-        this.core = new Core(this);
-
-        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
-
-        registerCommands();
-
         if (isPluginLoaded("premiumvanish")) {
             this.premiumVanish = new VelocityPremiumVanish();
             velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
+
+        this.core = new Core(this, premiumVanish);
+
+        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
+
+        registerCommands();
 
         if (isPluginLoaded("limboapi")) {
             this.isLimboAPIAvailable = true;

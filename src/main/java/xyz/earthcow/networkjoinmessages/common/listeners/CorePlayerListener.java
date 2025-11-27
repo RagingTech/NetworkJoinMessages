@@ -28,12 +28,12 @@ public class CorePlayerListener {
     @Nullable
     private final PremiumVanish premiumVanish;
     
-    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook) {
+    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook, @Nullable PremiumVanish premiumVanish) {
         this.plugin = plugin;
         this.storage = storage;
         this.messageHandler = messageHandler;
         this.sayanVanishHook = sayanVanishHook;
-        this.premiumVanish = plugin.getVanishAPI();
+        this.premiumVanish = premiumVanish;
 
         try {
             this.firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
