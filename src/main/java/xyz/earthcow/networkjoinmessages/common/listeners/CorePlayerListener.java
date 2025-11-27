@@ -56,7 +56,8 @@ public class CorePlayerListener {
         plugin.getCoreLogger().debug(String.format(
                 "silent message state: %s, SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, " +
                 "SayanVanish player is vanished: %s, PremiumVanish hook is NOT null: %s, " +
-                "PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s"
+                "PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s" +
+                "PremiumVanish event hidden: %s"
         ,
             storage.getSilentMessageState(player),
             sayanVanishHook != null,
@@ -64,12 +65,13 @@ public class CorePlayerListener {
             sayanVanishHook != null ? sayanVanishHook.isVanished(player) : "NA",
             premiumVanish != null,
             storage.isPVTreatVanishedPlayersAsSilent(),
-            premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA"
+            premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA",
+            player.getPremiumVanishHidden()
         ));
         return storage.getSilentMessageState(player) ||
                 (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
                 ||
-                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
+                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {

@@ -19,6 +19,7 @@ public class VelocityPlayer implements CorePlayer {
     private final Audience audience;
     private String cachedLeaveMessage;
     private boolean disconnecting = false;
+    private boolean premiumVanishHidden = false;
 
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
@@ -104,5 +105,15 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public void setDisconnecting() {
         this.disconnecting = true;
+    }
+
+    @Override
+    public boolean getPremiumVanishHidden() {
+        return premiumVanishHidden;
+    }
+
+    @Override
+    public void setPremiumVanishHidden(boolean premiumVanishHidden) {
+        this.premiumVanishHidden = premiumVanishHidden;
     }
 }
