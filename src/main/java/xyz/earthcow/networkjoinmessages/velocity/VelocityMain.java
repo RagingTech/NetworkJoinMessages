@@ -15,8 +15,8 @@ import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
-import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.BuildConstants;
+import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Plugin(
