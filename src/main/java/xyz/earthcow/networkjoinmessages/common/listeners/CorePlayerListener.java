@@ -54,9 +54,9 @@ public class CorePlayerListener {
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
         plugin.getCoreLogger().debug("Checking if the event for player " + player.getName() + " should been silent:");
         plugin.getCoreLogger().debug(String.format(
-                "silent message state: %s, SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, " +
-                "SayanVanish player is vanished: %s, PremiumVanish hook is NOT null: %s, " +
-                "PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s" +
+                "silent message state: %s,%n" +
+                "SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, SayanVanish player is vanished: %s,%n" +
+                "PremiumVanish hook is NOT null: %s, PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s,%n" +
                 "PremiumVanish event hidden: %s"
         ,
             storage.getSilentMessageState(player),
