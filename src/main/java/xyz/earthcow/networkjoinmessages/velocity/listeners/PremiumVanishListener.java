@@ -1,8 +1,8 @@
 package xyz.earthcow.networkjoinmessages.velocity.listeners;
 
+import com.velocitypowered.api.event.Subscribe;
 import de.myzelyam.api.vanish.VelocityPlayerHideEvent;
 import de.myzelyam.api.vanish.VelocityPlayerShowEvent;
-import me.neznamy.tab.api.event.Subscribe;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PlayerManager;
