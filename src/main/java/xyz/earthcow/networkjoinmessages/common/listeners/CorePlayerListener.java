@@ -163,6 +163,11 @@ public class CorePlayerListener {
         storage.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
+        // Ensure the correct PremiumVanish hidden state is loaded for proper handling of DisconnectEvent
+        if (premiumVanish != null && premiumVanish.isVanished(player.getUniqueId())) {
+            player.setPremiumVanishHidden(true);
+        }
+
         messageHandler.updateCachedLeaveMessage(player);
         messageHandler.startLeaveCacheTaskForPlayer(player);
 
