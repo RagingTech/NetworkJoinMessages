@@ -199,7 +199,7 @@ public final class Storage {
 
         // Command messages
         this.noMoreArgumentsNeeded = config.getString("Messages.Commands.NoMoreArgumentsNeeded");
-        this.noPermission = config.getString("Messages.Commands.Spoof.NoPermission");
+        this.noPermission = config.getString("Messages.Commands.NoPermission");
 
         this.spoofNoArgument = config.getString("Messages.Commands.Spoof.NoArgument");
         this.spoofSwapNoArgument = config.getString("Messages.Commands.Spoof.SwapNoArgument");
