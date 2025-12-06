@@ -17,6 +17,7 @@ import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeNetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.bungee.events.BungeeSwapServerEvent;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.BungeeDiscordListener;
+import xyz.earthcow.networkjoinmessages.bungee.listeners.BungeePremiumVanishListener;
 import xyz.earthcow.networkjoinmessages.bungee.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
@@ -59,10 +60,16 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
         if (isPluginLoaded("PremiumVanish")) {
             this.premiumVanish = new BungeePremiumVanish();
-            bungeeLogger.info("Successfully hooked into PremiumVanish!");
         }
 
         this.core = new Core(this, premiumVanish);
+
+        if (premiumVanish != null) {
+            getProxy()
+                    .getPluginManager()
+                    .registerListener(this, new BungeePremiumVanishListener(core.getCorePremiumVanishListener(), manager));
+            bungeeLogger.info("Successfully hooked into PremiumVanish!");
+        }
 
         instance = this;
 
