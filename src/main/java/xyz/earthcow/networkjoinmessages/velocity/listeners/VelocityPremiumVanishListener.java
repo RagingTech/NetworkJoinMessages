@@ -3,34 +3,32 @@ package xyz.earthcow.networkjoinmessages.velocity.listeners;
 import com.velocitypowered.api.event.Subscribe;
 import de.myzelyam.api.vanish.VelocityPlayerHideEvent;
 import de.myzelyam.api.vanish.VelocityPlayerShowEvent;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.PlayerManager;
+import xyz.earthcow.networkjoinmessages.common.listeners.CorePremiumVanishListener;
 
-public class PremiumVanishListener {
+public class VelocityPremiumVanishListener {
 
+    private final CorePremiumVanishListener corePremiumVanishListener;
     private final PlayerManager manager;
-    private final CoreLogger logger;
 
-    public PremiumVanishListener(PlayerManager manager, CoreLogger logger) {
+    public VelocityPremiumVanishListener(CorePremiumVanishListener corePremiumVanishListener, PlayerManager manager) {
+        this.corePremiumVanishListener = corePremiumVanishListener;
         this.manager = manager;
-        this.logger = logger;
-    }
-
-    @Subscribe
-    public void premiumVanishHideEvent(VelocityPlayerHideEvent event) {
-        CorePlayer p = manager.getPlayer(event.getPlayer().getUniqueId());
-        if (p == null) return;
-        logger.debug("Setting PremiumVanishHidden to TRUE for player " + p.getName());
-        p.setPremiumVanishHidden(true);
     }
 
     @Subscribe
     public void premiumVanishShowEvent(VelocityPlayerShowEvent event) {
         CorePlayer p = manager.getPlayer(event.getPlayer().getUniqueId());
         if (p == null) return;
-        logger.debug("Setting PremiumVanishHidden to FALSE for player " + p.getName());
-        p.setPremiumVanishHidden(false);
+        corePremiumVanishListener.handlePremiumVanishShow(p);
+    }
+
+    @Subscribe
+    public void premiumVanishHideEvent(VelocityPlayerHideEvent event) {
+        CorePlayer p = manager.getPlayer(event.getPlayer().getUniqueId());
+        if (p == null) return;
+        corePremiumVanishListener.handlePremiumVanishHide(p);
     }
 
 }

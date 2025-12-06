@@ -206,6 +206,10 @@ OtherPlugins:
     TreatVanishedPlayersAsSilent: true
     # Vanished players will not be counted in the player count placeholders
     RemoveVanishedPlayersFromPlayerCount: true
+    # Spoof a join message automatically when a player stops being vanished (shows)
+    SpoofJoinMessageOnShow: true
+    # Spoof a leave message automatically when a player vanishes (hides)
+    SpoofLeaveMessageOnHide: true
   LimboAPI:
     # No swap messages for players swapping to or from limbo servers
     SuppressSwapMessages: true
@@ -216,4 +220,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 10
+config-version: 11

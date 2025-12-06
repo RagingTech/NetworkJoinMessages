@@ -143,6 +143,10 @@ public final class Storage {
     private boolean PVTreatVanishedPlayersAsSilent;
     @Getter
     private boolean PVRemoveVanishedPlayersFromPlayerCount;
+    @Getter
+    private boolean PVSpoofJoinMessageOnShow;
+    @Getter
+    private boolean PVSpoofLeaveMessageOnHide;
     // LimboAPI
     @Getter
     private boolean shouldSuppressLimboSwap;
@@ -252,6 +256,8 @@ public final class Storage {
 
         this.PVTreatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
         this.PVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
+        this.PVSpoofJoinMessageOnShow = config.getBoolean("OtherPlugins.PremiumVanish.SpoofJoinMessageOnShow");
+        this.PVSpoofLeaveMessageOnHide = config.getBoolean("OtherPlugins.PremiumVanish.SpoofLeaveMessageOnHide");
 
         this.shouldSuppressLimboSwap = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         this.shouldSuppressLimboJoin = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
