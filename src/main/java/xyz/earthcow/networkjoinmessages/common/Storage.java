@@ -198,7 +198,7 @@ public final class Storage {
         this.consoleSilentLeave = config.getString("Messages.Misc.ConsoleSilentLeave");
 
         // Command messages
-        this.noMoreArgumentsNeeded = config.getString("Messages.Commands.Spoof.NoMoreArgumentsNeeded");
+        this.noMoreArgumentsNeeded = config.getString("Messages.Commands.NoMoreArgumentsNeeded");
         this.noPermission = config.getString("Messages.Commands.Spoof.NoPermission");
 
         this.spoofNoArgument = config.getString("Messages.Commands.Spoof.NoArgument");
