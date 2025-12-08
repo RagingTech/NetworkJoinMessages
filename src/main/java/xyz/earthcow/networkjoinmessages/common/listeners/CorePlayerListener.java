@@ -28,12 +28,12 @@ public class CorePlayerListener {
     @Nullable
     private final PremiumVanish premiumVanish;
     
-    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook) {
+    public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook, @Nullable PremiumVanish premiumVanish) {
         this.plugin = plugin;
         this.storage = storage;
         this.messageHandler = messageHandler;
         this.sayanVanishHook = sayanVanishHook;
-        this.premiumVanish = plugin.getVanishAPI();
+        this.premiumVanish = premiumVanish;
 
         try {
             this.firstJoinTracker = new H2PlayerJoinTracker(plugin.getCoreLogger(), "./" + plugin.getDataFolder().getPath() + "/joined");
@@ -54,9 +54,10 @@ public class CorePlayerListener {
         // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
         plugin.getCoreLogger().debug("Checking if the event for player " + player.getName() + " should been silent:");
         plugin.getCoreLogger().debug(String.format(
-                "silent message state: %s, SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, " +
-                "SayanVanish player is vanished: %s, PremiumVanish hook is NOT null: %s, " +
-                "PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s"
+                "silent message state: %s,%n" +
+                "SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, SayanVanish player is vanished: %s,%n" +
+                "PremiumVanish hook is NOT null: %s, PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s,%n" +
+                "PremiumVanish event hidden: %s"
         ,
             storage.getSilentMessageState(player),
             sayanVanishHook != null,
@@ -64,12 +65,13 @@ public class CorePlayerListener {
             sayanVanishHook != null ? sayanVanishHook.isVanished(player) : "NA",
             premiumVanish != null,
             storage.isPVTreatVanishedPlayersAsSilent(),
-            premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA"
+            premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA",
+            player.getPremiumVanishHidden()
         ));
         return storage.getSilentMessageState(player) ||
                 (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
                 ||
-                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && premiumVanish.isVanished(player.getUniqueId()));
+                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
@@ -160,6 +162,11 @@ public class CorePlayerListener {
     private void handlePlayerJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
         storage.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
+
+        // Ensure the correct PremiumVanish hidden state is loaded for proper handling of DisconnectEvent
+        if (premiumVanish != null && premiumVanish.isVanished(player.getUniqueId())) {
+            player.setPremiumVanishHidden(true);
+        }
 
         messageHandler.updateCachedLeaveMessage(player);
         messageHandler.startLeaveCacheTaskForPlayer(player);

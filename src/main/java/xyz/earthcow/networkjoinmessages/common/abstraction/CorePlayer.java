@@ -30,4 +30,7 @@ public interface CorePlayer extends CoreCommandSender {
 
     boolean isDisconnecting();
     void setDisconnecting();
+
+    boolean getPremiumVanishHidden();
+    void setPremiumVanishHidden(boolean premiumVanishHidden);
 }

@@ -15,8 +15,8 @@ import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
-import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.BuildConstants;
+import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.abstraction.*;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.*;
@@ -26,6 +26,7 @@ import xyz.earthcow.networkjoinmessages.velocity.commands.SpoofCommand;
 import xyz.earthcow.networkjoinmessages.velocity.commands.ToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.PlayerListener;
 import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityDiscordListener;
+import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityPremiumVanishListener;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -34,7 +35,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Plugin(
@@ -93,16 +93,22 @@ public class VelocityMain implements CorePlugin {
         this.velocityLogger = new VelocityLogger(logger);
         this.console = new VelocityCommandSender(proxy.getConsoleCommandSource());
 
-        this.core = new Core(this);
+        if (isPluginLoaded("premiumvanish")) {
+            this.premiumVanish = new VelocityPremiumVanish();
+        }
+
+        // Core requires premium vanish and VelocityPremiumVanishListener requires CorePremiumVanishListener
+        // make more clear in optimization and improvements update v4
+        this.core = new Core(this, premiumVanish);
+
+        if (premiumVanish != null) {
+            proxy.getEventManager().register(this, new VelocityPremiumVanishListener(core.getCorePremiumVanishListener(), manager));
+            velocityLogger.info("Successfully hooked into PremiumVanish!");
+        }
 
         proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
 
         registerCommands();
-
-        if (proxy.getPluginManager().getPlugin("premiumvanish").isPresent()) {
-            this.premiumVanish = new VelocityPremiumVanish();
-            velocityLogger.info("Successfully hooked into PremiumVanish!");
-        }
 
         if (isPluginLoaded("limboapi")) {
             this.isLimboAPIAvailable = true;

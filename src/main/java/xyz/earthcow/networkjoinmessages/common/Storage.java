@@ -130,6 +130,9 @@ public final class Storage {
     private String swapServerMessageRequires = "ANY";
 
     /// Other plugins
+    // PAPIProxyBridge
+    @Getter
+    private long PPBRequestTimeout;
     // SayanVanish
     @Getter
     private boolean SVTreatVanishedPlayersAsSilent;
@@ -140,6 +143,10 @@ public final class Storage {
     private boolean PVTreatVanishedPlayersAsSilent;
     @Getter
     private boolean PVRemoveVanishedPlayersFromPlayerCount;
+    @Getter
+    private boolean PVSpoofJoinMessageOnShow;
+    @Getter
+    private boolean PVSpoofLeaveMessageOnHide;
     // LimboAPI
     @Getter
     private boolean shouldSuppressLimboSwap;
@@ -191,8 +198,8 @@ public final class Storage {
         this.consoleSilentLeave = config.getString("Messages.Misc.ConsoleSilentLeave");
 
         // Command messages
-        this.noMoreArgumentsNeeded = config.getString("Messages.Commands.Spoof.NoMoreArgumentsNeeded");
-        this.noPermission = config.getString("Messages.Commands.Spoof.NoPermission");
+        this.noMoreArgumentsNeeded = config.getString("Messages.Commands.NoMoreArgumentsNeeded");
+        this.noPermission = config.getString("Messages.Commands.NoPermission");
 
         this.spoofNoArgument = config.getString("Messages.Commands.Spoof.NoArgument");
         this.spoofSwapNoArgument = config.getString("Messages.Commands.Spoof.SwapNoArgument");
@@ -242,11 +249,15 @@ public final class Storage {
         this.serverJoinMessageDisabled = config.getStringList("Settings.IgnoreJoinMessagesList");
         this.serverLeaveMessageDisabled = config.getStringList("Settings.IgnoreLeaveMessagesList");
 
+        this.PPBRequestTimeout = config.getLong("OtherPlugins.PAPIProxyBridge.RequestTimeout");
+
         this.SVTreatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.SayanVanish.TreatVanishedPlayersAsSilent");
         this.SVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.SayanVanish.RemoveVanishedPlayersFromPlayerCount");
 
         this.PVTreatVanishedPlayersAsSilent = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
         this.PVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
+        this.PVSpoofJoinMessageOnShow = config.getBoolean("OtherPlugins.PremiumVanish.SpoofJoinMessageOnShow");
+        this.PVSpoofLeaveMessageOnHide = config.getBoolean("OtherPlugins.PremiumVanish.SpoofLeaveMessageOnHide");
 
         this.shouldSuppressLimboSwap = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         this.shouldSuppressLimboJoin = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");

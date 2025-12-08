@@ -18,6 +18,7 @@ public class BungeePlayer implements CorePlayer {
     private final Audience audience;
     private String cachedLeaveMessage;
     private boolean disconnecting = false;
+    private boolean premiumVanishHidden = false;
 
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
         this.bungeePlayer = bungeePlayer;
@@ -96,5 +97,15 @@ public class BungeePlayer implements CorePlayer {
     @Override
     public void setDisconnecting() {
         this.disconnecting = true;
+    }
+
+    @Override
+    public boolean getPremiumVanishHidden() {
+        return premiumVanishHidden;
+    }
+
+    @Override
+    public void setPremiumVanishHidden(boolean premiumVanishHidden) {
+        this.premiumVanishHidden = premiumVanishHidden;
     }
 }

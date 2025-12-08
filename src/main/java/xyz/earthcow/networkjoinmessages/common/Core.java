@@ -3,14 +3,17 @@ package xyz.earthcow.networkjoinmessages.common;
 import lombok.Getter;
 import org.bstats.charts.CustomChart;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.abstraction.PremiumVanish;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreImportCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreReloadCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreSpoofCommand;
 import xyz.earthcow.networkjoinmessages.common.commands.CoreToggleJoinCommand;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
+import xyz.earthcow.networkjoinmessages.common.listeners.CorePremiumVanishListener;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
+import xyz.earthcow.networkjoinmessages.common.util.SpoofManager;
 
 import java.util.Collection;
 
@@ -26,7 +29,9 @@ public class Core {
     private final CoreReloadCommand coreReloadCommand;
     private final CoreToggleJoinCommand coreToggleJoinCommand;
 
-    public Core(CorePlugin plugin) {
+    private final CorePremiumVanishListener corePremiumVanishListener;
+
+    public Core(CorePlugin plugin, PremiumVanish premiumVanish) {
         this.plugin = plugin;
 
         ConfigManager configManager = new ConfigManager(plugin);
@@ -40,18 +45,22 @@ public class Core {
         }
 
         Storage storage = new Storage(plugin, configManager);
-        Formatter formatter = new Formatter(plugin, storage);
+        Formatter formatter = new Formatter(plugin, storage, storage.getPPBRequestTimeout());
         MessageHandler messageHandler = new MessageHandler(plugin, storage, formatter, sayanVanishHook);
+        SpoofManager spoofManager = new SpoofManager(plugin, storage, messageHandler);
         DiscordIntegration discordIntegration = new DiscordIntegration(plugin, storage, formatter, messageHandler, configManager.getDiscordConfig());
 
         this.customCharts = storage.getCustomCharts();
 
-        this.corePlayerListener = new CorePlayerListener(plugin, storage, messageHandler, sayanVanishHook);
+        this.corePlayerListener = new CorePlayerListener(plugin, storage, messageHandler, sayanVanishHook, premiumVanish);
 
         this.coreImportCommand = new CoreImportCommand(corePlayerListener.getPlayerJoinTracker());
-        this.coreSpoofCommand = new CoreSpoofCommand(plugin, storage, messageHandler);
-        this.coreReloadCommand = new CoreReloadCommand(plugin, configManager, storage, discordIntegration, messageHandler);
+        this.coreSpoofCommand = new CoreSpoofCommand(storage, messageHandler, spoofManager);
+        this.coreReloadCommand = new CoreReloadCommand(plugin, configManager, storage, formatter, messageHandler, discordIntegration);
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(storage, messageHandler);
+
+        this.corePremiumVanishListener = premiumVanish == null ? null :
+                new CorePremiumVanishListener(plugin.getCoreLogger(), storage, spoofManager);
 
     }
 }
