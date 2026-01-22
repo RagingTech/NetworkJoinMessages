@@ -166,8 +166,11 @@ public class CorePlayerListener {
                     return true;
                 }
 
-                if (storage.getLeaveJoinBufferDuration() > 0.0 && leaveJoinBuffer.remove(player.getUniqueId()) == null) {
-                    leaveJoinBuffer.put(player.getUniqueId(), plugin.runTaskAsyncLater(() -> this.onDisconnect(player),
+                if (storage.getLeaveJoinBufferDuration() > 0.0 && leaveJoinBuffer.get(player.getUniqueId()) == null) {
+                    leaveJoinBuffer.put(player.getUniqueId(), plugin.runTaskAsyncLater(() -> {
+                                this.broadcastLeaveMessage(player);
+                                leaveJoinBuffer.remove(player.getUniqueId());
+                            },
                             storage.getLeaveJoinBufferDuration()));
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                             " - allotting buffer time to rejoin before broadcasting leave message");
@@ -325,6 +328,14 @@ public class CorePlayerListener {
             return;
         }
 
+        broadcastLeaveMessage(player);
+
+        plugin.getPlayerManager().removePlayer(player.getUniqueId());
+        storage.setConnected(player, false);
+        messageHandler.stopLeaveCacheTaskForPlayer(player);
+    }
+
+    private void broadcastLeaveMessage(@NotNull CorePlayer player) {
         String message = player.getCachedLeaveMessage();
 
         // Silent
@@ -336,18 +347,14 @@ public class CorePlayerListener {
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkLeaveEvent
         NetworkLeaveEvent networkLeaveEvent = new NetworkLeaveEvent(
-            player,
-            player.getCurrentServer().getName(),
-            storage.getServerDisplayName(player.getCurrentServer().getName()),
-            isSilent,
-            Formatter.serialize(formattedMessage),
-            Formatter.sanitize(formattedMessage)
+                player,
+                player.getCurrentServer().getName(),
+                storage.getServerDisplayName(player.getCurrentServer().getName()),
+                isSilent,
+                Formatter.serialize(formattedMessage),
+                Formatter.sanitize(formattedMessage)
         );
         plugin.fireEvent(networkLeaveEvent);
-
-        plugin.getPlayerManager().removePlayer(player.getUniqueId());
-        storage.setConnected(player, false);
-        messageHandler.stopLeaveCacheTaskForPlayer(player);
     }
 
     public H2PlayerJoinTracker getPlayerJoinTracker() {
