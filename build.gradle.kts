@@ -31,11 +31,18 @@ repositories {
     // Elytrium
     maven("https://maven.elytrium.net/repo/")
     // SayanDevelopment
-    maven("https://repo.sayandev.org/snapshots") {
+    // Invalid SSL certificate local jar file utilized for the time being
+    flatDir {
+        dirs("libs")
         content {
             includeGroup("org.sayandev")
         }
     }
+//    maven("https://repo.sayandev.org/snapshots") {
+//        content {
+//            includeGroup("org.sayandev")
+//        }
+//    }
 }
 
 dependencies {

@@ -202,6 +202,15 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
+    public int runTaskAsyncLater(Runnable task, int timeInMillisecondsLater) {
+        tasks.add(
+                proxy.getScheduler().buildTask(this, task)
+                        .delay(timeInMillisecondsLater, TimeUnit.MILLISECONDS).schedule()
+        );
+        return tasks.size() - 1;
+    }
+
+    @Override
     public boolean isPluginLoaded(String pluginName) {
         return proxy.getPluginManager().isLoaded(pluginName.toLowerCase());
     }

@@ -88,6 +88,9 @@ public final class Storage {
     @Getter
     private int leaveCacheDuration;
 
+    @Getter
+    private int leaveJoinBufferDuration;
+
     /**
      * The default silent state of a player joining with the networkjoinmessages.silent permission
      * Default: true - Someone joining with the permission will be silent (not send a join message)
@@ -217,6 +220,7 @@ public final class Storage {
         /// Settings
 
         this.leaveCacheDuration = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
+        this.leaveJoinBufferDuration = (int) (config.getFloat("Settings.LeaveJoinBufferDuration") * 1000);
 
         this.silentJoinDefaultState = config.getBoolean("Settings.SilentJoinDefaultState");
 
@@ -291,6 +295,16 @@ public final class Storage {
                                     "requires a non-negative value. Defaulting to 0 behavior."
                     );
             this.leaveCacheDuration = 0;
+        }
+
+        // Verify leave join buffer duration
+        if (leaveJoinBufferDuration < 0) {
+            plugin.getCoreLogger()
+                    .info(
+                            "Setting error: Settings.LeaveJoinBufferDuration " +
+                                    "requires a non-negative value. Defaulting to 1."
+                    );
+            this.leaveJoinBufferDuration = 1000;
         }
     }
 
