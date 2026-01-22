@@ -215,7 +215,7 @@ OtherPlugins:
     SpoofJoinMessageOnShow: true
     # Spoof a leave message automatically when a player vanishes (hides)
     SpoofLeaveMessageOnHide: true
-    # Treats a player with the permission pv.joinvanished as vanished on join
+    # Treats a player with the permission pv.joinvanished as vanished on join (permission must be set on the proxy)
     # This is to be used in conjunction with the PremiumVanish 'AutoVanishOnJoin' option
     TreatVanishedOnJoin: false
   LimboAPI:
