@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Plugin(
@@ -70,8 +71,8 @@ public class VelocityMain implements CorePlugin {
 
     private VelocityDiscordListener velocityDiscordListener = null;
 
+    private final AtomicInteger nextTaskId = new AtomicInteger(0);
     private final Map<Integer, ScheduledTask> tasks = new ConcurrentHashMap<>();
-    private int nextTaskId = 0;
 
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -188,12 +189,13 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public int runTaskRepeatedly(Runnable task, int timeInSecondsLater) {
-        tasks.put(
-                nextTaskId++,
-            proxy.getScheduler().buildTask(this, task)
-                    .delay(timeInSecondsLater, TimeUnit.SECONDS).repeat(timeInSecondsLater, TimeUnit.SECONDS).schedule()
+        int taskId = nextTaskId.getAndIncrement();
+        tasks.put(taskId, proxy.getScheduler().buildTask(this, task)
+                    .delay(timeInSecondsLater, TimeUnit.SECONDS)
+                    .repeat(timeInSecondsLater, TimeUnit.SECONDS)
+                    .schedule()
         );
-        return tasks.size() - 1;
+        return taskId;
     }
 
     @Override
@@ -203,11 +205,18 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public int runTaskAsyncLater(Runnable task, int timeInMillisecondsLater) {
-        tasks.add(
-                proxy.getScheduler().buildTask(this, task)
-                        .delay(timeInMillisecondsLater, TimeUnit.MILLISECONDS).schedule()
+        int taskId = nextTaskId.getAndIncrement();
+        tasks.put(
+                taskId,
+                proxy.getScheduler().buildTask(this, () -> {
+                    try {
+                        task.run();
+                    } finally {
+                        this.cancelTask(taskId);
+                    }
+                }).delay(timeInMillisecondsLater, TimeUnit.MILLISECONDS).schedule()
         );
-        return tasks.size() - 1;
+        return taskId;
     }
 
     @Override
