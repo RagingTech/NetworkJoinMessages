@@ -14,6 +14,10 @@ import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class CorePlayerListener {
 
     private final CorePlugin plugin;
@@ -21,6 +25,8 @@ public class CorePlayerListener {
     private final MessageHandler messageHandler;
 
     private H2PlayerJoinTracker firstJoinTracker;
+
+    private final Map<UUID, Integer> leaveJoinBuffer;
 
     @Nullable
     private final SayanVanishHook sayanVanishHook;
@@ -41,6 +47,8 @@ public class CorePlayerListener {
             plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
             plugin.getCoreLogger().debug("Exception: " + ex);
         }
+
+        this.leaveJoinBuffer = new ConcurrentHashMap<>();
 
     }
 
@@ -135,6 +143,14 @@ public class CorePlayerListener {
                         " - suppress limbo join");
                     return true;
                 }
+
+                Integer leaveJoinBufferTaskId = leaveJoinBuffer.remove(player.getUniqueId());
+                if (leaveJoinBufferTaskId != null) {
+                    plugin.cancelTask(leaveJoinBufferTaskId);
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                            " - returned within LeaveJoinBufferDuration");
+                    return true;
+                }
             }
             case LEAVE -> {
                 if (!storage.isConnected(player) || !storage.isLeaveNetworkMessageEnabled() || storage.isBlacklisted(player)) {
@@ -147,6 +163,14 @@ public class CorePlayerListener {
                 if (storage.isShouldSuppressLimboLeave() && player.isInLimbo()) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo leave");
+                    return true;
+                }
+
+                if (storage.getLeaveJoinBufferDuration() > 0.0 && leaveJoinBuffer.remove(player.getUniqueId()) == null) {
+                    leaveJoinBuffer.put(player.getUniqueId(), plugin.runTaskAsyncLater(() -> this.onDisconnect(player),
+                            storage.getLeaveJoinBufferDuration()));
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                            " - allotting buffer time to rejoin before broadcasting leave message");
                     return true;
                 }
             }

@@ -29,6 +29,7 @@ public interface CorePlugin {
     void cancelTask(int taskId);
     int runTaskRepeatedly(Runnable task, int timeInSecondsLater);
     void runTaskAsync(Runnable task);
+    int runTaskAsyncLater(Runnable task, int timeInMillisecondsLater);
 
     boolean isPluginLoaded(String pluginName);
 
