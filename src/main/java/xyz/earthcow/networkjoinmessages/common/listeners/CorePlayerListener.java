@@ -33,6 +33,8 @@ public class CorePlayerListener {
 
     @Nullable
     private final PremiumVanish premiumVanish;
+
+    private final String PVJoinVanishedPerm = "pv.joinvanished";
     
     public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook, @Nullable PremiumVanish premiumVanish) {
         this.plugin = plugin;
@@ -59,13 +61,14 @@ public class CorePlayerListener {
      */
     private boolean isSilentEvent(@NotNull CorePlayer player) {
         // Event is silent if, the player has a silent message state OR
-        // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
+        // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished or
+        // the TreatVanishedOnJoin option is enabled and the player has the pv.joinvanished permission
         plugin.getCoreLogger().debug("Checking if the event for player " + player.getName() + " should been silent:");
         plugin.getCoreLogger().debug(String.format(
                 "silent message state: %s,%n" +
                 "SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, SayanVanish player is vanished: %s,%n" +
                 "PremiumVanish hook is NOT null: %s, PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s,%n" +
-                "PremiumVanish event hidden: %s"
+                "PremiumVanish event hidden: %s, PVTreatVanishedOnJoin: %s, Player has pv.joinvanished permission: %s"
         ,
             storage.getSilentMessageState(player),
             sayanVanishHook != null,
@@ -74,12 +77,18 @@ public class CorePlayerListener {
             premiumVanish != null,
             storage.isPVTreatVanishedPlayersAsSilent(),
             premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA",
-            player.getPremiumVanishHidden()
+            player.getPremiumVanishHidden(),
+            storage.isPVTreatVanishedOnJoin(),
+            player.hasPermission(PVJoinVanishedPerm)
         ));
+        if (storage.isPVTreatVanishedOnJoin() && player.hasPermission(PVJoinVanishedPerm)) {
+            player.setPremiumVanishHidden(true);
+        }
         return storage.getSilentMessageState(player) ||
                 (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
                 ||
-                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
+                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent()
+                        && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
