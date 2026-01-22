@@ -30,10 +30,8 @@ import xyz.earthcow.networkjoinmessages.velocity.listeners.VelocityPremiumVanish
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -72,7 +70,8 @@ public class VelocityMain implements CorePlugin {
 
     private VelocityDiscordListener velocityDiscordListener = null;
 
-    private final List<ScheduledTask> tasks = new ArrayList<>();
+    private final Map<Integer, ScheduledTask> tasks = new ConcurrentHashMap<>();
+    private int nextTaskId = 0;
 
     @Inject
     public VelocityMain(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory, Metrics.Factory metricsFactory) {
@@ -181,15 +180,16 @@ public class VelocityMain implements CorePlugin {
 
     @Override
     public void cancelTask(int taskId) {
-        try {
-            tasks.get(taskId).cancel();
-        } catch (IndexOutOfBoundsException ignored) {
+        ScheduledTask task = tasks.remove(taskId);
+        if (task != null) {
+            task.cancel();
         }
     }
 
     @Override
     public int runTaskRepeatedly(Runnable task, int timeInSecondsLater) {
-        tasks.add(
+        tasks.put(
+                nextTaskId++,
             proxy.getScheduler().buildTask(this, task)
                     .delay(timeInSecondsLater, TimeUnit.SECONDS).repeat(timeInSecondsLater, TimeUnit.SECONDS).schedule()
         );
