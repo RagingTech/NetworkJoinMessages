@@ -175,7 +175,7 @@ public class CorePlayerListener {
                     return true;
                 }
 
-                if (storage.getLeaveJoinBufferDuration() > 0.0 && leaveJoinBuffer.get(player.getUniqueId()) == null) {
+                if (storage.getLeaveJoinBufferDuration() > 0 && leaveJoinBuffer.get(player.getUniqueId()) == null) {
                     leaveJoinBuffer.put(player.getUniqueId(), plugin.runTaskAsyncLater(() -> {
                                 this.broadcastLeaveMessage(player);
                                 leaveJoinBuffer.remove(player.getUniqueId());

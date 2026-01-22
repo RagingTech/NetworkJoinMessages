@@ -222,7 +222,7 @@ public final class Storage {
         /// Settings
 
         this.leaveCacheDuration = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
-        this.leaveJoinBufferDuration = (int) (config.getFloat("Settings.LeaveJoinBufferDuration") * 1000);
+        this.leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
 
         this.silentJoinDefaultState = config.getBoolean("Settings.SilentJoinDefaultState");
 

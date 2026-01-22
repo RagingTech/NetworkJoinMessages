@@ -118,10 +118,10 @@ Settings:
   # server swap.
   LeaveNetworkMessageCacheDuration: 45
 
-  # Designate how long, in seconds, the plugin will wait before sending the leave network message for a player.
+  # Designate how long, in milliseconds, the plugin will wait before sending the leave network message for a player.
   # This allows them to rejoin with no join message and cancel the sending of the leave network message altogether.
-  # Helps prevent spam from players with a weak internet connection.
-  LeaveJoinBufferDuration: 1.5
+  # Helps prevent spam from players with a weak internet connection. 1500 is recommended.
+  LeaveJoinBufferDuration: 0
 
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
