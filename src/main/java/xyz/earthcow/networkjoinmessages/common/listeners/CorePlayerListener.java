@@ -81,12 +81,14 @@ public class CorePlayerListener {
             storage.isPVTreatVanishedOnJoin(),
             player.hasPermission(PVJoinVanishedPerm)
         ));
+        if (storage.isPVTreatVanishedOnJoin() && player.hasPermission(PVJoinVanishedPerm)) {
+            player.setPremiumVanishHidden(true);
+        }
         return storage.getSilentMessageState(player) ||
                 (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
                 ||
                 (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent()
-                        && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()
-                            || (storage.isPVTreatVanishedOnJoin() && player.hasPermission(PVJoinVanishedPerm))));
+                        && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
