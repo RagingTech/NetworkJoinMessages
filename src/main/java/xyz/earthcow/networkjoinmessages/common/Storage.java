@@ -304,7 +304,7 @@ public final class Storage {
                             "Setting error: Settings.LeaveJoinBufferDuration " +
                                     "requires a non-negative value. Defaulting to 1."
                     );
-            this.leaveJoinBufferDuration = 1000;
+            this.leaveJoinBufferDuration = 1500;
         }
     }
 
