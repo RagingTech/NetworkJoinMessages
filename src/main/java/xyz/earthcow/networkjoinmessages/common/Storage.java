@@ -296,6 +296,16 @@ public final class Storage {
                     );
             this.leaveCacheDuration = 0;
         }
+
+        // Verify leave join buffer duration
+        if (leaveJoinBufferDuration < 0) {
+            plugin.getCoreLogger()
+                    .info(
+                            "Setting error: Settings.LeaveJoinBufferDuration " +
+                                    "requires a non-negative value. Defaulting to 1."
+                    );
+            this.leaveJoinBufferDuration = 1000;
+        }
     }
 
     public boolean getSilentMessageState(CorePlayer player) {
