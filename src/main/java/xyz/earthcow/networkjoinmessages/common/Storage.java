@@ -305,9 +305,9 @@ public final class Storage {
             plugin.getCoreLogger()
                     .info(
                             "Setting error: Settings.LeaveJoinBufferDuration " +
-                                    "requires a non-negative value. Defaulting to 1."
+                                    "requires a non-negative value. Defaulting to 0."
                     );
-            this.leaveJoinBufferDuration = 1500;
+            this.leaveJoinBufferDuration = 0;
         }
     }
 
