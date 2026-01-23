@@ -18,12 +18,13 @@ public class CorePremiumVanishListener {
     }
 
     public void handlePremiumVanishShow(@NotNull CorePlayer p) {
-        if (p.getPremiumVanishHidden()) {
-            logger.debug("Setting PremiumVanishHidden to FALSE for player " + p.getName());
-            p.setPremiumVanishHidden(false);
-            if (storage.isPVSpoofJoinMessageOnShow()) {
-                spoofManager.spoofJoin(p);
-            }
+        if (!p.getPremiumVanishHidden()) {
+            return;
+        }
+        logger.debug("Setting PremiumVanishHidden to FALSE for player " + p.getName());
+        p.setPremiumVanishHidden(false);
+        if (storage.isPVSpoofJoinMessageOnShow()) {
+            spoofManager.spoofJoin(p);
         }
     }
 
