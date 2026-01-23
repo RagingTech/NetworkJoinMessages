@@ -709,6 +709,7 @@ public final class Storage {
 
         customCharts.add(new SimplePie("premium_vanish_vanished_are_silent", () -> String.valueOf(PVTreatVanishedPlayersAsSilent)));
         customCharts.add(new SimplePie("premium_vanish_remove_vanished_from_player_count", () -> String.valueOf(PVRemoveVanishedPlayersFromPlayerCount)));
+        customCharts.add(new SimplePie("premium_vanish_treat_vanished_on_join", () -> String.valueOf(PVTreatVanishedOnJoin)));
 
         customCharts.add(new SimplePie("limbo_api_suppress_swap", () -> String.valueOf(shouldSuppressLimboSwap)));
         customCharts.add(new SimplePie("limbo_api_suppress_join", () -> String.valueOf(shouldSuppressLimboJoin)));
