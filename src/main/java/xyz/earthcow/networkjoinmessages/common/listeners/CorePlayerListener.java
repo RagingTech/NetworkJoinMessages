@@ -14,6 +14,10 @@ import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class CorePlayerListener {
 
     private final CorePlugin plugin;
@@ -22,11 +26,15 @@ public class CorePlayerListener {
 
     private H2PlayerJoinTracker firstJoinTracker;
 
+    private final Map<UUID, Integer> leaveJoinBuffer;
+
     @Nullable
     private final SayanVanishHook sayanVanishHook;
 
     @Nullable
     private final PremiumVanish premiumVanish;
+
+    private final String PVJoinVanishedPerm = "pv.joinvanished";
     
     public CorePlayerListener(CorePlugin plugin, Storage storage, MessageHandler messageHandler, @Nullable SayanVanishHook sayanVanishHook, @Nullable PremiumVanish premiumVanish) {
         this.plugin = plugin;
@@ -42,6 +50,8 @@ public class CorePlayerListener {
             plugin.getCoreLogger().debug("Exception: " + ex);
         }
 
+        this.leaveJoinBuffer = new ConcurrentHashMap<>();
+
     }
 
     /**
@@ -51,13 +61,14 @@ public class CorePlayerListener {
      */
     private boolean isSilentEvent(@NotNull CorePlayer player) {
         // Event is silent if, the player has a silent message state OR
-        // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished
+        // premiumVanish is present, the treat vanished players as silent option is true, and the player is vanished or
+        // the TreatVanishedOnJoin option is enabled and the player has the pv.joinvanished permission
         plugin.getCoreLogger().debug("Checking if the event for player " + player.getName() + " should been silent:");
         plugin.getCoreLogger().debug(String.format(
                 "silent message state: %s,%n" +
                 "SayanVanish hook is NOT null: %s, SVTreatVanishedPlayersAsSilent: %s, SayanVanish player is vanished: %s,%n" +
                 "PremiumVanish hook is NOT null: %s, PVTreatVanishedPlayersAsSilent: %s, PremiumVanish player is vanished: %s,%n" +
-                "PremiumVanish event hidden: %s"
+                "PremiumVanish event hidden: %s, PVTreatVanishedOnJoin: %s, Player has pv.joinvanished permission: %s"
         ,
             storage.getSilentMessageState(player),
             sayanVanishHook != null,
@@ -66,12 +77,18 @@ public class CorePlayerListener {
             premiumVanish != null,
             storage.isPVTreatVanishedPlayersAsSilent(),
             premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "NA",
-            player.getPremiumVanishHidden()
+            player.getPremiumVanishHidden(),
+            storage.isPVTreatVanishedOnJoin(),
+            player.hasPermission(PVJoinVanishedPerm)
         ));
+        if (storage.isPVTreatVanishedOnJoin() && player.hasPermission(PVJoinVanishedPerm)) {
+            player.setPremiumVanishHidden(true);
+        }
         return storage.getSilentMessageState(player) ||
                 (sayanVanishHook != null && storage.isSVTreatVanishedPlayersAsSilent() && sayanVanishHook.isVanished(player))
                 ||
-                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent() && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
+                (premiumVanish != null && storage.isPVTreatVanishedPlayersAsSilent()
+                        && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden()));
     }
 
     private boolean shouldNotBroadcast(@NotNull CorePlayer player, @NotNull MessageType type) {
@@ -135,6 +152,14 @@ public class CorePlayerListener {
                         " - suppress limbo join");
                     return true;
                 }
+
+                Integer leaveJoinBufferTaskId = leaveJoinBuffer.remove(player.getUniqueId());
+                if (leaveJoinBufferTaskId != null) {
+                    plugin.cancelTask(leaveJoinBufferTaskId);
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                            " - returned within LeaveJoinBufferDuration");
+                    return true;
+                }
             }
             case LEAVE -> {
                 if (!storage.isConnected(player) || !storage.isLeaveNetworkMessageEnabled() || storage.isBlacklisted(player)) {
@@ -147,6 +172,17 @@ public class CorePlayerListener {
                 if (storage.isShouldSuppressLimboLeave() && player.isInLimbo()) {
                     plugin.getCoreLogger().debug("Skipping " + player.getName() +
                         " - suppress limbo leave");
+                    return true;
+                }
+
+                if (storage.getLeaveJoinBufferDuration() > 0 && leaveJoinBuffer.get(player.getUniqueId()) == null) {
+                    leaveJoinBuffer.put(player.getUniqueId(), plugin.runTaskAsyncLater(() -> {
+                                this.broadcastLeaveMessage(player);
+                                leaveJoinBuffer.remove(player.getUniqueId());
+                            },
+                            storage.getLeaveJoinBufferDuration()));
+                    plugin.getCoreLogger().debug("Skipping " + player.getName() +
+                            " - allotting buffer time to rejoin before broadcasting leave message");
                     return true;
                 }
             }
@@ -301,6 +337,14 @@ public class CorePlayerListener {
             return;
         }
 
+        broadcastLeaveMessage(player);
+
+        plugin.getPlayerManager().removePlayer(player.getUniqueId());
+        storage.setConnected(player, false);
+        messageHandler.stopLeaveCacheTaskForPlayer(player);
+    }
+
+    private void broadcastLeaveMessage(@NotNull CorePlayer player) {
         String message = player.getCachedLeaveMessage();
 
         // Silent
@@ -312,18 +356,14 @@ public class CorePlayerListener {
         Component formattedMessage = Formatter.deserialize(message);
         // Call the custom NetworkLeaveEvent
         NetworkLeaveEvent networkLeaveEvent = new NetworkLeaveEvent(
-            player,
-            player.getCurrentServer().getName(),
-            storage.getServerDisplayName(player.getCurrentServer().getName()),
-            isSilent,
-            Formatter.serialize(formattedMessage),
-            Formatter.sanitize(formattedMessage)
+                player,
+                player.getCurrentServer().getName(),
+                storage.getServerDisplayName(player.getCurrentServer().getName()),
+                isSilent,
+                Formatter.serialize(formattedMessage),
+                Formatter.sanitize(formattedMessage)
         );
         plugin.fireEvent(networkLeaveEvent);
-
-        plugin.getPlayerManager().removePlayer(player.getUniqueId());
-        storage.setConnected(player, false);
-        messageHandler.stopLeaveCacheTaskForPlayer(player);
     }
 
     public H2PlayerJoinTracker getPlayerJoinTracker() {

@@ -18,6 +18,9 @@ public class CorePremiumVanishListener {
     }
 
     public void handlePremiumVanishShow(@NotNull CorePlayer p) {
+        if (!p.getPremiumVanishHidden()) {
+            return;
+        }
         logger.debug("Setting PremiumVanishHidden to FALSE for player " + p.getName());
         p.setPremiumVanishHidden(false);
         if (storage.isPVSpoofJoinMessageOnShow()) {
@@ -26,6 +29,9 @@ public class CorePremiumVanishListener {
     }
 
     public void handlePremiumVanishHide(@NotNull CorePlayer p) {
+        if (p.getPremiumVanishHidden()) {
+            return;
+        }
         logger.debug("Setting PremiumVanishHidden to TRUE for player " + p.getName());
         p.setPremiumVanishHidden(true);
         if (storage.isPVSpoofLeaveMessageOnHide()) {

@@ -118,6 +118,11 @@ Settings:
   # server swap.
   LeaveNetworkMessageCacheDuration: 45
 
+  # Designate how long, in milliseconds, the plugin will wait before sending the leave network message for a player.
+  # This allows them to rejoin with no join message and cancel the sending of the leave network message altogether.
+  # Helps prevent spam from players with a weak internet connection. 1500 is recommended.
+  LeaveJoinBufferDuration: 0
+
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
   SilentJoinDefaultState: true
@@ -210,6 +215,9 @@ OtherPlugins:
     SpoofJoinMessageOnShow: true
     # Spoof a leave message automatically when a player vanishes (hides)
     SpoofLeaveMessageOnHide: true
+    # Treats a player with the permission pv.joinvanished as vanished on join (permission must be set on the proxy)
+    # This is to be used in conjunction with the PremiumVanish 'AutoVanishOnJoin' option
+    TreatVanishedOnJoin: false
   LimboAPI:
     # No swap messages for players swapping to or from limbo servers
     SuppressSwapMessages: true
@@ -220,4 +228,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 11
+config-version: 12

@@ -88,6 +88,9 @@ public final class Storage {
     @Getter
     private int leaveCacheDuration;
 
+    @Getter
+    private int leaveJoinBufferDuration;
+
     /**
      * The default silent state of a player joining with the networkjoinmessages.silent permission
      * Default: true - Someone joining with the permission will be silent (not send a join message)
@@ -147,6 +150,8 @@ public final class Storage {
     private boolean PVSpoofJoinMessageOnShow;
     @Getter
     private boolean PVSpoofLeaveMessageOnHide;
+    @Getter
+    private boolean PVTreatVanishedOnJoin;
     // LimboAPI
     @Getter
     private boolean shouldSuppressLimboSwap;
@@ -217,6 +222,7 @@ public final class Storage {
         /// Settings
 
         this.leaveCacheDuration = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
+        this.leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
 
         this.silentJoinDefaultState = config.getBoolean("Settings.SilentJoinDefaultState");
 
@@ -258,6 +264,7 @@ public final class Storage {
         this.PVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
         this.PVSpoofJoinMessageOnShow = config.getBoolean("OtherPlugins.PremiumVanish.SpoofJoinMessageOnShow");
         this.PVSpoofLeaveMessageOnHide = config.getBoolean("OtherPlugins.PremiumVanish.SpoofLeaveMessageOnHide");
+        this.PVTreatVanishedOnJoin = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedOnJoin");
 
         this.shouldSuppressLimboSwap = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         this.shouldSuppressLimboJoin = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
@@ -291,6 +298,16 @@ public final class Storage {
                                     "requires a non-negative value. Defaulting to 0 behavior."
                     );
             this.leaveCacheDuration = 0;
+        }
+
+        // Verify leave join buffer duration
+        if (leaveJoinBufferDuration < 0) {
+            plugin.getCoreLogger()
+                    .info(
+                            "Setting error: Settings.LeaveJoinBufferDuration " +
+                                    "requires a non-negative value. Defaulting to 0."
+                    );
+            this.leaveJoinBufferDuration = 0;
         }
     }
 
@@ -692,6 +709,7 @@ public final class Storage {
 
         customCharts.add(new SimplePie("premium_vanish_vanished_are_silent", () -> String.valueOf(PVTreatVanishedPlayersAsSilent)));
         customCharts.add(new SimplePie("premium_vanish_remove_vanished_from_player_count", () -> String.valueOf(PVRemoveVanishedPlayersFromPlayerCount)));
+        customCharts.add(new SimplePie("premium_vanish_treat_vanished_on_join", () -> String.valueOf(PVTreatVanishedOnJoin)));
 
         customCharts.add(new SimplePie("limbo_api_suppress_swap", () -> String.valueOf(shouldSuppressLimboSwap)));
         customCharts.add(new SimplePie("limbo_api_suppress_join", () -> String.valueOf(shouldSuppressLimboJoin)));
