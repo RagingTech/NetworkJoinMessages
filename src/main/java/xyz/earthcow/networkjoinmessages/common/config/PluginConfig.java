@@ -6,7 +6,6 @@ import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
-import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;

@@ -8,7 +8,6 @@ import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 /**
  * Manages the leave-join buffer: a grace period after a player disconnects during which
