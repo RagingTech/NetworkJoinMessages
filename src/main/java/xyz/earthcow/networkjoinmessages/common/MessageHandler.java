@@ -304,7 +304,7 @@ public final class MessageHandler {
     }
 
     private String formatLeaveDependentMessage(String message, CorePlayer player, boolean leaving) {
-        if (message.contains("%playercount_to%")) {
+        if (message.contains("%playercount_server%")) {
             message = message.replace("%playercount_server%", getServerPlayerCount(player, leaving));
         }
         if (message.contains("%playercount_network%")) {
