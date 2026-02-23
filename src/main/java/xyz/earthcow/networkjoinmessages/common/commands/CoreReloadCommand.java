@@ -2,11 +2,12 @@ package xyz.earthcow.networkjoinmessages.common.commands;
 
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
-import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
-import xyz.earthcow.networkjoinmessages.common.util.Formatter;
+import xyz.earthcow.networkjoinmessages.common.player.LeaveMessageCache;
+import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 import java.util.List;
 
@@ -14,37 +15,44 @@ public class CoreReloadCommand implements Command {
 
     private final CorePlugin plugin;
     private final ConfigManager configManager;
-    private final Storage storage;
-    private final Formatter formatter;
+    private final PluginConfig config;
+    private final PlaceholderResolver placeholderResolver;
     private final MessageHandler messageHandler;
+    private final LeaveMessageCache leaveMessageCache;
     private final DiscordIntegration discordIntegration;
 
-    public CoreReloadCommand(CorePlugin plugin, ConfigManager configManager, Storage storage, Formatter formatter, MessageHandler messageHandler, DiscordIntegration discordIntegration) {
+    public CoreReloadCommand(
+            CorePlugin plugin,
+            ConfigManager configManager,
+            PluginConfig config,
+            PlaceholderResolver placeholderResolver,
+            MessageHandler messageHandler,
+            LeaveMessageCache leaveMessageCache,
+            DiscordIntegration discordIntegration
+    ) {
         this.plugin = plugin;
         this.configManager = configManager;
-        this.storage = storage;
-        this.formatter = formatter;
+        this.config = config;
+        this.placeholderResolver = placeholderResolver;
         this.messageHandler = messageHandler;
+        this.leaveMessageCache = leaveMessageCache;
         this.discordIntegration = discordIntegration;
     }
 
     @Override
-    public void execute(CoreCommandSender coreCommandSender, String[] args) {
-        if (coreCommandSender.hasPermission("networkjoinmessages.reload")) {
-            configManager.reload();
-            storage.setUpDefaultValuesFromConfig();
-            formatter.setPPBRequestTimeout(storage.getPPBRequestTimeout());
-            discordIntegration.loadVariables();
-            messageHandler.initCacheTasks();
+    public void execute(CoreCommandSender sender, String[] args) {
+        if (!sender.hasPermission("networkjoinmessages.reload")) return;
 
-            // Update all player's cached leave message
-            plugin.runTaskAsync(() -> {
-                plugin.getAllPlayers().forEach(messageHandler::updateCachedLeaveMessage);
-                messageHandler.sendMessage(coreCommandSender,
-                        storage.getReloadConfirmation()
-                );
-            });
-        }
+        configManager.reload();
+        config.reload();
+        placeholderResolver.setPPBRequestTimeout(config.getPPBRequestTimeout());
+        discordIntegration.loadConfig();
+        leaveMessageCache.initForAllPlayers();
+
+        plugin.runTaskAsync(() -> {
+            plugin.getAllPlayers().forEach(leaveMessageCache::refresh);
+            messageHandler.sendMessage(sender, config.getReloadConfirmation());
+        });
     }
 
     @Override
@@ -53,7 +61,7 @@ public class CoreReloadCommand implements Command {
     }
 
     @Override
-    public List<String> getTabCompletion(CoreCommandSender coreCommandSender, String[] args) {
+    public List<String> getTabCompletion(CoreCommandSender sender, String[] args) {
         return null;
     }
 }

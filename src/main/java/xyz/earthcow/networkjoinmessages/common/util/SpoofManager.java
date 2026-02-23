@@ -2,77 +2,64 @@ package xyz.earthcow.networkjoinmessages.common.util;
 
 import net.kyori.adventure.text.Component;
 import xyz.earthcow.networkjoinmessages.common.MessageHandler;
-import xyz.earthcow.networkjoinmessages.common.Storage;
-import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.broadcast.MessageFormatter;
+import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 
 public class SpoofManager {
-    private final CorePlugin plugin;
-    private final CoreLogger logger;
-    private final Storage storage;
-    private final MessageHandler messageHandler;
 
-    public SpoofManager(CorePlugin plugin, Storage storage, MessageHandler messageHandler) {
+    private final CorePlugin plugin;
+    private final PluginConfig config;
+    private final MessageHandler messageHandler;
+    private final MessageFormatter messageFormatter;
+
+    public SpoofManager(CorePlugin plugin, PluginConfig config, MessageHandler messageHandler, MessageFormatter messageFormatter) {
         this.plugin = plugin;
-        this.logger = plugin.getCoreLogger();
-        this.storage = storage;
+        this.config = config;
         this.messageHandler = messageHandler;
+        this.messageFormatter = messageFormatter;
     }
 
     public void spoofJoin(CorePlayer player) {
-        logger.debug("Spoofing join message for player: " + player.getName());
-        String message = messageHandler.formatJoinMessage(player);
-        Component formattedMessage = Formatter.deserialize(message);
-
+        plugin.getCoreLogger().debug("Spoofing join for " + player.getName());
+        String message = messageFormatter.formatJoinMessage(player);
+        Component component = Formatter.deserialize(message);
         messageHandler.broadcastMessage(message, MessageType.JOIN, player);
-
-        String currentServerName = player.getCurrentServer().getName();
-        String currentServerDisplayName = storage.getServerDisplayName(currentServerName);
-
+        String serverName = player.getCurrentServer().getName();
         plugin.fireEvent(new NetworkJoinEvent(
-                player, currentServerName, currentServerDisplayName, false, false,
-                Formatter.serialize(formattedMessage),
-                Formatter.sanitize(formattedMessage)
+            player, serverName, config.getServerDisplayName(serverName),
+            false, false,
+            Formatter.serialize(component), Formatter.sanitize(component)
         ));
     }
 
     public void spoofLeave(CorePlayer player) {
-        logger.debug("Spoofing leave message for player: " + player.getName());
-        String message = messageHandler.formatLeaveMessage(player);
-        Component formattedMessage = Formatter.deserialize(message);
-
+        plugin.getCoreLogger().debug("Spoofing leave for " + player.getName());
+        String message = messageFormatter.formatLeaveMessage(player);
+        Component component = Formatter.deserialize(message);
         messageHandler.broadcastMessage(message, MessageType.LEAVE, player);
-
-        String currentServerName = player.getCurrentServer().getName();
-        String currentServerDisplayName = storage.getServerDisplayName(currentServerName);
-
+        String serverName = player.getCurrentServer().getName();
         plugin.fireEvent(new NetworkLeaveEvent(
-                player, currentServerName, currentServerDisplayName, false,
-                Formatter.serialize(formattedMessage),
-                Formatter.sanitize(formattedMessage)
+            player, serverName, config.getServerDisplayName(serverName),
+            false,
+            Formatter.serialize(component), Formatter.sanitize(component)
         ));
     }
 
     public void spoofSwap(CorePlayer player, String from, String to) {
-        logger.debug("Spoofing swap message for player: " + player.getName());
-        String fromDisplayName = storage.getServerDisplayName(from);
-        String toDisplayName = storage.getServerDisplayName(to);
-
-        String message = messageHandler.parseSwapMessage(player, from, to);
-
-        Component formattedMessage = Formatter.deserialize(message);
-
+        plugin.getCoreLogger().debug("Spoofing swap for " + player.getName());
+        String message = messageFormatter.formatSwapMessage(player, from, to);
+        Component component = Formatter.deserialize(message);
         messageHandler.broadcastMessage(message, MessageType.SWAP, from, to, player);
-
         plugin.fireEvent(new SwapServerEvent(
-                player, from, to, fromDisplayName, toDisplayName, false,
-                Formatter.serialize(formattedMessage),
-                Formatter.sanitize(formattedMessage)
+            player, from, to,
+            config.getServerDisplayName(from), config.getServerDisplayName(to),
+            false,
+            Formatter.serialize(component), Formatter.sanitize(component)
         ));
     }
-
 }
