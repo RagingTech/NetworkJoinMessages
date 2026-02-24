@@ -1,6 +1,5 @@
 plugins {
     `java`
-    `maven-publish`
     // Shade plugin
     id("com.gradleup.shadow") version "8.3.8"
     // Blossom plugin for Pebble templating
@@ -11,6 +10,14 @@ plugins {
 group = property("group") as String
 version = property("version") as String
 description = property("description") as String
+
+// Dependency versions
+val lombokVersion = "1.18.42"
+val bstatsVersion = "3.0.2"
+val adventureVersion = "4.24.0"
+val gsonVersion = "2.13.2"
+val h2Version = "2.2.224"
+val velocityVersion = "3.4.0-SNAPSHOT"
 
 java {
     toolchain {
@@ -28,12 +35,8 @@ repositories {
     maven("https://jitpack.io")
     // William278
     maven("https://repo.william278.net/releases/")
-    // Elytrium
-    // Repository not functioning, local jar file utilized for the time being
-//    maven("https://maven.elytrium.net/repo/")
-    flatDir {
-        dirs("libs")
-    }
+    // Elytrium: local jar used as maven repo is down
+    flatDir { dirs("libs") }
     // SayanDevelopment
     maven("https://repo.sayandev.org/snapshots") {
         content {
@@ -45,30 +48,30 @@ repositories {
 dependencies {
     // Proxy APIs
     compileOnly("net.md-5:bungeecord-api:1.21-R0.2")
-    compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-    compileOnly("com.velocitypowered:velocity-proxy:3.4.0-SNAPSHOT") {
+    compileOnly("com.velocitypowered:velocity-api:$velocityVersion")
+    annotationProcessor("com.velocitypowered:velocity-api:$velocityVersion")
+    compileOnly("com.velocitypowered:velocity-proxy:$velocityVersion") {
         exclude(group = "com.velocitypowered", module = "velocity-proxy-log4j2-plugin")
     }
 
     // bStats
-    implementation("org.bstats:bstats-bungeecord:3.0.2")
-    implementation("org.bstats:bstats-velocity:3.0.2")
+    implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
+    implementation("org.bstats:bstats-velocity:$bstatsVersion")
 
     // Utilities
-    compileOnly("org.projectlombok:lombok:1.18.42")
-    annotationProcessor("org.projectlombok:lombok:1.18.42")
-    testCompileOnly("org.projectlombok:lombok:1.18.42")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
-    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("org.jetbrains:annotations:16.0.1")
-    implementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:$h2Version")
 
     // Adventure & MiniMessage
     implementation("net.kyori:adventure-platform-bungeecord:4.4.1")
-    implementation("net.kyori:adventure-text-minimessage:4.24.0")
-    implementation("net.kyori:adventure-text-serializer-plain:4.24.0")
+    implementation("net.kyori:adventure-text-minimessage:$adventureVersion")
+    implementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
 
     // MiniPlaceholders
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
@@ -95,12 +98,8 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.19.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
 
-    testImplementation("com.google.code.gson:gson:2.13.2")
-    testImplementation("org.jetbrains:annotations:16.0.1")
-    testImplementation("com.h2database:h2:2.2.224")
-
     testImplementation("net.luckperms:api:5.4")
-    testImplementation("net.kyori:adventure-text-serializer-plain:4.24.0")
+    testImplementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
     testImplementation("io.github.miniplaceholders:miniplaceholders-api:3.0.1")
 }
 
@@ -114,7 +113,8 @@ sourceSets {
     }
 }
 
-configurations.all {
+// Exclude legacy JUnit 4 from test runtime only
+configurations.testRuntimeClasspath {
     exclude(group = "junit", module = "junit")
 }
 
@@ -141,10 +141,6 @@ tasks.shadowJar {
     archiveClassifier.set("")
     relocate("org.bstats", "xyz.earthcow.networkjoinmessages.libs.bstats")
     relocate("dev.dejvokep.boostedyaml", "xyz.earthcow.networkjoinmessages.libs.boostedyaml")
-
-    dependencies {
-        exclude(dependency("io.github.miniplaceholders:miniplaceholders-api"))
-    }
 }
 
 tasks.build {
