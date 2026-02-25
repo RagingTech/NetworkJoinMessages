@@ -5,21 +5,25 @@ import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.util.MessageType;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Holds all mutable per-player runtime state that must survive a player switching servers.
  * Has no knowledge of config values or message logic — it is a pure data store.
+ *
+ * <p>All collections are thread-safe: {@code onServerConnected} runs on an async thread pool
+ * and may access this store concurrently with disconnect and command handlers.
  */
 public final class PlayerStateStore {
 
     private final PluginConfig config;
 
-    private final Map<UUID, String>  previousServer = new HashMap<>();
-    private final Map<UUID, Boolean> silentState    = new HashMap<>();
-    private final Set<UUID> onlinePlayers  = new HashSet<>();
-    private final Set<UUID> noJoinMessage  = new HashSet<>();
-    private final Set<UUID> noLeaveMessage = new HashSet<>();
-    private final Set<UUID> noSwapMessage  = new HashSet<>();
+    private final Map<UUID, String>  previousServer = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> silentState    = new ConcurrentHashMap<>();
+    private final Set<UUID> onlinePlayers  = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> noJoinMessage  = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> noLeaveMessage = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> noSwapMessage  = ConcurrentHashMap.newKeySet();
 
     public PlayerStateStore(PluginConfig config) {
         this.config = config;
