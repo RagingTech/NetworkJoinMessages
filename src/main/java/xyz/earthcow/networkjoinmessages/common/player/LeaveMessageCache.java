@@ -6,9 +6,9 @@ import xyz.earthcow.networkjoinmessages.common.broadcast.MessageFormatter;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Pre-computes and caches the formatted leave message for each online player.
@@ -25,7 +25,7 @@ public final class LeaveMessageCache {
     private final PlaceholderResolver placeholderResolver;
 
     /** Maps player UUID -> repeating cache-refresh task ID */
-    private final Map<UUID, Integer> refreshTasks = new HashMap<>();
+    private final Map<UUID, Integer> refreshTasks = new ConcurrentHashMap<>();
 
     public LeaveMessageCache(
             CorePlugin plugin,
@@ -43,8 +43,10 @@ public final class LeaveMessageCache {
     public void initForAllPlayers() {
         refreshTasks.values().forEach(plugin::cancelTask);
         refreshTasks.clear();
-        if (config.getLeaveCacheDuration() == 0) return;
-        plugin.getAllPlayers().forEach(this::startFor);
+        plugin.getAllPlayers().forEach(player -> {
+            refresh(player);          // immediate refresh so the cache is current right away
+            startFor(player);         // then schedule the repeating background refresh
+        });
     }
 
     /** Starts a repeating cache-refresh task for the given player. No-op if caching is disabled. */
