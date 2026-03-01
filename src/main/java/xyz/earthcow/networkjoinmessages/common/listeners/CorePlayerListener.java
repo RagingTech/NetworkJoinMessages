@@ -14,7 +14,8 @@ import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.player.*;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.util.MessageType;
+import xyz.earthcow.networkjoinmessages.common.MessageType;
+import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 /**
  * Routes platform-level player events (join, swap, disconnect) to the appropriate handlers.
@@ -32,8 +33,8 @@ public class CorePlayerListener {
     private final SilenceChecker silenceChecker;
     private final LeaveMessageCache leaveMessageCache;
     private final LeaveJoinBufferManager leaveJoinBuffer;
-
-    private H2PlayerJoinTracker firstJoinTracker;
+    private final PlaceholderResolver placeholderResolver;
+    private final H2PlayerJoinTracker firstJoinTracker;
 
     public CorePlayerListener(
             CorePlugin plugin,
@@ -44,7 +45,9 @@ public class CorePlayerListener {
             ReceiverResolver receiverResolver,
             SilenceChecker silenceChecker,
             LeaveMessageCache leaveMessageCache,
-            LeaveJoinBufferManager leaveJoinBuffer
+            LeaveJoinBufferManager leaveJoinBuffer,
+            PlaceholderResolver placeholderResolver,
+            H2PlayerJoinTracker firstJoinTracker
     ) {
         this.plugin = plugin;
         this.config = config;
@@ -55,16 +58,8 @@ public class CorePlayerListener {
         this.silenceChecker = silenceChecker;
         this.leaveMessageCache = leaveMessageCache;
         this.leaveJoinBuffer = leaveJoinBuffer;
-
-        try {
-            this.firstJoinTracker = new H2PlayerJoinTracker(
-                plugin.getCoreLogger(),
-                "./" + plugin.getDataFolder().getPath() + "/joined"
-            );
-        } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load H2 first join tracker!");
-            plugin.getCoreLogger().debug("Exception: " + ex);
-        }
+        this.placeholderResolver = placeholderResolver;
+        this.firstJoinTracker = firstJoinTracker;
     }
 
     // --- Public event entry points ---
@@ -91,7 +86,7 @@ public class CorePlayerListener {
             if (!stateStore.isConnected(player)) {
                 handleJoin(player, server);
             } else {
-                boolean fromLimbo = plugin.getServerType().equals(ServerType.VELOCITY) && previousServer == null;
+                boolean fromLimbo = plugin.getServerType() == ServerType.VELOCITY && previousServer == null;
                 handleSwap(player, server, fromLimbo);
             }
         });
@@ -130,7 +125,7 @@ public class CorePlayerListener {
         leaveMessageCache.refresh(player);
         leaveMessageCache.startFor(player);
 
-        boolean firstJoin = !firstJoinTracker.hasJoined(player.getUniqueId());
+        boolean firstJoin = firstJoinTracker != null && !firstJoinTracker.hasJoined(player.getUniqueId());
         MessageType msgType = firstJoin ? MessageType.FIRST_JOIN : MessageType.JOIN;
 
         if (shouldSkipJoin(player, msgType, firstJoin)) return;
@@ -183,7 +178,7 @@ public class CorePlayerListener {
             return true;
         }
         if (firstJoin) {
-            firstJoinTracker.markAsJoined(player.getUniqueId(), player.getName());
+            if (firstJoinTracker != null) firstJoinTracker.markAsJoined(player.getUniqueId(), player.getName());
             if (!config.isFirstJoinNetworkMessageEnabled()) {
                 plugin.getCoreLogger().debug("Skipping " + player.getName() + " — first-join message disabled");
                 return true;
@@ -253,7 +248,7 @@ public class CorePlayerListener {
     // --- Event firing ---
 
     private void fireJoinEvent(CorePlayer player, CoreBackendServer server, String message, boolean silent, boolean firstJoin) {
-        Component component = Formatter.deserialize(message);
+        Component component = Formatter.deserialize(message, player, placeholderResolver.getMiniPlaceholders());
         plugin.fireEvent(new NetworkJoinEvent(
             player,
             server.getName(),
@@ -265,7 +260,7 @@ public class CorePlayerListener {
     }
 
     private void fireSwapEvent(CorePlayer player, String from, String to, String message, boolean silent) {
-        Component component = Formatter.deserialize(message);
+        Component component = Formatter.deserialize(message, player, placeholderResolver.getMiniPlaceholders());
         plugin.fireEvent(new SwapServerEvent(
             player, from, to,
             config.getServerDisplayName(from),
@@ -277,7 +272,7 @@ public class CorePlayerListener {
     }
 
     private void fireLeaveEvent(CorePlayer player, String serverName, String message, boolean silent) {
-        Component component = Formatter.deserialize(message);
+        Component component = Formatter.deserialize(message, null, placeholderResolver.getMiniPlaceholders());
         plugin.fireEvent(new NetworkLeaveEvent(
             player, serverName,
             config.getServerDisplayName(serverName),
@@ -291,9 +286,5 @@ public class CorePlayerListener {
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
         stateStore.setConnected(player, false);
         leaveMessageCache.stopFor(player);
-    }
-
-    public H2PlayerJoinTracker getPlayerJoinTracker() {
-        return firstJoinTracker;
     }
 }

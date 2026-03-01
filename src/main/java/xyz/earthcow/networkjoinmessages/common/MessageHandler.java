@@ -9,7 +9,7 @@ import xyz.earthcow.networkjoinmessages.common.broadcast.ReceiverResolver;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.player.PlayerStateStore;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
-import xyz.earthcow.networkjoinmessages.common.util.MessageType;
+import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 import java.util.*;
@@ -60,7 +60,7 @@ public final class MessageHandler {
     public void sendMessage(CoreCommandSender sender, String message, @Nullable CorePlayer parseTarget) {
         if (parseTarget != null) {
             placeholderResolver.resolve(message, parseTarget,
-                formatted -> sender.sendMessage(Formatter.deserialize(formatted)));
+                formatted -> sender.sendMessage(Formatter.deserialize(formatted, parseTarget, placeholderResolver.getMiniPlaceholders())));
         } else {
             sender.sendMessage(Formatter.deserialize(message));
         }

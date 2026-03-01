@@ -114,8 +114,10 @@ public final class PluginConfig {
         YamlDocument config = configManager.getPluginConfig();
 
         serverDisplayNames.clear();
-        for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
-            serverDisplayNames.put(serverKey.toLowerCase(), config.getString("Servers." + serverKey, serverKey));
+        if (config.contains("Servers")) {
+            for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
+                serverDisplayNames.put(serverKey.toLowerCase(), config.getString("Servers." + serverKey, serverKey));
+            }
         }
 
         swapServerMessage       = config.getString("Messages.SwapServerMessage", "");

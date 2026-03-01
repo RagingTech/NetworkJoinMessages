@@ -16,6 +16,7 @@ import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.player.*;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 import xyz.earthcow.networkjoinmessages.common.util.SpoofManager;
+import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 
 import java.util.Collection;
 
@@ -70,21 +71,34 @@ public class Core {
         DiscordWebhookBuilder webhookBuilder = new DiscordWebhookBuilder(plugin, config, messageFormatter, configManager.getDiscordConfig());
         DiscordIntegration discordIntegration = new DiscordIntegration(plugin, placeholderResolver, webhookBuilder, configManager.getDiscordConfig());
 
+        // First-join tracker (nullable — callers guard against null if H2 init fails)
+        H2PlayerJoinTracker firstJoinTracker = null;
+        try {
+            firstJoinTracker = new H2PlayerJoinTracker(
+                plugin.getCoreLogger(),
+                plugin.getDataFolder().toPath().resolve("joined").toAbsolutePath().toString()
+            );
+        } catch (Exception ex) {
+            plugin.getCoreLogger().severe("Failed to load H2 first join tracker! First-join messages will be unavailable.");
+            plugin.getCoreLogger().debug("Exception: " + ex);
+        }
+
         // Spoof
-        SpoofManager spoofManager = new SpoofManager(plugin, config, messageHandler, messageFormatter);
+        SpoofManager spoofManager = new SpoofManager(plugin, config, messageHandler, messageFormatter, placeholderResolver);
 
         this.customCharts = config.getCustomCharts();
 
         // Listeners
         this.corePlayerListener = new CorePlayerListener(
             plugin, config, stateStore, messageHandler, messageFormatter,
-            receiverResolver, silenceChecker, leaveMessageCache, leaveJoinBuffer
+            receiverResolver, silenceChecker, leaveMessageCache, leaveJoinBuffer,
+            placeholderResolver, firstJoinTracker
         );
 
         // Commands
-        this.coreImportCommand     = new CoreImportCommand(corePlayerListener.getPlayerJoinTracker());
+        this.coreImportCommand     = new CoreImportCommand(firstJoinTracker);
         this.coreSpoofCommand      = new CoreSpoofCommand(config, stateStore, messageHandler, spoofManager);
-        this.coreReloadCommand     = new CoreReloadCommand(plugin, configManager, config, placeholderResolver, messageHandler, leaveMessageCache, discordIntegration);
+        this.coreReloadCommand     = new CoreReloadCommand(configManager, config, placeholderResolver, messageHandler, leaveMessageCache, discordIntegration);
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(config, stateStore, messageHandler);
 
         this.corePremiumVanishListener = premiumVanish == null ? null

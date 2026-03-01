@@ -5,7 +5,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
-import xyz.earthcow.networkjoinmessages.common.util.MessageType;
+import xyz.earthcow.networkjoinmessages.common.MessageType;
 
 import java.util.*;
 
@@ -31,11 +31,13 @@ public final class ReceiverResolver {
     }
 
     public List<CorePlayer> getFirstJoinReceivers(String server) {
-        return resolve(config.isFirstJoinViewableByJoined(), true, config.isFirstJoinViewableByOther(), server, null);
+        // fromServer is null for join events; viewableByLeft is ignored when fromServer is null
+        return resolve(config.isFirstJoinViewableByJoined(), false, config.isFirstJoinViewableByOther(), server, null);
     }
 
     public List<CorePlayer> getJoinReceivers(String server) {
-        return resolve(config.isJoinViewableByJoined(), true, config.isJoinViewableByOther(), server, null);
+        // fromServer is null for join events; viewableByLeft is ignored when fromServer is null
+        return resolve(config.isJoinViewableByJoined(), false, config.isJoinViewableByOther(), server, null);
     }
 
     public List<CorePlayer> getLeaveReceivers(String server) {
@@ -132,10 +134,7 @@ public final class ReceiverResolver {
             case FIRST_JOIN -> config.getServerFirstJoinMessageDisabled();
             case JOIN       -> config.getServerJoinMessageDisabled();
             case LEAVE      -> config.getServerLeaveMessageDisabled();
-            default -> {
-                plugin.getCoreLogger().debug("No server suppression list for message type: " + type);
-                yield Collections.emptyList();
-            }
+            case SWAP       -> Collections.emptyList(); // no per-server suppression for swap
         };
 
         Set<UUID> suppressed = new HashSet<>();

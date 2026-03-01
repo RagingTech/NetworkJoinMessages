@@ -11,8 +11,10 @@ import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 /**
  * Stateless facade for Adventure Component serialization/deserialization.
  *
- * <p>Handles legacy-to-MiniMessage translation and MiniPlaceholders context. All live
- * placeholder resolution (LuckPerms, PAPI, built-ins) is delegated to {@link PlaceholderResolver}.
+ * <p>Handles legacy-to-MiniMessage translation. MiniPlaceholders context is passed in
+ * explicitly — this class has no static dependency on {@link PlaceholderResolver}.
+ * All live placeholder resolution (LuckPerms, PAPI, built-ins) is delegated to
+ * {@link PlaceholderResolver}.
  */
 public final class Formatter {
 
@@ -21,23 +23,26 @@ public final class Formatter {
     private Formatter() {}
 
     /**
-     * Deserializes a string to a Component, applying legacy color translation.
-     * Does not resolve MiniPlaceholders.
+     * Deserializes a string to a Component, applying legacy color translation only.
      */
     public static Component deserialize(@NotNull String str) {
-        return deserialize(str, null);
+        return deserialize(str, null, null);
     }
 
     /**
      * Deserializes a string to a Component, applying legacy color translation and optionally
      * MiniPlaceholders for the given player audience.
      *
-     * @param str         the raw string to deserialize
-     * @param parseTarget optional player to resolve audience-scoped MiniPlaceholders against
+     * @param str              the raw string to deserialize
+     * @param parseTarget      optional player to resolve audience-scoped MiniPlaceholders against
+     * @param miniPlaceholders optional hook; pass null when not available
      */
-    public static Component deserialize(@NotNull String str, @Nullable CorePlayer parseTarget) {
+    public static Component deserialize(
+            @NotNull String str,
+            @Nullable CorePlayer parseTarget,
+            @Nullable MiniPlaceholdersHook miniPlaceholders
+    ) {
         String translated = LegacyColorTranslator.translate(str);
-        MiniPlaceholdersHook miniPlaceholders = PlaceholderResolver.getMiniPlaceholders();
 
         if (miniPlaceholders != null) {
             if (parseTarget == null) {

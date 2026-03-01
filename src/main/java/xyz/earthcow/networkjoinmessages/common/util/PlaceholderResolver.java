@@ -12,8 +12,6 @@ import xyz.earthcow.networkjoinmessages.common.modules.MiniPlaceholdersHook;
 
 import java.util.function.Consumer;
 
-import static xyz.earthcow.networkjoinmessages.common.util.Formatter.miniMessage;
-
 /**
  * Resolves all runtime placeholders (%player%, %server_name%, LuckPerms, PAPI, MiniPlaceholders)
  * in a message string against a specific player.
@@ -27,7 +25,7 @@ public final class PlaceholderResolver {
 
     private LuckPerms luckPerms = null;
     private PlaceholderAPI placeholderAPI = null;
-    private static MiniPlaceholdersHook miniPlaceholders = null;
+    private MiniPlaceholdersHook miniPlaceholders = null;
 
     public PlaceholderResolver(@NotNull CorePlugin plugin, @NotNull PluginConfig config) {
         this.config = config;
@@ -65,7 +63,7 @@ public final class PlaceholderResolver {
     /**
      * Returns whether MiniPlaceholders is available. Used by {@link Formatter} for deserialization.
      */
-    public static MiniPlaceholdersHook getMiniPlaceholders() {
+    public MiniPlaceholdersHook getMiniPlaceholders() {
         return miniPlaceholders;
     }
 
@@ -87,8 +85,8 @@ public final class PlaceholderResolver {
         message = resolveLuckPerms(message, player);
 
         if (miniPlaceholders != null) {
-            message = miniMessage.serialize(
-                miniMessage.deserialize(
+            message = Formatter.miniMessage.serialize(
+                Formatter.miniMessage.deserialize(
                     LegacyColorTranslator.translate(message),
                     player.getAudience(),
                     miniPlaceholders.getAudienceGlobalResolver()

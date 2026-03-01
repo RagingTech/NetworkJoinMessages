@@ -21,12 +21,6 @@ public class CoreSpoofCommand implements Command {
     private final MessageHandler messageHandler;
     private final SpoofManager spoofManager;
 
-    public CoreSpoofCommand(PluginConfig config, MessageHandler messageHandler, SpoofManager spoofManager) {
-        // PlayerStateStore is accessed via the SpoofManager's toggle; pass stateStore separately
-        // for the toggle subcommand
-        this(config, null, messageHandler, spoofManager);
-    }
-
     public CoreSpoofCommand(PluginConfig config, PlayerStateStore stateStore, MessageHandler messageHandler, SpoofManager spoofManager) {
         this.config = config;
         this.stateStore = stateStore;
@@ -64,7 +58,6 @@ public class CoreSpoofCommand implements Command {
                     messageHandler.sendMessage(player, config.getSpoofToggleSilentNoPerm());
                     return;
                 }
-                if (stateStore == null) return;
                 boolean newState = !stateStore.getSilentState(player);
                 stateStore.setSilentState(player, newState);
                 messageHandler.sendMessage(player,

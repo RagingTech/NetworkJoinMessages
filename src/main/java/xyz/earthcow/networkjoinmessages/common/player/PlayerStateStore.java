@@ -2,7 +2,7 @@ package xyz.earthcow.networkjoinmessages.common.player;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
-import xyz.earthcow.networkjoinmessages.common.util.MessageType;
+import xyz.earthcow.networkjoinmessages.common.MessageType;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
