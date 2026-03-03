@@ -52,6 +52,9 @@ public final class PluginConfig {
     @Getter private String consoleSilentJoin;
     @Getter private String consoleSilentLeave;
 
+    // Storage backend
+    @Getter private String storageType;
+
     // Numeric settings
     @Getter private int leaveCacheDuration;
     @Getter private int leaveJoinBufferDuration;
@@ -150,6 +153,7 @@ public final class PluginConfig {
         leaveCacheDuration      = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
         leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
         silentJoinDefaultState  = config.getBoolean("Settings.SilentJoinDefaultState");
+        storageType             = config.getString("Settings.StorageType", "H2").toUpperCase();
 
         swapServerMessageEnabled       = config.getBoolean("Settings.SwapServerMessageEnabled");
         firstJoinNetworkMessageEnabled = config.getBoolean("Settings.FirstJoinNetworkMessageEnabled");
@@ -194,6 +198,16 @@ public final class PluginConfig {
 
     /** Validates fields with a constrained set of valid values and resets invalid ones. */
     private void validateConstrainedFields() {
+        switch (storageType) {
+            case "H2", "YAML" -> { /* valid */ }
+            default -> {
+                plugin.getCoreLogger().info(
+                    "Setting error: Settings.StorageType only allows H2 or YAML. " +
+                    "Got '" + storageType + "'. Defaulting to H2."
+                );
+                storageType = "H2";
+            }
+        }
         switch (swapServerMessageRequires) {
             case "JOINED", "LEFT", "BOTH", "ANY" -> { /* valid */ }
             default -> {
@@ -249,6 +263,7 @@ public final class PluginConfig {
         YamlDocument defaults = Objects.requireNonNull(configManager.getPluginConfig().getDefaults());
 
         charts.add(new SimplePie("leave_cache_duration",         () -> String.valueOf(leaveCacheDuration)));
+        charts.add(new SimplePie("storage_type",                  () -> storageType));
         charts.add(new SimplePie("swap_enabled",                 () -> String.valueOf(swapServerMessageEnabled)));
         charts.add(new SimplePie("first_join_enabled",           () -> String.valueOf(firstJoinNetworkMessageEnabled)));
         charts.add(new SimplePie("join_enabled",                 () -> String.valueOf(joinNetworkMessageEnabled)));

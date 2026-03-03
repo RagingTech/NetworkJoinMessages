@@ -13,7 +13,7 @@ import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
 import xyz.earthcow.networkjoinmessages.common.player.*;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
-import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
@@ -34,7 +34,7 @@ public class CorePlayerListener {
     private final LeaveMessageCache leaveMessageCache;
     private final LeaveJoinBufferManager leaveJoinBuffer;
     private final PlaceholderResolver placeholderResolver;
-    private final H2PlayerJoinTracker firstJoinTracker;
+    private final PlayerJoinTracker firstJoinTracker;
 
     public CorePlayerListener(
             CorePlugin plugin,
@@ -47,7 +47,7 @@ public class CorePlayerListener {
             LeaveMessageCache leaveMessageCache,
             LeaveJoinBufferManager leaveJoinBuffer,
             PlaceholderResolver placeholderResolver,
-            H2PlayerJoinTracker firstJoinTracker
+            PlayerJoinTracker firstJoinTracker
     ) {
         this.plugin = plugin;
         this.config = config;

@@ -1,15 +1,7 @@
 package xyz.earthcow.networkjoinmessages.common.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Enumeration;
 import java.util.UUID;
@@ -17,7 +9,7 @@ import java.util.UUID;
 /**
  * Tracks which players have ever joined the network using an embedded H2 database.
  */
-public class H2PlayerJoinTracker implements AutoCloseable {
+public class H2PlayerJoinTracker implements PlayerJoinTracker {
 
     private static final String CREATE_TABLE_SQL =
         "CREATE TABLE IF NOT EXISTS players_joined (" +
@@ -100,32 +92,6 @@ public class H2PlayerJoinTracker implements AutoCloseable {
             ps.executeUpdate();
         } catch (SQLException e) {
             logger.severe("SQL failure: Could not mark player '" + playerName + "' (" + playerUuid + ") as joined");
-        }
-    }
-
-    /**
-     * Imports all entries from a vanilla {@code usercache.json} file into the join-tracker database.
-     *
-     * @param userCacheStr path to the usercache.json file
-     * @return true if the import succeeded, false otherwise
-     */
-    public boolean addUsersFromUserCache(String userCacheStr) {
-        Path userCachePath = Paths.get(userCacheStr);
-        if (!Files.exists(userCachePath)) {
-            return false;
-        }
-        try {
-            String json = Files.readString(userCachePath);
-            JsonArray entries = JsonParser.parseString(json).getAsJsonArray();
-            for (JsonElement entry : entries) {
-                JsonObject obj = entry.getAsJsonObject();
-                String username = obj.get("name").getAsString();
-                UUID uuid = UUID.fromString(obj.get("uuid").getAsString());
-                markAsJoined(uuid, username);
-            }
-            return true;
-        } catch (IOException | IllegalStateException | IllegalArgumentException e) {
-            return false;
         }
     }
 
