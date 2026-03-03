@@ -129,9 +129,9 @@ Settings:
 
   # Storage backend for first-join tracking.
   # H2   - Embedded SQL database (default). Best for larger servers.
-  # YAML - Plain text file (joined.yml). Easier to inspect/edit by hand.
+  # TEXT - Plain text file (joined.txt). Easier to inspect/edit by hand.
   # Changing this option requires a restart. Data is NOT migrated automatically.
-  StorageType: H2
+  StorageType: TEXT
 
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true

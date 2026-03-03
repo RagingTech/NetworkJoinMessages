@@ -18,7 +18,7 @@ import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 import xyz.earthcow.networkjoinmessages.common.util.SpoofManager;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.util.YamlPlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.TextPlayerJoinTracker;
 
 import java.util.Collection;
 
@@ -78,11 +78,11 @@ public class Core {
         try {
             String storageType = config.getStorageType();
             if ("YAML".equalsIgnoreCase(storageType)) {
-                firstJoinTracker = new YamlPlayerJoinTracker(
+                firstJoinTracker = new TextPlayerJoinTracker(
                     plugin.getCoreLogger(),
-                    plugin.getDataFolder().toPath().resolve("joined.yml")
+                    plugin.getDataFolder().toPath().resolve("joined.txt")
                 );
-                plugin.getCoreLogger().info("Using YAML storage for first-join tracking (joined.yml).");
+                plugin.getCoreLogger().info("Using YAML storage for first-join tracking (joined.txt).");
             } else {
                 firstJoinTracker = new H2PlayerJoinTracker(
                     plugin.getCoreLogger(),
