@@ -68,8 +68,20 @@ public class Core {
         LeaveJoinBufferManager leaveJoinBuffer = new LeaveJoinBufferManager(plugin, config);
 
         // Discord integration
-        DiscordWebhookBuilder webhookBuilder = new DiscordWebhookBuilder(plugin, config, messageFormatter, configManager.getDiscordConfig());
-        DiscordIntegration discordIntegration = new DiscordIntegration(plugin, placeholderResolver, webhookBuilder, configManager.getDiscordConfig());
+        DiscordWebhookBuilder webhookBuilder = new DiscordWebhookBuilder(plugin, configManager.getDiscordConfig());
+        DiscordIntegration discordIntegration = new DiscordIntegration(plugin, placeholderResolver, messageFormatter, webhookBuilder, configManager.getDiscordConfig());
+
+        // First-join tracker (nullable — callers guard against null if H2 init fails)
+        H2PlayerJoinTracker firstJoinTracker = null;
+        try {
+            firstJoinTracker = new H2PlayerJoinTracker(
+                plugin.getCoreLogger(),
+                plugin.getDataFolder().toPath().resolve("joined").toAbsolutePath().toString()
+            );
+        } catch (Exception ex) {
+            plugin.getCoreLogger().severe("Failed to load H2 first join tracker! First-join messages will be unavailable.");
+            plugin.getCoreLogger().debug("Exception: " + ex);
+        }
 
         // First-join tracker (nullable — callers guard against null if H2 init fails)
         H2PlayerJoinTracker firstJoinTracker = null;

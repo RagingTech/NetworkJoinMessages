@@ -1,10 +1,10 @@
 package xyz.earthcow.networkjoinmessages.common.modules;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.discordwebhook.DiscordWebhook;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.broadcast.MessageFormatter;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
@@ -15,13 +15,23 @@ import java.io.IOException;
 
 /**
  * Handles Discord webhook execution for network join/leave/swap events.
- * Delegates webhook construction to {@link DiscordWebhookBuilder}
- * and placeholder resolution to {@link PlaceholderResolver}.
+ *
+ * <p>Placeholder resolution happens in two stages:
+ * <ol>
+ *   <li>{@link MessageFormatter} resolves player-count and server-name tokens that require
+ *       live Java objects ({@code %playercount_*}, {@code %to%}, {@code %from%}, etc.)
+ *       directly into the serialized JSON string.</li>
+ *   <li>{@link PlaceholderResolver} resolves all remaining tokens (LuckPerms, PAPI, built-ins)
+ *       in a single pass on the fully serialized JSON string before it is sent.</li>
+ * </ol>
+ *
+ * <p>{@link DiscordWebhookBuilder} is a pure structural mapper and performs no substitution.
  */
 public class DiscordIntegration {
 
     private final CorePlugin plugin;
     private final PlaceholderResolver placeholderResolver;
+    private final MessageFormatter messageFormatter;
     private final DiscordWebhookBuilder webhookBuilder;
     private final YamlDocument discordConfig;
 
@@ -30,11 +40,13 @@ public class DiscordIntegration {
     public DiscordIntegration(
             CorePlugin plugin,
             PlaceholderResolver placeholderResolver,
+            MessageFormatter messageFormatter,
             DiscordWebhookBuilder webhookBuilder,
             YamlDocument discordConfig
     ) {
         this.plugin = plugin;
         this.placeholderResolver = placeholderResolver;
+        this.messageFormatter = messageFormatter;
         this.webhookBuilder = webhookBuilder;
         this.discordConfig = discordConfig;
         loadConfig();
@@ -56,43 +68,68 @@ public class DiscordIntegration {
     public void onSwapServer(SwapServerEvent event) {
         if (event.isSilenced()) return;
         CorePlayer player = event.player();
-        DiscordWebhook webhook = webhookBuilder.buildSwapWebhook(webhookUrl, player, event.serverTo(), event.serverFrom());
-        if (webhook != null) executeWebhook(webhook, player);
+        DiscordWebhook webhook = webhookBuilder.buildSwapWebhook(webhookUrl);
+        if (webhook == null) return;
+
+        String avatarUrl = resolveAvatarUrl(player);
+        String preparedJson = messageFormatter.prepareDiscordSwapTemplate(
+            webhook.getJsonString(), player, event.serverFrom(), event.serverTo(), avatarUrl);
+        executeWebhook(webhook, preparedJson, player);
     }
 
     public void onNetworkJoin(NetworkJoinEvent event) {
         if (event.isSilenced()) return;
         CorePlayer player = event.player();
         String key = event.isFirstJoin() ? "Messages.FirstJoinNetwork" : "Messages.JoinNetwork";
-        DiscordWebhook webhook = webhookBuilder.buildJoinWebhook(webhookUrl, key, player);
-        if (webhook != null) executeWebhook(webhook, player);
+        DiscordWebhook webhook = webhookBuilder.buildJoinWebhook(webhookUrl, key);
+        if (webhook == null) return;
+
+        String avatarUrl = resolveAvatarUrl(player);
+        String preparedJson = messageFormatter.prepareDiscordJoinLeaveTemplate(
+            webhook.getJsonString(), player, false, avatarUrl);
+        executeWebhook(webhook, preparedJson, player);
     }
 
     public void onNetworkLeave(NetworkLeaveEvent event) {
         if (event.isSilenced()) return;
         CorePlayer player = event.player();
-        DiscordWebhook webhook = webhookBuilder.buildLeaveWebhook(webhookUrl, player);
-        if (webhook != null) executeWebhook(webhook, player);
+        DiscordWebhook webhook = webhookBuilder.buildLeaveWebhook(webhookUrl);
+        if (webhook == null) return;
+
+        String avatarUrl = resolveAvatarUrl(player);
+        String preparedJson = messageFormatter.prepareDiscordJoinLeaveTemplate(
+            webhook.getJsonString(), player, true, avatarUrl);
+        executeWebhook(webhook, preparedJson, player);
     }
 
     // --- Webhook execution ---
 
     /**
-     * Resolves any remaining placeholders in the webhook payload, then executes the webhook
-     * asynchronously.
+     * Resolves remaining placeholders (LuckPerms, PAPI, built-ins) on the pre-processed JSON
+     * string, then executes the webhook asynchronously.
      */
-    private void executeWebhook(DiscordWebhook webhook, CorePlayer parseTarget) {
-        placeholderResolver.resolve(webhook.getJsonString(), parseTarget, formatted ->
+    private void executeWebhook(DiscordWebhook webhook, String preparedJson, CorePlayer parseTarget) {
+        placeholderResolver.resolve(preparedJson, parseTarget, fullyResolved ->
             plugin.runTaskAsync(() -> {
                 try {
-                    webhook.execute(formatted);
+                    webhook.execute(fullyResolved);
                 } catch (IOException e) {
                     plugin.getCoreLogger().severe("[DiscordIntegration] " + describeHttpError(e));
                     plugin.getCoreLogger().debug("Exception: " + e);
-                    plugin.getCoreLogger().debug("Webhook payload: " + webhook.getJsonString());
+                    plugin.getCoreLogger().debug("Webhook payload: " + preparedJson);
                 }
             })
         );
+    }
+
+    /**
+     * Resolves the avatar URL template from config, substituting {@code %uuid%} and
+     * {@code %player%} for the given player.
+     */
+    private String resolveAvatarUrl(CorePlayer player) {
+        return discordConfig.getString("EmbedAvatarUrl")
+            .replace("%uuid%", player.getUniqueId().toString())
+            .replace("%player%", player.getName());
     }
 
     /** Produces a human-readable error description for a failed webhook HTTP request. */

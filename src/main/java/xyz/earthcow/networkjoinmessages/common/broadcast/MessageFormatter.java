@@ -83,7 +83,56 @@ public final class MessageFormatter {
         return message;
     }
 
-    // --- Player count helpers ---
+    // --- Discord template pre-processors ---
+
+    /**
+     * Resolves only the player-count and server-name placeholders that require live Java objects
+     * into the given raw template string. Used by the Discord integration to pre-process a webhook
+     * JSON payload before the single final {@link xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver}
+     * pass.
+     *
+     * <p>Handles: {@code %to%}, {@code %to_clean%}, {@code %from%}, {@code %from_clean%},
+     * {@code %playercount_from%}, {@code %playercount_to%}, {@code %playercount_network%},
+     * {@code %embedavatarurl%}.
+     */
+    public String prepareDiscordSwapTemplate(String template, CorePlayer player, String fromName, String toName, String avatarUrl) {
+        String displayFrom = config.getServerDisplayName(fromName);
+        String displayTo   = config.getServerDisplayName(toName);
+
+        if (template.contains("%playercount_from%")) {
+            template = template.replace("%playercount_from%", getServerPlayerCount(fromName, true, player));
+        }
+        if (template.contains("%playercount_to%")) {
+            template = template.replace("%playercount_to%", getServerPlayerCount(toName, false, player));
+        }
+        if (template.contains("%playercount_network%")) {
+            template = template.replace("%playercount_network%", getNetworkPlayerCount(player, false));
+        }
+        return template
+            .replace("%embedavatarurl%", avatarUrl)
+            .replace("%to%",         displayTo)
+            .replace("%to_clean%",   toName)
+            .replace("%from%",       displayFrom)
+            .replace("%from_clean%", fromName);
+    }
+
+    /**
+     * Resolves only the player-count placeholders that require live Java objects into the given
+     * raw template string. Used by the Discord integration for join and leave webhook payloads.
+     *
+     * <p>Handles: {@code %playercount_server%}, {@code %playercount_network%},
+     * {@code %embedavatarurl%}.
+     */
+    public String prepareDiscordJoinLeaveTemplate(String template, CorePlayer player, boolean leaving, String avatarUrl) {
+        if (template.contains("%playercount_server%")) {
+            template = template.replace("%playercount_server%",
+                getServerPlayerCount(player.getCurrentServer(), leaving, player));
+        }
+        if (template.contains("%playercount_network%")) {
+            template = template.replace("%playercount_network%", getNetworkPlayerCount(player, leaving));
+        }
+        return template.replace("%embedavatarurl%", avatarUrl);
+    }
 
     public String getServerPlayerCount(CorePlayer player, boolean leaving) {
         return getServerPlayerCount(player.getCurrentServer(), leaving, player);
