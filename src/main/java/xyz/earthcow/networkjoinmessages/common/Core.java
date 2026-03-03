@@ -83,18 +83,6 @@ public class Core {
             plugin.getCoreLogger().debug("Exception: " + ex);
         }
 
-        // First-join tracker (nullable — callers guard against null if H2 init fails)
-        H2PlayerJoinTracker firstJoinTracker = null;
-        try {
-            firstJoinTracker = new H2PlayerJoinTracker(
-                plugin.getCoreLogger(),
-                plugin.getDataFolder().toPath().resolve("joined").toAbsolutePath().toString()
-            );
-        } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load H2 first join tracker! First-join messages will be unavailable.");
-            plugin.getCoreLogger().debug("Exception: " + ex);
-        }
-
         // Spoof
         SpoofManager spoofManager = new SpoofManager(plugin, config, messageHandler, messageFormatter, placeholderResolver);
 
