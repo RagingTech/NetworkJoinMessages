@@ -4,16 +4,16 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
-import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
 
 import java.util.List;
 
 public class CoreImportCommand implements Command {
 
     @Nullable
-    private final H2PlayerJoinTracker playerJoinTracker;
+    private final PlayerJoinTracker playerJoinTracker;
 
-    public CoreImportCommand(H2PlayerJoinTracker playerJoinTracker) {
+    public CoreImportCommand(PlayerJoinTracker playerJoinTracker) {
         this.playerJoinTracker = playerJoinTracker;
     }
 

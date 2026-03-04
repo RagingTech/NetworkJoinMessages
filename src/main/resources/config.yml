@@ -126,6 +126,13 @@ Settings:
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
   SilentJoinDefaultState: true
+
+  # Storage backend for first-join tracking.
+  # H2   - Embedded SQL database (default). Best for larger servers.
+  # TEXT - Plain text file (joined.txt). Easier to inspect/edit by hand.
+  # Changing this option requires a restart. Data is NOT migrated automatically.
+  StorageType: H2
+
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true
   FirstJoinNetworkMessageEnabled: true
@@ -228,4 +235,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 12
+config-version: 13

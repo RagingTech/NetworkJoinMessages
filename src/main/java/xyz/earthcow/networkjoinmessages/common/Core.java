@@ -17,6 +17,8 @@ import xyz.earthcow.networkjoinmessages.common.player.*;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 import xyz.earthcow.networkjoinmessages.common.util.SpoofManager;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.TextPlayerJoinTracker;
 
 import java.util.Collection;
 
@@ -71,15 +73,25 @@ public class Core {
         DiscordWebhookBuilder webhookBuilder = new DiscordWebhookBuilder(plugin, configManager.getDiscordConfig());
         DiscordIntegration discordIntegration = new DiscordIntegration(plugin, placeholderResolver, messageFormatter, webhookBuilder, configManager.getDiscordConfig());
 
-        // First-join tracker (nullable — callers guard against null if H2 init fails)
-        H2PlayerJoinTracker firstJoinTracker = null;
+        // First-join tracker — backend selected from config (nullable; callers guard against null)
+        PlayerJoinTracker firstJoinTracker = null;
         try {
-            firstJoinTracker = new H2PlayerJoinTracker(
-                plugin.getCoreLogger(),
-                plugin.getDataFolder().toPath().resolve("joined").toAbsolutePath().toString()
-            );
+            String storageType = config.getStorageType();
+            if ("TEXT".equalsIgnoreCase(storageType)) {
+                firstJoinTracker = new TextPlayerJoinTracker(
+                    plugin.getCoreLogger(),
+                    plugin.getDataFolder().toPath().resolve("joined.txt")
+                );
+                plugin.getCoreLogger().info("Using TEXT storage for first-join tracking (joined.txt).");
+            } else {
+                firstJoinTracker = new H2PlayerJoinTracker(
+                    plugin.getCoreLogger(),
+                    plugin.getDataFolder().toPath().resolve("joined").toAbsolutePath().toString()
+                );
+                plugin.getCoreLogger().info("Using H2 storage for first-join tracking.");
+            }
         } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load H2 first join tracker! First-join messages will be unavailable.");
+            plugin.getCoreLogger().severe("Failed to load first-join tracker! First-join messages will be unavailable.");
             plugin.getCoreLogger().debug("Exception: " + ex);
         }
 
