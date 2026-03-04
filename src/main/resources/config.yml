@@ -131,7 +131,7 @@ Settings:
   # H2   - Embedded SQL database (default). Best for larger servers.
   # TEXT - Plain text file (joined.txt). Easier to inspect/edit by hand.
   # Changing this option requires a restart. Data is NOT migrated automatically.
-  StorageType: TEXT
+  StorageType: H2
 
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true

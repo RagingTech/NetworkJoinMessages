@@ -153,7 +153,7 @@ public final class PluginConfig {
         leaveCacheDuration      = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
         leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
         silentJoinDefaultState  = config.getBoolean("Settings.SilentJoinDefaultState");
-        storageType             = config.getString("Settings.StorageType", "H2").toUpperCase();
+        storageType             = config.getString("Settings.StorageType").toUpperCase();
 
         swapServerMessageEnabled       = config.getBoolean("Settings.SwapServerMessageEnabled");
         firstJoinNetworkMessageEnabled = config.getBoolean("Settings.FirstJoinNetworkMessageEnabled");
@@ -199,10 +199,10 @@ public final class PluginConfig {
     /** Validates fields with a constrained set of valid values and resets invalid ones. */
     private void validateConstrainedFields() {
         switch (storageType) {
-            case "H2", "YAML" -> { /* valid */ }
+            case "H2", "TEXT" -> { /* valid */ }
             default -> {
                 plugin.getCoreLogger().info(
-                    "Setting error: Settings.StorageType only allows H2 or YAML. " +
+                    "Setting error: Settings.StorageType only allows H2 or TEXT. " +
                     "Got '" + storageType + "'. Defaulting to H2."
                 );
                 storageType = "H2";
