@@ -77,12 +77,12 @@ public class Core {
         PlayerJoinTracker firstJoinTracker = null;
         try {
             String storageType = config.getStorageType();
-            if ("YAML".equalsIgnoreCase(storageType)) {
+            if ("TEXT".equalsIgnoreCase(storageType)) {
                 firstJoinTracker = new TextPlayerJoinTracker(
                     plugin.getCoreLogger(),
                     plugin.getDataFolder().toPath().resolve("joined.txt")
                 );
-                plugin.getCoreLogger().info("Using YAML storage for first-join tracking (joined.txt).");
+                plugin.getCoreLogger().info("Using TEXT storage for first-join tracking (joined.txt).");
             } else {
                 firstJoinTracker = new H2PlayerJoinTracker(
                     plugin.getCoreLogger(),
