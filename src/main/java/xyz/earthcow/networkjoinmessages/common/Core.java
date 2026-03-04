@@ -18,6 +18,7 @@ import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 import xyz.earthcow.networkjoinmessages.common.util.SpoofManager;
 import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.SQLPlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.TextPlayerJoinTracker;
 
 import java.util.Collection;
@@ -83,6 +84,12 @@ public class Core {
                     plugin.getDataFolder().toPath().resolve("joined.txt")
                 );
                 plugin.getCoreLogger().info("Using TEXT storage for first-join tracking (joined.txt).");
+            } else if ("SQL".equalsIgnoreCase(storageType)) {
+                firstJoinTracker = new SQLPlayerJoinTracker(
+                    plugin.getCoreLogger(),
+                    config.buildSqlConfig()
+                );
+                plugin.getCoreLogger().info("Using SQL storage for first-join tracking.");
             } else {
                 firstJoinTracker = new H2PlayerJoinTracker(
                     plugin.getCoreLogger(),
