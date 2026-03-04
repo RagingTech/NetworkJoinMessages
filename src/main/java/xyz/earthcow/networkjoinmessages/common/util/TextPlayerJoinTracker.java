@@ -64,8 +64,10 @@ public class TextPlayerJoinTracker implements PlayerJoinTracker {
             Files.createDirectories(filePath.getParent());
             Files.writeString(
                 filePath,
-                "# Format: 853c80ef-3c37-49fd-aa49-938b674adae6:jeb_ or 540a2d51-210e-48a3-abd9-22c21cbaecd4 for no player name\n" +
-                    "# Player names can change; UUID required. One entry per line. No inline comments."
+                """
+                    # Format: 853c80ef-3c37-49fd-aa49-938b674adae6:jeb_ or 540a2d51-210e-48a3-abd9-22c21cbaecd4 for no player name
+                    # Player names can change; UUID required. One entry per line. No inline comments.
+                    """
             );
             return;
         }
