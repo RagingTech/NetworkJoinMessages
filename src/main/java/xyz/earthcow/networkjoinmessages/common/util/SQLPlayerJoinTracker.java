@@ -2,20 +2,19 @@ package xyz.earthcow.networkjoinmessages.common.util;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
+import java.nio.file.Path;
 import java.sql.*;
-import java.util.Enumeration;
 import java.util.UUID;
 
 /**
  * Tracks which players have ever joined the network using an external SQL server.
  *
- * <p>Supports MySQL, MariaDB, and PostgreSQL. The JDBC driver must be present on
- * the classpath; the driver class is loaded reflectively so no hard compile-time
- * dependency is required beyond what the server already provides.
+ * <p>Supports MySQL, MariaDB, and PostgreSQL. The required JDBC driver JAR is
+ * downloaded automatically from Maven Central on first use and cached in
+ * {@code <pluginDataFolder>/drivers/}. See {@link SQLDriverLoader}.
  *
- * <p>Connection details are read from {@code config.yml} under
- * {@code Settings.SQL.*}. The tracker keeps a single persistent {@link Connection}
- * and transparently reconnects on failure.
+ * <p>Connection details are supplied via {@link SQLConfig}. The tracker keeps a
+ * single persistent {@link Connection} and transparently reconnects on failure.
  *
  * <p>All public methods are {@code synchronized} for thread safety.
  */
@@ -49,10 +48,12 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
         int connectionTimeout
     ) {}
 
-    public SQLPlayerJoinTracker(CoreLogger logger, SQLConfig sqlConfig) throws SQLException {
+    public SQLPlayerJoinTracker(CoreLogger logger, SQLConfig sqlConfig, Path pluginDataFolder)
+        throws SQLException, SQLDriverLoader.DriverLoadException {
         this.logger = logger;
         this.sqlConfig = sqlConfig;
         this.isPostgres = "postgresql".equals(sqlConfig.driver());
+        new SQLDriverLoader(logger, pluginDataFolder).ensureLoaded(sqlConfig.driver());
 
         String tableName = sqlConfig.tablePrefix() + "players_joined";
 
@@ -77,7 +78,6 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
             "INSERT INTO " + tableName + " (player_uuid, player_name) VALUES (?, ?) " +
                 "ON CONFLICT (player_uuid) DO UPDATE SET player_name = EXCLUDED.player_name";
 
-        registerDriverIfNeeded();
         setUpConnection();
     }
     
@@ -170,31 +170,5 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
         }
 
         return url.toString();
-    }
-
-    /**
-     * Registers the JDBC driver via a {@link DriverShim} if it has not already been registered.
-     * This is necessary to avoid issues when the driver class is loaded by a non-system classloader.
-     */
-    private void registerDriverIfNeeded() {
-        String driverClassName = switch (sqlConfig.driver()) {
-            case "mysql" -> "com.mysql.jdbc.Driver";
-            case "mariadb" -> "org.mariadb.jdbc.Driver";
-            case "postgresql" -> "org.postgresql.Driver";
-            default -> throw new IllegalStateException();
-        };
-        try {
-            Enumeration<Driver> drivers = DriverManager.getDrivers();
-            while (drivers.hasMoreElements()) {
-                if (drivers.nextElement().getClass().getName().equals(driverClassName)) {
-                    return; // already registered
-                }
-            }
-            Class<?> clazz = Class.forName(driverClassName, true, SQLPlayerJoinTracker.class.getClassLoader());
-            Driver realDriver = (Driver) clazz.getDeclaredConstructor().newInstance();
-            DriverManager.registerDriver(new DriverShim(realDriver));
-        } catch (Exception e) {
-            logger.severe("Failed to manually register the JDBC driver. First-join tracking will be unavailable.");
-        }
     }
 }
