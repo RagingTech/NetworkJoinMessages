@@ -3,6 +3,7 @@ package xyz.earthcow.networkjoinmessages.common.util;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
 import java.sql.*;
+import java.util.Enumeration;
 import java.util.UUID;
 
 /**
@@ -76,6 +77,7 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
             "INSERT INTO " + tableName + " (player_uuid, player_name) VALUES (?, ?) " +
                 "ON CONFLICT (player_uuid) DO UPDATE SET player_name = EXCLUDED.player_name";
 
+        registerDriverIfNeeded();
         setUpConnection();
     }
     
@@ -168,5 +170,31 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
         }
 
         return url.toString();
+    }
+
+    /**
+     * Registers the JDBC driver via a {@link DriverShim} if it has not already been registered.
+     * This is necessary to avoid issues when the driver class is loaded by a non-system classloader.
+     */
+    private void registerDriverIfNeeded() {
+        String driverClassName = switch (sqlConfig.driver()) {
+            case "mysql" -> "com.mysql.jdbc.Driver";
+            case "mariadb" -> "org.mariadb.jdbc.Driver";
+            case "postgresql" -> "org.postgresql.Driver";
+            default -> throw new IllegalStateException();
+        };
+        try {
+            Enumeration<Driver> drivers = DriverManager.getDrivers();
+            while (drivers.hasMoreElements()) {
+                if (drivers.nextElement().getClass().getName().equals(driverClassName)) {
+                    return; // already registered
+                }
+            }
+            Class<?> clazz = Class.forName(driverClassName, true, SQLPlayerJoinTracker.class.getClassLoader());
+            Driver realDriver = (Driver) clazz.getDeclaredConstructor().newInstance();
+            DriverManager.registerDriver(new DriverShim(realDriver));
+        } catch (Exception e) {
+            logger.severe("Failed to manually register the JDBC driver. First-join tracking will be unavailable.");
+        }
     }
 }

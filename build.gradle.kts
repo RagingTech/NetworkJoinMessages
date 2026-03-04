@@ -54,6 +54,13 @@ dependencies {
         exclude(group = "com.velocitypowered", module = "velocity-proxy-log4j2-plugin")
     }
 
+    // JDBC drivers
+    implementation("com.mysql:mysql-connector-j:9.6.0")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.7")
+    implementation("org.postgresql:postgresql:42.7.9")
+
+    implementation("com.h2database:h2:${h2Version}")
+
     // bStats
     implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
     implementation("org.bstats:bstats-velocity:$bstatsVersion")
@@ -66,7 +73,6 @@ dependencies {
 
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("org.jetbrains:annotations:16.0.1")
-    implementation("com.h2database:h2:$h2Version")
 
     // Adventure & MiniMessage
     implementation("net.kyori:adventure-platform-bungeecord:4.4.1")
