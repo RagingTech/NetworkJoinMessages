@@ -263,7 +263,7 @@ public final class PluginConfig {
         YamlDocument defaults = Objects.requireNonNull(configManager.getPluginConfig().getDefaults());
 
         charts.add(new SimplePie("leave_cache_duration",         () -> String.valueOf(leaveCacheDuration)));
-        charts.add(new SimplePie("storage_type",                  () -> storageType));
+        charts.add(new SimplePie("storage_type",                 () -> storageType));
         charts.add(new SimplePie("swap_enabled",                 () -> String.valueOf(swapServerMessageEnabled)));
         charts.add(new SimplePie("first_join_enabled",           () -> String.valueOf(firstJoinNetworkMessageEnabled)));
         charts.add(new SimplePie("join_enabled",                 () -> String.valueOf(joinNetworkMessageEnabled)));
