@@ -1,6 +1,7 @@
-package xyz.earthcow.networkjoinmessages.common.util;
+package xyz.earthcow.networkjoinmessages.common.storage;
 
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
+import xyz.earthcow.networkjoinmessages.common.util.DriverShim;
 
 import java.sql.*;
 import java.util.Enumeration;

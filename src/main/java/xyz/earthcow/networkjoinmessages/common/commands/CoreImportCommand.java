@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreCommandSender;
-import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.storage.PlayerJoinTracker;
 
 import java.util.List;
 

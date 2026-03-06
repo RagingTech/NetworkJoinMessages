@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
+import xyz.earthcow.networkjoinmessages.common.storage.H2PlayerJoinTracker;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

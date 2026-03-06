@@ -14,6 +14,10 @@ import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookBuilder;
 import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.player.*;
+import xyz.earthcow.networkjoinmessages.common.storage.H2PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.storage.PlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.storage.SQLPlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.storage.TextPlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.util.*;
 
 import java.util.Collection;

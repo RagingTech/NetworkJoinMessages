@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.common.util;
+package xyz.earthcow.networkjoinmessages.common.storage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
