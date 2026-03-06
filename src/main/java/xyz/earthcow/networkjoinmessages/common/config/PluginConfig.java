@@ -21,7 +21,7 @@ public final class PluginConfig {
     private final CorePlugin plugin;
     private final ConfigManager configManager;
 
-    /** Map from real server name (lowercase) -> display server name */
+    /** Map from real server name -> display server name */
     private final Map<String, String> serverDisplayNames = new HashMap<>();
 
     // Definite messages (used when non-empty; otherwise a random one is selected)
@@ -131,7 +131,7 @@ public final class PluginConfig {
         serverDisplayNames.clear();
         if (config.contains("Servers")) {
             for (String serverKey : config.getSection("Servers").getRoutesAsStrings(false)) {
-                serverDisplayNames.put(serverKey.toLowerCase(), config.getString("Servers." + serverKey, serverKey));
+                serverDisplayNames.put(serverKey, config.getString("Servers." + serverKey, serverKey));
             }
         }
 
