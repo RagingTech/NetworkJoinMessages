@@ -1,8 +1,11 @@
 package xyz.earthcow.networkjoinmessages.common.player;
 
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.MessageType;
+import xyz.earthcow.networkjoinmessages.common.storage.PlayerDataStore;
+import xyz.earthcow.networkjoinmessages.common.util.PlayerDataSnapshot;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class PlayerStateStore {
 
     private final PluginConfig config;
+    private final PlayerDataStore store;
 
     private final Map<UUID, String>  previousServer = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> silentState    = new ConcurrentHashMap<>();
@@ -25,8 +29,37 @@ public final class PlayerStateStore {
     private final Set<UUID> noLeaveMessage = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noSwapMessage  = ConcurrentHashMap.newKeySet();
 
-    public PlayerStateStore(PluginConfig config) {
+    public PlayerStateStore(PluginConfig config, @Nullable PlayerDataStore store) {
         this.config = config;
+        this.store = store;
+    }
+
+    public void loadData(UUID playerUuid, String playerName) {
+        if (store == null) return;
+        PlayerDataSnapshot playerData = store.getData(playerUuid);
+        if (playerData == null) {
+            PlayerDataSnapshot newPlayerData = new PlayerDataSnapshot(
+                playerName,
+                silentState.get(playerUuid),
+                noJoinMessage.contains(playerUuid) ? true : null,
+                noSwapMessage.contains(playerUuid) ? true : null,
+                noLeaveMessage.contains(playerUuid) ? true : null
+            );
+            store.saveData(playerUuid, newPlayerData);
+        } else {
+            if (playerData.silentState() != null) {
+                silentState.put(playerUuid, playerData.silentState());
+            }
+            if (playerData.ignoreJoin() != null && playerData.ignoreJoin()) {
+                noJoinMessage.add(playerUuid);
+            }
+            if (playerData.ignoreSwap() != null && playerData.ignoreSwap()) {
+                noSwapMessage.add(playerUuid);
+            }
+            if (playerData.ignoreLeave() != null && playerData.ignoreLeave()) {
+                noLeaveMessage.add(playerUuid);
+            }
+        }
     }
 
     // --- Online tracking ---

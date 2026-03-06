@@ -14,10 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookBuilder;
 import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.player.*;
-import xyz.earthcow.networkjoinmessages.common.storage.H2PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.storage.PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.storage.SQLPlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.storage.TextPlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.storage.*;
 import xyz.earthcow.networkjoinmessages.common.util.*;
 
 import java.util.Collection;
@@ -53,8 +50,20 @@ public class Core {
             plugin.getCoreLogger().info("Successfully hooked into SayanVanish!");
         }
 
+        PlayerDataStore playerDataStore = null;
+        try {
+            playerDataStore = new H2PlayerDataStore(
+                plugin.getCoreLogger(),
+                plugin.getDataFolder().toPath().resolve("player_data").toAbsolutePath().toString()
+            );
+            plugin.getCoreLogger().info("Using H2 storage for player data.");
+        } catch (Exception ex) {
+            plugin.getCoreLogger().severe("Failed to load H2 player data! Persistent player data will be unavailable.");
+            plugin.getCoreLogger().debug("Exception: " + ex);
+        }
+
         // Core data / state
-        PlayerStateStore stateStore = new PlayerStateStore(config);
+        PlayerStateStore stateStore = new PlayerStateStore(config, playerDataStore);
 
         // Placeholder resolution
         PlaceholderResolver placeholderResolver = new PlaceholderResolver(plugin, config);

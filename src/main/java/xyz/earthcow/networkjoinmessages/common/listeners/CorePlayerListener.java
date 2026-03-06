@@ -114,6 +114,7 @@ public class CorePlayerListener {
     // --- Private handlers ---
 
     private void handleJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
+        stateStore.loadData(player.getUniqueId(), player.getName());
         stateStore.setConnected(player, true);
         player.setLastKnownConnectedServer(server);
 
