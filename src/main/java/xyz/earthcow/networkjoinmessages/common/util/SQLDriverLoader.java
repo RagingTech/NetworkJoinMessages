@@ -93,7 +93,7 @@ public class SQLDriverLoader {
 
         // Fast path — already registered (e.g. server bundles it, or we loaded it earlier)
         if (isDriverRegistered(driver.driverClassName)) {
-            logger.info("[SQLDriverLoader] Driver " + driver.driverClassName + " already registered, skipping download.");
+            logger.debug("[SQLDriverLoader] Driver " + driver.driverClassName + " already registered, skipping download.");
             return;
         }
 
@@ -103,16 +103,14 @@ public class SQLDriverLoader {
         if (!Files.exists(jarPath)) {
             downloadDriver(driver, jarPath);
         } else {
-            logger.info("[SQLDriverLoader] Using cached driver JAR: " + jarPath.getFileName());
+            logger.debug("[SQLDriverLoader] Using cached driver JAR: " + jarPath.getFileName());
         }
 
         // Load the JAR into a child class loader and register the driver via DriverShim
         loadFromJar(driver, jarPath);
     }
 
-    // -------------------------------------------------------------------------
-    // Internals
-    // -------------------------------------------------------------------------
+    // --- Internal helpers ---
 
     private boolean isDriverRegistered(String className) {
         var drivers = DriverManager.getDrivers();
@@ -151,7 +149,7 @@ public class SQLDriverLoader {
             Driver realDriver = (Driver) driverClass.getDeclaredConstructor().newInstance();
             // Wrap in a DriverShim so DriverManager accepts a driver from a foreign classloader
             DriverManager.registerDriver(new DriverShim(realDriver));
-            logger.info("[SQLDriverLoader] Loaded and registered " + driver.driverClassName + " from " + jarPath.getFileName() + ".");
+            logger.debug("[SQLDriverLoader] Loaded and registered " + driver.driverClassName + " from " + jarPath.getFileName() + ".");
         } catch (Exception e) {
             throw new DriverLoadException(
                 "Failed to load driver class " + driver.driverClassName + " from JAR " + jarPath + ": " + e.getMessage(), e
