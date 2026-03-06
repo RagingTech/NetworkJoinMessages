@@ -38,14 +38,8 @@ public final class PlayerStateStore {
         if (store == null) return;
         PlayerDataSnapshot playerData = store.getData(playerUuid);
         if (playerData == null) {
-            PlayerDataSnapshot newPlayerData = new PlayerDataSnapshot(
-                playerName,
-                silentState.get(playerUuid),
-                noJoinMessage.contains(playerUuid) ? true : null,
-                noSwapMessage.contains(playerUuid) ? true : null,
-                noLeaveMessage.contains(playerUuid) ? true : null
-            );
-            store.saveData(playerUuid, newPlayerData);
+            store.saveData(playerUuid,
+                new PlayerDataSnapshot(playerName, null, null, null, null));
         } else {
             if (playerData.silentState() != null) {
                 silentState.put(playerUuid, playerData.silentState());
