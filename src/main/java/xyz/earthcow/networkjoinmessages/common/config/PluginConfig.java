@@ -6,6 +6,7 @@ import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.util.SQLPlayerJoinTracker;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -54,6 +55,17 @@ public final class PluginConfig {
 
     // Storage backend
     @Getter private String storageType;
+
+    // SQL backend config (only used when StorageType is SQL)
+    @Getter private String sqlHost;
+    @Getter private int    sqlPort;
+    @Getter private String sqlDatabase;
+    @Getter private String sqlTablePrefix;
+    @Getter private String sqlUsername;
+    @Getter private String sqlPassword;
+    @Getter private String sqlDriver;
+    @Getter private boolean sqlUseSSL;
+    @Getter private int    sqlConnectionTimeout;
 
     // Numeric settings
     @Getter private int leaveCacheDuration;
@@ -155,6 +167,16 @@ public final class PluginConfig {
         silentJoinDefaultState  = config.getBoolean("Settings.SilentJoinDefaultState");
         storageType             = config.getString("Settings.StorageType").toUpperCase();
 
+        sqlHost                 = config.getString("Settings.SQL.Host");
+        sqlPort                 = config.getInt("Settings.SQL.Port");
+        sqlDatabase             = config.getString("Settings.SQL.Database");
+        sqlTablePrefix          = config.getString("Settings.SQL.TablePrefix");
+        sqlUsername             = config.getString("Settings.SQL.Username");
+        sqlPassword             = config.getString("Settings.SQL.Password");
+        sqlDriver               = config.getString("Settings.SQL.Driver").toLowerCase();
+        sqlUseSSL               = config.getBoolean("Settings.SQL.UseSSL");
+        sqlConnectionTimeout    = config.getInt("Settings.SQL.ConnectionTimeout");
+
         swapServerMessageEnabled       = config.getBoolean("Settings.SwapServerMessageEnabled");
         firstJoinNetworkMessageEnabled = config.getBoolean("Settings.FirstJoinNetworkMessageEnabled");
         joinNetworkMessageEnabled      = config.getBoolean("Settings.JoinNetworkMessageEnabled");
@@ -199,13 +221,25 @@ public final class PluginConfig {
     /** Validates fields with a constrained set of valid values and resets invalid ones. */
     private void validateConstrainedFields() {
         switch (storageType) {
-            case "H2", "TEXT" -> { /* valid */ }
+            case "H2", "TEXT", "SQL" -> { /* valid */ }
             default -> {
                 plugin.getCoreLogger().info(
-                    "Setting error: Settings.StorageType only allows H2 or TEXT. " +
+                    "Setting error: Settings.StorageType only allows H2, TEXT, or SQL. " +
                     "Got '" + storageType + "'. Defaulting to H2."
                 );
                 storageType = "H2";
+            }
+        }
+        if ("SQL".equals(storageType)) {
+            switch (sqlDriver) {
+                case "mysql", "mariadb", "postgresql" -> { /* valid */ }
+                default -> {
+                    plugin.getCoreLogger().info(
+                        "Setting error: Settings.SQL.Driver only allows mysql, mariadb, or postgresql. " +
+                        "Got '" + sqlDriver + "'. Defaulting to mysql."
+                    );
+                    sqlDriver = "mysql";
+                }
             }
         }
         switch (swapServerMessageRequires) {
@@ -256,6 +290,20 @@ public final class PluginConfig {
         return pool.get(ThreadLocalRandom.current().nextInt(pool.size()));
     }
 
+    // --- SQL config builder ---
+
+    /**
+     * Builds a {@link SQLPlayerJoinTracker.SQLConfig} from the values loaded during {@link #reload()}.
+     * Only meaningful when {@link #getStorageType()} is {@code "SQL"}.
+     */
+    public SQLPlayerJoinTracker.SQLConfig buildSqlConfig() {
+        return new SQLPlayerJoinTracker.SQLConfig(
+            sqlHost, sqlPort, sqlDatabase,
+            sqlUsername, sqlPassword,
+            sqlDriver, sqlTablePrefix, sqlUseSSL, sqlConnectionTimeout
+        );
+    }
+
     // --- bStats charts ---
 
     public Collection<CustomChart> getCustomCharts() {
@@ -263,7 +311,7 @@ public final class PluginConfig {
         YamlDocument defaults = Objects.requireNonNull(configManager.getPluginConfig().getDefaults());
 
         charts.add(new SimplePie("leave_cache_duration",         () -> String.valueOf(leaveCacheDuration)));
-        charts.add(new SimplePie("storage_type",                 () -> storageType));
+        charts.add(new SimplePie("storage_type",                  () -> storageType));
         charts.add(new SimplePie("swap_enabled",                 () -> String.valueOf(swapServerMessageEnabled)));
         charts.add(new SimplePie("first_join_enabled",           () -> String.valueOf(firstJoinNetworkMessageEnabled)));
         charts.add(new SimplePie("join_enabled",                 () -> String.valueOf(joinNetworkMessageEnabled)));

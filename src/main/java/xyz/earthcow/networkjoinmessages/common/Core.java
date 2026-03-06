@@ -14,11 +14,7 @@ import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordWebhookBuilder;
 import xyz.earthcow.networkjoinmessages.common.modules.SayanVanishHook;
 import xyz.earthcow.networkjoinmessages.common.player.*;
-import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
-import xyz.earthcow.networkjoinmessages.common.util.SpoofManager;
-import xyz.earthcow.networkjoinmessages.common.util.H2PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.util.PlayerJoinTracker;
-import xyz.earthcow.networkjoinmessages.common.util.TextPlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.util.*;
 
 import java.util.Collection;
 
@@ -83,6 +79,13 @@ public class Core {
                     plugin.getDataFolder().toPath().resolve("joined.txt")
                 );
                 plugin.getCoreLogger().info("Using TEXT storage for first-join tracking (joined.txt).");
+            } else if ("SQL".equalsIgnoreCase(storageType)) {
+                firstJoinTracker = new SQLPlayerJoinTracker(
+                    plugin.getCoreLogger(),
+                    config.buildSqlConfig(),
+                    plugin.getDataFolder().toPath()
+                );
+                plugin.getCoreLogger().info("Using SQL storage for first-join tracking.");
             } else {
                 firstJoinTracker = new H2PlayerJoinTracker(
                     plugin.getCoreLogger(),
@@ -90,6 +93,10 @@ public class Core {
                 );
                 plugin.getCoreLogger().info("Using H2 storage for first-join tracking.");
             }
+        } catch (SQLDriverLoader.DriverLoadException ex) {
+            plugin.getCoreLogger().severe("Failed to download/load the SQL driver — first-join tracking is disabled. " +
+                "Check your internet connection or place the driver JAR manually in the plugins/NetworkJoinMessages/drivers/ folder.");
+            plugin.getCoreLogger().debug("Exception: " + ex);
         } catch (Exception ex) {
             plugin.getCoreLogger().severe("Failed to load first-join tracker! First-join messages will be unavailable.");
             plugin.getCoreLogger().debug("Exception: " + ex);

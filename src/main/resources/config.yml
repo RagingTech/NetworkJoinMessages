@@ -128,10 +128,30 @@ Settings:
   SilentJoinDefaultState: true
 
   # Storage backend for first-join tracking.
-  # H2   - Embedded SQL database (default). Best for larger servers.
-  # TEXT - Plain text file (joined.txt). Easier to inspect/edit by hand.
+  # SQL  - External SQL server (MySQL, MariaDB, or PostgreSQL). Requires filling in the SQL section below.
+  # H2   - Embedded SQL database (default). Best for most servers; no setup required.
+  # TEXT - Plain text file (joined.txt). Easiest to inspect and edit by hand.
   # Changing this option requires a restart. Data is NOT migrated automatically.
   StorageType: H2
+
+  # External SQL server settings — only used when StorageType is SQL.
+  # Changes here require a restart.
+  SQL:
+    # Hostname or IP address of the SQL server.
+    Host: localhost
+    # Port — MySQL/MariaDB default is 3306, PostgreSQL default is 5432.
+    Port: 3306
+    # Name of the database to use. Must already exist.
+    Database: database
+    TablePrefix: njm_
+    Username: njm_user
+    Password: ""
+    # SQL driver to use. Accepted values: mysql, mariadb, postgresql
+    Driver: mysql
+    # Whether to require SSL/TLS for the connection (MySQL/MariaDB only).
+    UseSSL: false
+    # Seconds to wait when checking if the connection is still alive.
+    ConnectionTimeout: 5
 
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true
