@@ -114,17 +114,32 @@ public final class PlayerStateStore {
     // --- Per-player message suppression ---
 
     public void setSendMessageState(String type, CorePlayer player, boolean enabled) {
+        setSendMessageState(type, player.getUniqueId(), player.getName(), enabled);
+    }
+
+    /**
+     * Updates in-memory suppression sets (effective immediately if the player
+     * is online) and persists to the backing store so the state is restored on
+     * their next login (after a proxy reboot) via {@link #loadData}.
+     *
+     * @param type       one of {@code "all"}, {@code "join"}, {@code "leave"}, {@code "swap"}
+     * @param targetUuid the UUID of the player whose state should be changed
+     * @param playerName the player's last-known name, used as the {@code player_name}
+     *                   column value when writing the persistent record
+     * @param enabled    {@code true} to re-enable messages, {@code false} to suppress
+     */
+    public void setSendMessageState(String type, UUID targetUuid, String playerName, boolean enabled) {
         switch (type) {
             case "all"   -> {
-                updateSet(noSwapMessage, player.getUniqueId(), enabled);
-                updateSet(noJoinMessage, player.getUniqueId(), enabled);
-                updateSet(noLeaveMessage, player.getUniqueId(), enabled);
+                updateSet(noSwapMessage,  targetUuid, enabled);
+                updateSet(noJoinMessage,  targetUuid, enabled);
+                updateSet(noLeaveMessage, targetUuid, enabled);
             }
-            case "join"  -> updateSet(noJoinMessage,  player.getUniqueId(), enabled);
-            case "leave" -> updateSet(noLeaveMessage, player.getUniqueId(), enabled);
-            case "swap"  -> updateSet(noSwapMessage,  player.getUniqueId(), enabled);
+            case "join"  -> updateSet(noJoinMessage,  targetUuid, enabled);
+            case "leave" -> updateSet(noLeaveMessage, targetUuid, enabled);
+            case "swap"  -> updateSet(noSwapMessage,  targetUuid, enabled);
         }
-        saveData(player.getUniqueId(), player.getName());
+        saveData(targetUuid, playerName);
     }
 
     private void updateSet(Set<UUID> set, UUID id, boolean enabled) {
