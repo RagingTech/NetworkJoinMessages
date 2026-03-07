@@ -2,6 +2,7 @@ package xyz.earthcow.networkjoinmessages.common.player;
 
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.storage.PlayerDataStore;
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class PlayerStateStore {
 
+    private final CorePlugin plugin;
     private final PluginConfig config;
     private final PlayerDataStore store;
 
@@ -29,7 +31,8 @@ public final class PlayerStateStore {
     private final Set<UUID> noLeaveMessage = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noSwapMessage  = ConcurrentHashMap.newKeySet();
 
-    public PlayerStateStore(PluginConfig config, @Nullable PlayerDataStore store) {
+    public PlayerStateStore(CorePlugin plugin, PluginConfig config, @Nullable PlayerDataStore store) {
+        this.plugin = plugin;
         this.config = config;
         this.store = store;
     }
@@ -57,6 +60,18 @@ public final class PlayerStateStore {
                 else noLeaveMessage.remove(playerUuid);
             }
         }
+    }
+
+    private void saveData(UUID playerUuid, String playerName) {
+        if (store == null) return;
+        PlayerDataSnapshot newPlayerData = new PlayerDataSnapshot(
+            playerName,
+            silentState.get(playerUuid),
+            noJoinMessage.contains(playerUuid) ? true : null,
+            noSwapMessage.contains(playerUuid) ? true : null,
+            noLeaveMessage.contains(playerUuid) ? true : null
+        );
+        plugin.runTaskAsync(() -> store.saveData(playerUuid, newPlayerData));
     }
 
     // --- Online tracking ---
@@ -93,17 +108,23 @@ public final class PlayerStateStore {
 
     public void setSilentState(CorePlayer player, boolean state) {
         silentState.put(player.getUniqueId(), state);
+        saveData(player.getUniqueId(), player.getName());
     }
 
     // --- Per-player message suppression ---
 
-    public void setSendMessageState(String type, UUID id, boolean enabled) {
+    public void setSendMessageState(String type, CorePlayer player, boolean enabled) {
         switch (type) {
-            case "all"   -> { updateSet(noSwapMessage, id, enabled); updateSet(noJoinMessage, id, enabled); updateSet(noLeaveMessage, id, enabled); }
-            case "join"  -> updateSet(noJoinMessage,  id, enabled);
-            case "leave" -> updateSet(noLeaveMessage, id, enabled);
-            case "swap"  -> updateSet(noSwapMessage,  id, enabled);
+            case "all"   -> {
+                updateSet(noSwapMessage, player.getUniqueId(), enabled);
+                updateSet(noJoinMessage, player.getUniqueId(), enabled);
+                updateSet(noLeaveMessage, player.getUniqueId(), enabled);
+            }
+            case "join"  -> updateSet(noJoinMessage,  player.getUniqueId(), enabled);
+            case "leave" -> updateSet(noLeaveMessage, player.getUniqueId(), enabled);
+            case "swap"  -> updateSet(noSwapMessage,  player.getUniqueId(), enabled);
         }
+        saveData(player.getUniqueId(), player.getName());
     }
 
     private void updateSet(Set<UUID> set, UUID id, boolean enabled) {

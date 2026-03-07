@@ -63,7 +63,7 @@ public class Core {
         }
 
         // Core data / state
-        PlayerStateStore stateStore = new PlayerStateStore(config, playerDataStore);
+        PlayerStateStore stateStore = new PlayerStateStore(plugin, config, playerDataStore);
 
         // Placeholder resolution
         PlaceholderResolver placeholderResolver = new PlaceholderResolver(plugin, config);

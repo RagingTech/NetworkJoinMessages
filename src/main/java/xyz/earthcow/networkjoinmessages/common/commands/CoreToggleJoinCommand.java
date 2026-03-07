@@ -51,7 +51,7 @@ public class CoreToggleJoinCommand implements Command {
         }
 
         boolean state = args[1].equalsIgnoreCase("on") || args[1].equalsIgnoreCase("true");
-        stateStore.setSendMessageState(mode, player.getUniqueId(), state);
+        stateStore.setSendMessageState(mode, player, state);
 
         messageHandler.sendMessage(player,
             config.getToggleJoinConfirmation()
