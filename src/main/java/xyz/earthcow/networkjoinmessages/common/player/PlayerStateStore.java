@@ -1,8 +1,12 @@
 package xyz.earthcow.networkjoinmessages.common.player;
 
+import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.MessageType;
+import xyz.earthcow.networkjoinmessages.common.storage.PlayerDataStore;
+import xyz.earthcow.networkjoinmessages.common.util.PlayerDataSnapshot;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class PlayerStateStore {
 
+    private final CorePlugin plugin;
     private final PluginConfig config;
+    private final PlayerDataStore store;
 
     private final Map<UUID, String>  previousServer = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> silentState    = new ConcurrentHashMap<>();
@@ -25,8 +31,47 @@ public final class PlayerStateStore {
     private final Set<UUID> noLeaveMessage = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noSwapMessage  = ConcurrentHashMap.newKeySet();
 
-    public PlayerStateStore(PluginConfig config) {
+    public PlayerStateStore(CorePlugin plugin, PluginConfig config, @Nullable PlayerDataStore store) {
+        this.plugin = plugin;
         this.config = config;
+        this.store = store;
+    }
+
+    public void loadData(UUID playerUuid, String playerName) {
+        if (store == null) return;
+        PlayerDataSnapshot playerData = store.getData(playerUuid);
+        if (playerData == null) {
+            store.saveData(playerUuid,
+                new PlayerDataSnapshot(playerName, null, null, null, null));
+        } else {
+            if (playerData.silentState() != null) {
+                silentState.put(playerUuid, playerData.silentState());
+            }
+            if (playerData.ignoreJoin() != null) {
+                if (playerData.ignoreJoin()) noJoinMessage.add(playerUuid);
+                else noJoinMessage.remove(playerUuid);
+            }
+            if (playerData.ignoreSwap() != null) {
+                if (playerData.ignoreSwap()) noSwapMessage.add(playerUuid);
+                else noSwapMessage.remove(playerUuid);
+            }
+            if (playerData.ignoreLeave() != null) {
+                if (playerData.ignoreLeave()) noLeaveMessage.add(playerUuid);
+                else noLeaveMessage.remove(playerUuid);
+            }
+        }
+    }
+
+    private void saveData(UUID playerUuid, String playerName) {
+        if (store == null) return;
+        PlayerDataSnapshot newPlayerData = new PlayerDataSnapshot(
+            playerName,
+            silentState.get(playerUuid),
+            noJoinMessage.contains(playerUuid) ? true : null,
+            noSwapMessage.contains(playerUuid) ? true : null,
+            noLeaveMessage.contains(playerUuid) ? true : null
+        );
+        plugin.runTaskAsync(() -> store.saveData(playerUuid, newPlayerData));
     }
 
     // --- Online tracking ---
@@ -63,17 +108,23 @@ public final class PlayerStateStore {
 
     public void setSilentState(CorePlayer player, boolean state) {
         silentState.put(player.getUniqueId(), state);
+        saveData(player.getUniqueId(), player.getName());
     }
 
     // --- Per-player message suppression ---
 
-    public void setSendMessageState(String type, UUID id, boolean enabled) {
+    public void setSendMessageState(String type, CorePlayer player, boolean enabled) {
         switch (type) {
-            case "all"   -> { updateSet(noSwapMessage, id, enabled); updateSet(noJoinMessage, id, enabled); updateSet(noLeaveMessage, id, enabled); }
-            case "join"  -> updateSet(noJoinMessage,  id, enabled);
-            case "leave" -> updateSet(noLeaveMessage, id, enabled);
-            case "swap"  -> updateSet(noSwapMessage,  id, enabled);
+            case "all"   -> {
+                updateSet(noSwapMessage, player.getUniqueId(), enabled);
+                updateSet(noJoinMessage, player.getUniqueId(), enabled);
+                updateSet(noLeaveMessage, player.getUniqueId(), enabled);
+            }
+            case "join"  -> updateSet(noJoinMessage,  player.getUniqueId(), enabled);
+            case "leave" -> updateSet(noLeaveMessage, player.getUniqueId(), enabled);
+            case "swap"  -> updateSet(noSwapMessage,  player.getUniqueId(), enabled);
         }
+        saveData(player.getUniqueId(), player.getName());
     }
 
     private void updateSet(Set<UUID> set, UUID id, boolean enabled) {

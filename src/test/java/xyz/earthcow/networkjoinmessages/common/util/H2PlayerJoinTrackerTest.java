@@ -27,7 +27,8 @@ class H2PlayerJoinTrackerTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws Exception {
+        tracker.close();
         if (tempDbFile.exists()) tempDbFile.delete();
     }
 

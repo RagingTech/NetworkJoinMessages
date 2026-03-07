@@ -15,7 +15,7 @@ public class H2PlayerJoinTracker implements PlayerJoinTracker {
     private static final String CREATE_TABLE_SQL =
         "CREATE TABLE IF NOT EXISTS players_joined (" +
         "  player_uuid VARCHAR(36) PRIMARY KEY, " +
-        "  player_name VARCHAR(64) NOT NULL" +
+        "  player_name VARCHAR(32) NOT NULL" +
         ")";
 
     private static final String SELECT_SQL =
