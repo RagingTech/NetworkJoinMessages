@@ -44,14 +44,17 @@ public final class PlayerStateStore {
             if (playerData.silentState() != null) {
                 silentState.put(playerUuid, playerData.silentState());
             }
-            if (playerData.ignoreJoin() != null && playerData.ignoreJoin()) {
-                noJoinMessage.add(playerUuid);
+            if (playerData.ignoreJoin() != null) {
+                if (playerData.ignoreJoin()) noJoinMessage.add(playerUuid);
+                else noJoinMessage.remove(playerUuid);
             }
-            if (playerData.ignoreSwap() != null && playerData.ignoreSwap()) {
-                noSwapMessage.add(playerUuid);
+            if (playerData.ignoreSwap() != null) {
+                if (playerData.ignoreSwap()) noSwapMessage.add(playerUuid);
+                else noSwapMessage.remove(playerUuid);
             }
-            if (playerData.ignoreLeave() != null && playerData.ignoreLeave()) {
-                noLeaveMessage.add(playerUuid);
+            if (playerData.ignoreLeave() != null) {
+                if (playerData.ignoreLeave()) noLeaveMessage.add(playerUuid);
+                else noLeaveMessage.remove(playerUuid);
             }
         }
     }
