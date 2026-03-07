@@ -36,7 +36,7 @@ public class H2PlayerDataStore implements PlayerDataStore {
         "SELECT * FROM players WHERE player_uuid = ?";
 
     private static final String RESOLVE_SQL =
-        "SELECT player_uuid FROM players WHERE player_name = ?";
+        "SELECT player_uuid FROM players WHERE LOWER(player_name) = LOWER(?)";
 
     // MERGE upserts the identity columns on first insert, then UPDATE sets all
     // preference columns so an existing row is fully overwritten on save.
