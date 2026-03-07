@@ -47,6 +47,9 @@ public final class PluginConfig {
     @Getter private String toggleJoinMissingFirstArg;
     @Getter private String toggleJoinMissingState;
     @Getter private String toggleJoinConfirmation;
+    @Getter private String toggleJoinTargetNotFound;
+    @Getter private String toggleJoinMustSpecifyPlayer;
+    @Getter private String toggleJoinConfirmationOther;
     @Getter private String reloadConfirmation;
     @Getter private String silentPrefix;
     @Getter private String consoleSilentSwap;
@@ -150,17 +153,20 @@ public final class PluginConfig {
         consoleSilentJoin  = config.getString("Messages.Misc.ConsoleSilentJoin");
         consoleSilentLeave = config.getString("Messages.Misc.ConsoleSilentLeave");
 
-        noMoreArgumentsNeeded     = config.getString("Messages.Commands.NoMoreArgumentsNeeded");
-        noPermission              = config.getString("Messages.Commands.NoPermission");
-        spoofNoArgument           = config.getString("Messages.Commands.Spoof.NoArgument");
-        spoofSwapNoArgument       = config.getString("Messages.Commands.Spoof.SwapNoArgument");
-        spoofToggleSilentNoPerm   = config.getString("Messages.Commands.Spoof.ToggleSilentNoPerm");
-        spoofToggleSilent         = config.getString("Messages.Commands.Spoof.ToggleSilent");
-        spoofJoinNotification     = config.getString("Messages.Commands.Spoof.JoinNotification");
-        toggleJoinMissingFirstArg = config.getString("Messages.Commands.ToggleJoin.MissingFirstArgument");
-        toggleJoinMissingState    = config.getString("Messages.Commands.ToggleJoin.MissingState");
-        toggleJoinConfirmation    = config.getString("Messages.Commands.ToggleJoin.Confirmation");
-        reloadConfirmation        = config.getString("Messages.Commands.Reload.ConfigReloaded");
+        noMoreArgumentsNeeded        = config.getString("Messages.Commands.NoMoreArgumentsNeeded");
+        noPermission                 = config.getString("Messages.Commands.NoPermission");
+        spoofNoArgument              = config.getString("Messages.Commands.Spoof.NoArgument");
+        spoofSwapNoArgument          = config.getString("Messages.Commands.Spoof.SwapNoArgument");
+        spoofToggleSilentNoPerm      = config.getString("Messages.Commands.Spoof.ToggleSilentNoPerm");
+        spoofToggleSilent            = config.getString("Messages.Commands.Spoof.ToggleSilent");
+        spoofJoinNotification        = config.getString("Messages.Commands.Spoof.JoinNotification");
+        toggleJoinMissingFirstArg    = config.getString("Messages.Commands.ToggleJoin.MissingFirstArgument");
+        toggleJoinMissingState       = config.getString("Messages.Commands.ToggleJoin.MissingState");
+        toggleJoinConfirmation       = config.getString("Messages.Commands.ToggleJoin.Confirmation");
+        toggleJoinTargetNotFound     = config.getString("Messages.Commands.ToggleJoin.TargetNotFound");
+        toggleJoinMustSpecifyPlayer  = config.getString("Messages.Commands.ToggleJoin.MustSpecifyPlayer");
+        toggleJoinConfirmationOther  = config.getString("Messages.Commands.ToggleJoin.ConfirmationOther");
+        reloadConfirmation           = config.getString("Messages.Commands.Reload.ConfigReloaded");
 
         leaveCacheDuration      = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
         leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
