@@ -51,12 +51,6 @@ public class CoreToggleJoinCommand implements Command {
             return;
         }
 
-        // Console with no player argument is not valid
-        if (!isTargeted && !(sender instanceof CorePlayer)) {
-            messageHandler.sendMessage(sender, config.getToggleJoinMustSpecifyPlayer());
-            return;
-        }
-
         // Validate positional args
         if (args.length < 1) {
             messageHandler.sendMessage(sender, config.getToggleJoinMissingFirstArg());
@@ -64,6 +58,12 @@ public class CoreToggleJoinCommand implements Command {
         }
         if (args.length < 2) {
             messageHandler.sendMessage(sender, config.getToggleJoinMissingState());
+            return;
+        }
+
+        // Console with no player argument is not valid
+        if (!isTargeted && !(sender instanceof CorePlayer)) {
+            messageHandler.sendMessage(sender, config.getToggleJoinMustSpecifyPlayer());
             return;
         }
 
