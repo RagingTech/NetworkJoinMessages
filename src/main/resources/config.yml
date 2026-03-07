@@ -102,7 +102,9 @@ Messages:
         <gray>Valid arguments are: <green>on <gray>/ <red>off <gray>or <green>true <gray>/ <red>false<white>.
       Confirmation: |-
         <gray>Receive messages for <white>%mode%<gray> has been set to <white>%state%
-        <gray>This will last until the network reboots.
+      TargetNotFound: <red>Could not find a player with name %player%
+      MustSpecifyPlayer: <red>You must specify the target player when running from console
+      ConfirmationOther: <gray>Set receive messages for <white>%mode%<gray> on <white>%player%<gray> to <white>%state%
     Reload:
       ConfigReloaded: "Config Reloaded!"
   Misc:
