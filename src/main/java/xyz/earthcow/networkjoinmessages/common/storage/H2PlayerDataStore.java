@@ -25,7 +25,7 @@ public class H2PlayerDataStore implements PlayerDataStore {
     private static final String CREATE_TABLE_SQL =
         "CREATE TABLE IF NOT EXISTS players (" +
             "player_uuid  VARCHAR(36) PRIMARY KEY, " +
-            "player_name  VARCHAR(16) NOT NULL, "    +
+            "player_name  VARCHAR(32) NOT NULL, "    +
             "silent_state BOOLEAN NULL, "            +
             "ignore_join  BOOLEAN NULL, "            +
             "ignore_swap  BOOLEAN NULL, "            +

@@ -61,13 +61,13 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
         this.CREATE_TABLE_MYSQL =
             "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
                 "  player_uuid VARCHAR(36) NOT NULL, " +
-                "  player_name VARCHAR(64) NOT NULL, " +
+                "  player_name VARCHAR(32) NOT NULL, " +
                 "  PRIMARY KEY (player_uuid)" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
         this.CREATE_TABLE_POSTGRES =
             "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
                 "  player_uuid VARCHAR(36) NOT NULL, " +
-                "  player_name VARCHAR(64) NOT NULL, " +
+                "  player_name VARCHAR(32) NOT NULL, " +
                 "  PRIMARY KEY (player_uuid)" +
                 ")";
         this.SELECT_SQL =
