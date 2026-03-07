@@ -38,6 +38,10 @@ public final class SilenceChecker {
         this.premiumVanish = premiumVanish;
     }
 
+    public boolean isSilent(@NotNull CorePlayer player) {
+        return isSilent(player, true);
+    }
+
     /**
      * Returns true if the given player's event should be broadcast silently.
      *
@@ -49,8 +53,8 @@ public final class SilenceChecker {
      *       or has the {@code pv.joinvanished} permission with TreatVanishedOnJoin enabled</li>
      * </ul>
      */
-    public boolean isSilent(@NotNull CorePlayer player) {
-        logDebugState(player);
+    public boolean isSilent(@NotNull CorePlayer player, boolean logDebug) {
+        if (logDebug) logDebugState(player);
 
         if (config.isPVTreatVanishedOnJoin() && player.hasPermission(PV_JOIN_VANISHED_PERM)) {
             player.setPremiumVanishHidden(true);

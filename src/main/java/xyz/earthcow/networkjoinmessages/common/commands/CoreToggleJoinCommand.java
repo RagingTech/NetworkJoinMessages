@@ -145,7 +145,7 @@ public class CoreToggleJoinCommand implements Command {
                     yield ImmutableList.of();
                 }
                 yield plugin.getAllPlayers().stream()
-                    .filter(player -> !silenceChecker.isSilent(player))
+                    .filter(player -> !silenceChecker.isSilent(player, false))
                     .map(CorePlayer::getName)
                     .collect(ImmutableList.toImmutableList());
             }
