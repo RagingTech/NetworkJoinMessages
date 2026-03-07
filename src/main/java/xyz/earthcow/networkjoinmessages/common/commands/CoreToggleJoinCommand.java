@@ -7,6 +7,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.player.PlayerStateStore;
+import xyz.earthcow.networkjoinmessages.common.player.SilenceChecker;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,13 +20,15 @@ public class CoreToggleJoinCommand implements Command {
     private final PlayerStateStore stateStore;
     private final MessageHandler messageHandler;
     private final CorePlugin plugin;
+    private final SilenceChecker silenceChecker;
 
     public CoreToggleJoinCommand(PluginConfig config, PlayerStateStore stateStore,
-                                 MessageHandler messageHandler, CorePlugin plugin) {
+                                 MessageHandler messageHandler, CorePlugin plugin, SilenceChecker silenceChecker) {
         this.config = config;
         this.stateStore = stateStore;
         this.messageHandler = messageHandler;
         this.plugin = plugin;
+        this.silenceChecker = silenceChecker;
     }
 
     @Override
@@ -112,6 +115,7 @@ public class CoreToggleJoinCommand implements Command {
                     yield ImmutableList.of();
                 }
                 yield plugin.getAllPlayers().stream()
+                    .filter(player -> !silenceChecker.isSilent(player))
                     .map(CorePlayer::getName)
                     .collect(ImmutableList.toImmutableList());
             }

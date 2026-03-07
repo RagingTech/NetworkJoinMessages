@@ -131,7 +131,7 @@ public class Core {
         this.coreImportCommand     = new CoreImportCommand(firstJoinTracker);
         this.coreSpoofCommand      = new CoreSpoofCommand(config, stateStore, messageHandler, spoofManager);
         this.coreReloadCommand     = new CoreReloadCommand(configManager, config, placeholderResolver, messageHandler, leaveMessageCache, discordIntegration);
-        this.coreToggleJoinCommand = new CoreToggleJoinCommand(config, stateStore, messageHandler, plugin);
+        this.coreToggleJoinCommand = new CoreToggleJoinCommand(config, stateStore, messageHandler, plugin, silenceChecker);
 
         this.corePremiumVanishListener = premiumVanish == null ? null
             : new CorePremiumVanishListener(plugin.getCoreLogger(), config, spoofManager);
