@@ -1,4 +1,4 @@
-package xyz.earthcow.networkjoinmessages.common.util;
+package xyz.earthcow.networkjoinmessages.common.storage;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
-import xyz.earthcow.networkjoinmessages.common.storage.H2PlayerJoinTracker;
 
 import java.io.File;
 import java.nio.file.Files;
