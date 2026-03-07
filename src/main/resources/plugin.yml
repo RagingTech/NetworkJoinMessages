@@ -35,7 +35,7 @@ permissions:
     networkjoinmessages.toggle:
         description: "Allows the use of the /njointoggle command."
         default: op
-    networkjoinmessages.toggle.other:
+    networkjoinmessages.toggle.others:
       description: "Allows using the /njointoggle command for other players."
       default: op
     networkjoinmessages.import:
