@@ -8,6 +8,8 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.player.PlayerStateStore;
 import xyz.earthcow.networkjoinmessages.common.player.SilenceChecker;
+import xyz.earthcow.networkjoinmessages.common.storage.PlayerDataStore;
+import xyz.earthcow.networkjoinmessages.common.util.PlayerDataSnapshot;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,14 +23,17 @@ public class CoreToggleJoinCommand implements Command {
     private final MessageHandler messageHandler;
     private final CorePlugin plugin;
     private final SilenceChecker silenceChecker;
+    private final PlayerDataStore playerDataStore;
 
     public CoreToggleJoinCommand(PluginConfig config, PlayerStateStore stateStore,
-                                 MessageHandler messageHandler, CorePlugin plugin, SilenceChecker silenceChecker) {
+                                 MessageHandler messageHandler, CorePlugin plugin,
+                                 SilenceChecker silenceChecker, PlayerDataStore playerDataStore) {
         this.config = config;
         this.stateStore = stateStore;
         this.messageHandler = messageHandler;
         this.plugin = plugin;
         this.silenceChecker = silenceChecker;
+        this.playerDataStore = playerDataStore;
     }
 
     @Override
@@ -74,21 +79,46 @@ public class CoreToggleJoinCommand implements Command {
             final String targetName = args[2];
             final CorePlayer onlineTarget = plugin.getPlayerManager().getPlayer(targetName);
 
-            if (onlineTarget == null) {
+            if (onlineTarget != null) {
+                final UUID targetUuid = onlineTarget.getUniqueId();
+                stateStore.setSendMessageState(mode, targetUuid, onlineTarget.getName(), state);
+
+                messageHandler.sendMessage(sender,
+                    config.getToggleJoinConfirmationOther()
+                        .replace("%player%", onlineTarget.getName())
+                        .replace("%mode%",   mode)
+                        .replace("%state%",  String.valueOf(state)));
+
+                return;
+            }
+
+            if (playerDataStore == null) {
                 messageHandler.sendMessage(sender,
                     config.getToggleJoinTargetNotFound()
                         .replace("%player%", targetName));
                 return;
             }
 
-            final UUID targetUuid = onlineTarget.getUniqueId();
-            stateStore.setSendMessageState(mode, targetUuid, onlineTarget.getName(), state);
+            final UUID resolvedUuid = playerDataStore.resolveUuid(targetName);
+            if (resolvedUuid == null) {
+                messageHandler.sendMessage(sender,
+                    config.getToggleJoinTargetNotFound()
+                        .replace("%player%", targetName));
+                return;
+            }
+
+            // Re-fetch the stored name for the canonical
+            // casing rather than whatever the issuer typed
+            final PlayerDataSnapshot snapshot = playerDataStore.getData(resolvedUuid);
+            final String resolvedName = (snapshot != null) ? snapshot.playerName() : targetName;
+
+            stateStore.setSendMessageState(mode, resolvedUuid, resolvedName, state);
 
             messageHandler.sendMessage(sender,
                 config.getToggleJoinConfirmationOther()
-                    .replace("%player%", onlineTarget.getName())
-                    .replace("%mode%",     mode)
-                    .replace("%state%",   String.valueOf(state)));
+                    .replace("%player%", resolvedName)
+                    .replace("%mode%",   mode)
+                    .replace("%state%",  String.valueOf(state)));
 
         } else {
             final CorePlayer player = (CorePlayer) sender;
