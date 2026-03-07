@@ -4,6 +4,7 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -124,7 +125,7 @@ public class SQLDriverLoader {
         logger.info("[SQLDriverLoader] Downloading " + driver.jarName + " from Maven Central...");
         try {
             Files.createDirectories(driversDir);
-            URL url = new URL(driver.downloadUrl);
+            URL url = URI.create(driver.downloadUrl).toURL();
             // Write to a .tmp file first so a partial download is never mistaken for a valid JAR
             Path tmp = destination.resolveSibling(driver.jarName + ".tmp");
             try (InputStream in = url.openStream()) {
