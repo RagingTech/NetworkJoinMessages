@@ -16,7 +16,7 @@ import java.util.UUID;
  * downloaded automatically from Maven Central on first use and cached in
  * {@code <pluginDataFolder>/drivers/}. See {@link SQLDriverLoader}.
  *
- * <p>Connection details are supplied via {@link SQLPlayerJoinTracker.SQLConfig}.
+ * <p>Connection details are supplied via {@link SQLConfig}.
  * The store keeps a single persistent {@link Connection} and transparently
  * reconnects on failure.
  *
@@ -34,11 +34,11 @@ public class SQLPlayerDataStore implements PlayerDataStore {
     private final String UPSERT_POSTGRES;
 
     private final CoreLogger logger;
-    private final SQLPlayerJoinTracker.SQLConfig sqlConfig;
+    private final SQLConfig sqlConfig;
     private final boolean isPostgres;
     private Connection connection;
 
-    public SQLPlayerDataStore(CoreLogger logger, SQLPlayerJoinTracker.SQLConfig sqlConfig, Path pluginDataFolder)
+    public SQLPlayerDataStore(CoreLogger logger, SQLConfig sqlConfig, Path pluginDataFolder)
         throws SQLException, SQLDriverLoader.DriverLoadException {
         this.logger = logger;
         this.sqlConfig = sqlConfig;
@@ -190,7 +190,7 @@ public class SQLPlayerDataStore implements PlayerDataStore {
     }
 
     /**
-     * Builds a JDBC URL from the {@link SQLPlayerJoinTracker.SQLConfig}.
+     * Builds a JDBC URL from the {@link SQLConfig}.
      *
      * <ul>
      *   <li>MySQL:      {@code jdbc:mysql://host:port/db?...}</li>

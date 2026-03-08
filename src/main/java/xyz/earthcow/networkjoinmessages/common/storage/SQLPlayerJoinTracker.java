@@ -34,21 +34,6 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
     private final boolean isPostgres;
     private Connection connection;
 
-    /**
-     * Immutable value object carrying the SQL connection parameters read from config.
-     */
-    public record SQLConfig(
-        String host,
-        int port,
-        String database,
-        String username,
-        String password,
-        String driver,
-        String tablePrefix,
-        boolean useSSL,
-        int connectionTimeout
-    ) {}
-
     public SQLPlayerJoinTracker(CoreLogger logger, SQLConfig sqlConfig, Path pluginDataFolder)
         throws SQLException, SQLDriverLoader.DriverLoadException {
         this.logger = logger;
