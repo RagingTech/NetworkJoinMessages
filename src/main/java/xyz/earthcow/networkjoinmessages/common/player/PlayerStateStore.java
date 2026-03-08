@@ -41,25 +41,26 @@ public final class PlayerStateStore {
         if (store == null) return;
         PlayerDataSnapshot playerData = store.getData(playerUuid);
         if (playerData == null) {
+            if (config.isIgnoreJoinByDefault())  noJoinMessage.add(playerUuid);
+            if (config.isIgnoreSwapByDefault())  noSwapMessage.add(playerUuid);
+            if (config.isIgnoreLeaveByDefault()) noLeaveMessage.add(playerUuid);
             store.saveData(playerUuid,
                 new PlayerDataSnapshot(playerName, null, null, null, null));
         } else {
             if (playerData.silentState() != null) {
                 silentState.put(playerUuid, playerData.silentState());
             }
-            if (playerData.ignoreJoin() != null) {
-                if (playerData.ignoreJoin()) noJoinMessage.add(playerUuid);
-                else noJoinMessage.remove(playerUuid);
-            }
-            if (playerData.ignoreSwap() != null) {
-                if (playerData.ignoreSwap()) noSwapMessage.add(playerUuid);
-                else noSwapMessage.remove(playerUuid);
-            }
-            if (playerData.ignoreLeave() != null) {
-                if (playerData.ignoreLeave()) noLeaveMessage.add(playerUuid);
-                else noLeaveMessage.remove(playerUuid);
-            }
+
+            loadFlag(playerData.ignoreJoin(),  config.isIgnoreJoinByDefault(),  noJoinMessage,  playerUuid);
+            loadFlag(playerData.ignoreSwap(),  config.isIgnoreSwapByDefault(),  noSwapMessage,  playerUuid);
+            loadFlag(playerData.ignoreLeave(), config.isIgnoreLeaveByDefault(), noLeaveMessage, playerUuid);
         }
+    }
+
+    private void loadFlag(Boolean flag, boolean ignoreByDefault, Set<UUID> set, UUID uuid) {
+        if (flag == null) flag = ignoreByDefault;
+        if (flag) set.add(uuid);
+        else      set.remove(uuid);
     }
 
     private void saveData(UUID playerUuid, String playerName) {
@@ -67,11 +68,37 @@ public final class PlayerStateStore {
         PlayerDataSnapshot newPlayerData = new PlayerDataSnapshot(
             playerName,
             silentState.get(playerUuid),
-            noJoinMessage.contains(playerUuid) ? true : null,
-            noSwapMessage.contains(playerUuid) ? true : null,
-            noLeaveMessage.contains(playerUuid) ? true : null
+            determineSaveState(noJoinMessage,  config.isIgnoreJoinByDefault(),  playerUuid),
+            determineSaveState(noSwapMessage,  config.isIgnoreSwapByDefault(),  playerUuid),
+            determineSaveState(noLeaveMessage, config.isIgnoreLeaveByDefault(), playerUuid)
         );
         plugin.runTaskAsync(() -> store.saveData(playerUuid, newPlayerData));
+    }
+
+    /**
+     * Determines the value to persist for a single ignore-message flag.
+     *
+     * <p>Saves {@code null} when the player's current state matches the configured
+     * default
+     *
+     * @param set             the suppression set for this message type
+     * @param ignoreByDefault the configured default for this message type
+     * @param uuid            the player whose state is being saved
+     * @return {@code true} if explicitly suppressing against the default,
+     *         {@code false} if explicitly receiving against the default,
+     *         {@code null} if the player's state matches the default
+     */
+    private Boolean determineSaveState(Set<UUID> set, boolean ignoreByDefault, UUID uuid) {
+        if (set.contains(uuid)) {
+            if (ignoreByDefault) {
+                return null;
+            }
+            return true;
+        }
+        if (ignoreByDefault) {
+            return false;
+        }
+        return null;
     }
 
     // --- Online tracking ---

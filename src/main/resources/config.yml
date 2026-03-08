@@ -155,6 +155,12 @@ Settings:
     # Seconds to wait when checking if the connection is still alive.
     ConnectionTimeout: 5
 
+  # Should players ignore messages by default? Re-enable with /njointoggle.
+  # Changes require a restart to affect players who joined the proxy
+  IgnoreJoinByDefault: false
+  IgnoreSwapByDefault: false
+  IgnoreLeaveByDefault: false
+
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true
   FirstJoinNetworkMessageEnabled: true

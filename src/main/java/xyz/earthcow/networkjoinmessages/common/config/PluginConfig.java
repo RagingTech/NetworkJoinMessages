@@ -81,6 +81,11 @@ public final class PluginConfig {
      */
     @Getter private boolean silentJoinDefaultState;
 
+    // Ignore messages by default option
+    @Getter private boolean ignoreJoinByDefault;
+    @Getter private boolean ignoreSwapByDefault;
+    @Getter private boolean ignoreLeaveByDefault;
+
     // Feature enable/disable flags
     @Getter private boolean swapServerMessageEnabled;
     @Getter private boolean firstJoinNetworkMessageEnabled;
@@ -182,6 +187,10 @@ public final class PluginConfig {
         sqlDriver               = config.getString("Settings.SQL.Driver").toLowerCase();
         sqlUseSSL               = config.getBoolean("Settings.SQL.UseSSL");
         sqlConnectionTimeout    = config.getInt("Settings.SQL.ConnectionTimeout");
+
+        ignoreJoinByDefault  = config.getBoolean("Settings.IgnoreJoinByDefault");
+        ignoreSwapByDefault  = config.getBoolean("Settings.IgnoreSwapByDefault");
+        ignoreLeaveByDefault = config.getBoolean("Settings.IgnoreLeaveByDefault");
 
         swapServerMessageEnabled       = config.getBoolean("Settings.SwapServerMessageEnabled");
         firstJoinNetworkMessageEnabled = config.getBoolean("Settings.FirstJoinNetworkMessageEnabled");
