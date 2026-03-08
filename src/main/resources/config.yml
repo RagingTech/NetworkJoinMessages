@@ -129,10 +129,10 @@ Settings:
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
   SilentJoinDefaultState: true
 
-  # Storage backend for first-join tracking.
+  # Storage backend
   # SQL  - External SQL server (MySQL, MariaDB, or PostgreSQL). Requires filling in the SQL section below.
   # H2   - Embedded SQL database (default). Best for most servers; no setup required.
-  # TEXT - Plain text file (joined.txt). Easiest to inspect and edit by hand.
+  # TEXT - Plain text file (joined.txt). Easiest to inspect and edit by hand. (Player data will still use H2)
   # Changing this option requires a restart. Data is NOT migrated automatically.
   StorageType: H2
 
