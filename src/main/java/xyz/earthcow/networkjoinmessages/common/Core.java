@@ -51,14 +51,28 @@ public class Core {
         }
 
         PlayerDataStore playerDataStore = null;
+        String storageType = config.getStorageType();
         try {
-            playerDataStore = new H2PlayerDataStore(
-                plugin.getCoreLogger(),
-                plugin.getDataFolder().toPath().resolve("player_data").toAbsolutePath().toString()
-            );
-            plugin.getCoreLogger().info("Using H2 storage for player data.");
+            if ("SQL".equalsIgnoreCase(storageType)) {
+                playerDataStore = new SQLPlayerDataStore(
+                    plugin.getCoreLogger(),
+                    config.buildSqlConfig(),
+                    plugin.getDataFolder().toPath()
+                );
+                plugin.getCoreLogger().info("Using SQL storage for player data.");
+            } else {
+                playerDataStore = new H2PlayerDataStore(
+                    plugin.getCoreLogger(),
+                    plugin.getDataFolder().toPath().resolve("player_data").toAbsolutePath().toString()
+                );
+                plugin.getCoreLogger().info("Using H2 storage for player data.");
+            }
+        } catch (SQLDriverLoader.DriverLoadException ex) {
+            plugin.getCoreLogger().severe("Failed to download/load the SQL driver — player data is unavailable. " +
+                "Check your internet connection or place the driver JAR manually in the plugins/NetworkJoinMessages/drivers/ folder.");
+            plugin.getCoreLogger().debug("Exception: " + ex);
         } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load H2 player data! Persistent player data will be unavailable.");
+            plugin.getCoreLogger().severe("Failed to load player data handler! Persistent player data will be unavailable.");
             plugin.getCoreLogger().debug("Exception: " + ex);
         }
 
@@ -85,7 +99,6 @@ public class Core {
         // First-join tracker — backend selected from config (nullable; callers guard against null)
         PlayerJoinTracker firstJoinTracker = null;
         try {
-            String storageType = config.getStorageType();
             if ("TEXT".equalsIgnoreCase(storageType)) {
                 firstJoinTracker = new TextPlayerJoinTracker(
                     plugin.getCoreLogger(),
