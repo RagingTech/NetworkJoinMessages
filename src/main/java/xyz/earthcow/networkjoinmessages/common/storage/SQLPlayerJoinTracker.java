@@ -19,7 +19,7 @@ import java.util.UUID;
  *
  * <p>All public methods are {@code synchronized} for thread safety.
  */
-public class SQLPlayerJoinTracker implements PlayerJoinTracker {
+public class SQLPlayerJoinTracker extends SQLHandler implements PlayerJoinTracker {
 
     // MySQL / MariaDB uses INSERT … ON DUPLICATE KEY UPDATE.
     // PostgreSQL uses INSERT … ON CONFLICT DO NOTHING.
@@ -29,17 +29,9 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
     private final String UPSERT_MYSQL;
     private final String UPSERT_POSTGRES;
 
-    private final CoreLogger logger;
-    private final SQLConfig sqlConfig;
-    private final boolean isPostgres;
-    private Connection connection;
-
-    public SQLPlayerJoinTracker(CoreLogger logger, SQLConfig sqlConfig, Path pluginDataFolder)
+    public SQLPlayerJoinTracker(CoreLogger logger, SQLConfig sqlConfig, Path dataFolder)
         throws SQLException, SQLDriverLoader.DriverLoadException {
-        this.logger = logger;
-        this.sqlConfig = sqlConfig;
-        this.isPostgres = "postgresql".equals(sqlConfig.driver());
-        new SQLDriverLoader(logger, pluginDataFolder).ensureLoaded(sqlConfig.driver());
+        super(logger, sqlConfig, dataFolder);
 
         String tableName = sqlConfig.tablePrefix() + "players_joined";
 
@@ -64,13 +56,17 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
             "INSERT INTO " + tableName + " (player_uuid, player_name) VALUES (?, ?) " +
                 "ON CONFLICT (player_uuid) DO UPDATE SET player_name = EXCLUDED.player_name";
 
-        setUpConnection();
+    }
+
+    @Override
+    protected String createTableSql() {
+        return isPostgres ? CREATE_TABLE_POSTGRES : CREATE_TABLE_MYSQL;
     }
     
     @Override
     public synchronized boolean hasJoined(UUID playerUuid) {
         if (isConnectionInvalid()) return false;
-        try (PreparedStatement ps = connection.prepareStatement(SELECT_SQL)) {
+        try (PreparedStatement ps = connection().prepareStatement(SELECT_SQL)) {
             ps.setString(1, playerUuid.toString());
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -85,76 +81,12 @@ public class SQLPlayerJoinTracker implements PlayerJoinTracker {
     public synchronized void markAsJoined(UUID playerUuid, String playerName) {
         if (isConnectionInvalid()) return;
         String upsert = isPostgres ? UPSERT_POSTGRES : UPSERT_MYSQL;
-        try (PreparedStatement ps = connection.prepareStatement(upsert)) {
+        try (PreparedStatement ps = connection().prepareStatement(upsert)) {
             ps.setString(1, playerUuid.toString());
             ps.setString(2, playerName);
             ps.executeUpdate();
         } catch (SQLException e) {
             logger.severe("[SQLPlayerJoinTracker] SQL failure marking player '" + playerName + "' (" + playerUuid + ") as joined: " + e.getMessage());
         }
-    }
-
-    @Override
-    public synchronized void close() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-        }
-    }
-    
-    // --- Internal helpers ---
-
-    /**
-     * Opens a new connection and ensures the table exists.
-     */
-    private void setUpConnection() throws SQLException {
-        String url = buildJdbcUrl();
-        this.connection = DriverManager.getConnection(url, sqlConfig.username(), sqlConfig.password());
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute(isPostgres ? CREATE_TABLE_POSTGRES : CREATE_TABLE_MYSQL);
-        }
-        logger.debug("[SQLPlayerJoinTracker] Connected to " + sqlConfig.driver() + " at " + sqlConfig.host() + ":" + sqlConfig.port());
-    }
-
-    /**
-     * Returns {@code true} if the connection is unusable, attempting a reconnect first.
-     */
-    private boolean isConnectionInvalid() {
-        try {
-            if (connection == null || connection.isClosed() || !connection.isValid(sqlConfig.connectionTimeout())) {
-                logger.info("[SQLPlayerJoinTracker] Connection lost — attempting reconnect...");
-                setUpConnection();
-            }
-            return false;
-        } catch (SQLException e) {
-            logger.severe("[SQLPlayerJoinTracker] Cannot reach SQL server at '" + sqlConfig.host() + "': " + e.getMessage());
-            return true;
-        }
-    }
-
-    /**
-     * Builds a JDBC URL from the {@link SQLConfig}.
-     *
-     * <ul>
-     *   <li>MySQL:      {@code jdbc:mysql://host:port/db?...}</li>
-     *   <li>MariaDB:    {@code jdbc:mariadb://host:port/db?...}</li>
-     *   <li>PostgreSQL: {@code jdbc:postgresql://host:port/db?...}</li>
-     * </ul>
-     */
-    private String buildJdbcUrl() {
-        // Driver is already expected to be one of "mysql", "mariadb", or "postgresql"
-        StringBuilder url = new StringBuilder()
-            .append("jdbc:").append(sqlConfig.driver()).append("://")
-            .append(sqlConfig.host()).append(':').append(sqlConfig.port())
-            .append('/').append(sqlConfig.database())
-            .append("?autoReconnect=true")
-            .append("&connectTimeout=").append(sqlConfig.connectionTimeout() * 1000)
-            .append("&allowPublicKeyRetrieval=true");
-
-        if (!isPostgres) {
-            url.append("&useSSL=").append(sqlConfig.useSSL());
-            url.append("&characterEncoding=utf8");
-        }
-
-        return url.toString();
     }
 }
