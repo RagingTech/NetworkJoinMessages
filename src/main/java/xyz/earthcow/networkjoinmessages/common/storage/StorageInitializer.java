@@ -60,7 +60,7 @@ public final class StorageInitializer {
      * @param sqlConfig      SQL connection parameters
      * @param dataFolder     the plugin's data directory
      * @param logger         plugin logger
-     * @return the fully initialised, ready-to-use backends
+     * @return the fully initialized, ready-to-use backends
      * @throws StorageInitializationException if a target backend cannot be created,
      *         or if {@code playerDataType} is {@link StorageType#TEXT}
      */

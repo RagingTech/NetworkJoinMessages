@@ -20,7 +20,7 @@ public class CoreImportCommand implements Command {
     @Override
     public void execute(CoreCommandSender coreCommandSender, String[] args) {
         if (playerJoinTracker == null) {
-            coreCommandSender.sendMessage(Component.text("Import is unavailable: the first-join database failed to initialise on startup.", NamedTextColor.RED));
+            coreCommandSender.sendMessage(Component.text("Import is unavailable: the first-join database failed to initialize on startup.", NamedTextColor.RED));
             return;
         }
         if (args.length < 1) {

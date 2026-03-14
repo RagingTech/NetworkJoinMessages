@@ -65,7 +65,7 @@ public class Core {
         {
             firstJoinTracker = backends.joinTracker();
             playerDataStore  = backends.playerDataStore();
-            plugin.getCoreLogger().info("Storage initialised — first-join: " + firstJoinType
+            plugin.getCoreLogger().info("Storage initialized — first-join: " + firstJoinType
                 + ", player-data: " + playerDataType + ".");
         } catch (StorageInitializer.StorageInitializationException e) {
             plugin.getCoreLogger().severe("Storage initialisation failed: " + e.getMessage()
