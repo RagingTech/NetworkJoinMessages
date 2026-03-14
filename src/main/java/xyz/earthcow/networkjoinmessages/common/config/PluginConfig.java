@@ -6,7 +6,7 @@ import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
-import xyz.earthcow.networkjoinmessages.common.storage.SQLPlayerJoinTracker;
+import xyz.earthcow.networkjoinmessages.common.storage.SQLConfig;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -308,11 +308,11 @@ public final class PluginConfig {
     // --- SQL config builder ---
 
     /**
-     * Builds a {@link SQLPlayerJoinTracker.SQLConfig} from the values loaded during {@link #reload()}.
+     * Builds a {@link SQLConfig} from the values loaded during {@link #reload()}.
      * Only meaningful when {@link #getStorageType()} is {@code "SQL"}.
      */
-    public SQLPlayerJoinTracker.SQLConfig buildSqlConfig() {
-        return new SQLPlayerJoinTracker.SQLConfig(
+    public SQLConfig buildSqlConfig() {
+        return new SQLConfig(
             sqlHost, sqlPort, sqlDatabase,
             sqlUsername, sqlPassword,
             sqlDriver, sqlTablePrefix, sqlUseSSL, sqlConnectionTimeout
