@@ -7,6 +7,7 @@ import org.bstats.charts.SimplePie;
 import xyz.earthcow.networkjoinmessages.common.ConfigManager;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 import xyz.earthcow.networkjoinmessages.common.storage.SQLConfig;
+import xyz.earthcow.networkjoinmessages.common.storage.StorageType;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -57,8 +58,8 @@ public final class PluginConfig {
     @Getter private String consoleSilentLeave;
 
     // Storage backends
-    @Getter private String firstJoinStorageType;
-    @Getter private String playerDataStorageType;
+    @Getter private StorageType firstJoinStorageType;
+    @Getter private StorageType playerDataStorageType;
 
     // SQL backend config (only used when StorageType is SQL)
     @Getter private String sqlHost;
@@ -177,8 +178,8 @@ public final class PluginConfig {
         leaveCacheDuration      = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
         leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
         silentJoinDefaultState  = config.getBoolean("Settings.SilentJoinDefaultState");
-        firstJoinStorageType = config.getString("Settings.FirstJoinStorageType").toUpperCase();
-        playerDataStorageType = config.getString("Settings.PlayerDataStorageType").toUpperCase();
+        firstJoinStorageType = config.getEnum("Settings.FirstJoinStorageType", StorageType.class);
+        playerDataStorageType = config.getEnum("Settings.PlayerDataStorageType", StorageType.class);
 
         sqlHost                 = config.getString("Settings.SQL.Host");
         sqlPort                 = config.getInt("Settings.SQL.Port");
@@ -237,27 +238,21 @@ public final class PluginConfig {
 
     /** Validates fields with a constrained set of valid values and resets invalid ones. */
     private void validateConstrainedFields() {
-        switch (firstJoinStorageType) {
-            case "H2", "TEXT", "SQL" -> { /* valid */ }
-            default -> {
-                plugin.getCoreLogger().info(
-                    "Setting error: Settings.FirstJoinStorageType only allows H2, TEXT, or SQL. " +
+        if (firstJoinStorageType == null) {
+            plugin.getCoreLogger().info(
+                "Setting error: Settings.FirstJoinStorageType only allows H2, TEXT, or SQL. " +
                     "Got '" + firstJoinStorageType + "'. Defaulting to H2."
-                );
-                firstJoinStorageType = "H2";
-            }
+            );
+            firstJoinStorageType = StorageType.H2;
         }
-        switch (playerDataStorageType) {
-            case "H2", "SQL" -> { /* valid */ }
-            default -> {
-                plugin.getCoreLogger().info(
-                    "Setting error: Settings.PlayerDataStorageType only allows H2 or SQL. " +
-                        "Got '" + playerDataStorageType + "'. Defaulting to H2."
-                );
-                playerDataStorageType = "H2";
-            }
+        if (playerDataStorageType == null || playerDataStorageType == StorageType.TEXT) {
+            plugin.getCoreLogger().info(
+                "Setting error: Settings.PlayerDataStorageType only allows H2 or SQL. " +
+                    "Got '" + playerDataStorageType + "'. Defaulting to H2."
+            );
+            playerDataStorageType = StorageType.H2;
         }
-        if ("SQL".equals(firstJoinStorageType)) {
+        if (firstJoinStorageType == StorageType.SQL || playerDataStorageType == StorageType.SQL) {
             switch (sqlDriver) {
                 case "mysql", "mariadb", "postgresql" -> { /* valid */ }
                 default -> {
@@ -339,8 +334,8 @@ public final class PluginConfig {
         YamlDocument defaults = Objects.requireNonNull(configManager.getPluginConfig().getDefaults());
 
         charts.add(new SimplePie("leave_cache_duration",         () -> String.valueOf(leaveCacheDuration)));
-        charts.add(new SimplePie("first_join_storage_type",      () -> firstJoinStorageType));
-        charts.add(new SimplePie("player_data_storage_type",     () -> firstJoinStorageType));
+        charts.add(new SimplePie("first_join_storage_type",      () -> String.valueOf(firstJoinStorageType)));
+        charts.add(new SimplePie("player_data_storage_type",     () -> String.valueOf(firstJoinStorageType)));
         charts.add(new SimplePie("swap_enabled",                 () -> String.valueOf(swapServerMessageEnabled)));
         charts.add(new SimplePie("first_join_enabled",           () -> String.valueOf(firstJoinNetworkMessageEnabled)));
         charts.add(new SimplePie("join_enabled",                 () -> String.valueOf(joinNetworkMessageEnabled)));
