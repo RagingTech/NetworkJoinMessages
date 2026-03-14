@@ -51,9 +51,9 @@ public class Core {
         }
 
         PlayerDataStore playerDataStore = null;
-        String storageType = config.getStorageType();
+        String playerDataStorageType = config.getPlayerDataStorageType();
         try {
-            if ("SQL".equalsIgnoreCase(storageType)) {
+            if ("SQL".equalsIgnoreCase(playerDataStorageType)) {
                 playerDataStore = new SQLPlayerDataStore(
                     plugin.getCoreLogger(),
                     config.buildSqlConfig(),
@@ -98,14 +98,15 @@ public class Core {
 
         // First-join tracker — backend selected from config (nullable; callers guard against null)
         PlayerJoinTracker firstJoinTracker = null;
+        String firstJoinStorageType = config.getFirstJoinStorageType();
         try {
-            if ("TEXT".equalsIgnoreCase(storageType)) {
+            if ("TEXT".equalsIgnoreCase(firstJoinStorageType)) {
                 firstJoinTracker = new TextPlayerJoinTracker(
                     plugin.getCoreLogger(),
                     plugin.getDataFolder().toPath().resolve("joined.txt")
                 );
                 plugin.getCoreLogger().info("Using TEXT storage for first-join tracking (joined.txt).");
-            } else if ("SQL".equalsIgnoreCase(storageType)) {
+            } else if ("SQL".equalsIgnoreCase(firstJoinStorageType)) {
                 firstJoinTracker = new SQLPlayerJoinTracker(
                     plugin.getCoreLogger(),
                     config.buildSqlConfig(),
