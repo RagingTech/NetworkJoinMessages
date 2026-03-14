@@ -7,6 +7,8 @@ import xyz.earthcow.networkjoinmessages.common.util.SQLDriverLoader;
 
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,6 +34,7 @@ public class SQLPlayerDataStore extends SQLHandler implements PlayerDataStore {
     private final String RESOLVE_SQL;
     private final String UPSERT_MYSQL;
     private final String UPSERT_POSTGRES;
+    private final String EXPORT_SQL;
 
     public SQLPlayerDataStore(CoreLogger logger, SQLConfig sqlConfig, Path dataFolder)
         throws SQLException, SQLDriverLoader.DriverLoadException {
@@ -83,6 +86,9 @@ public class SQLPlayerDataStore extends SQLHandler implements PlayerDataStore {
                 "   ignore_join  = EXCLUDED.ignore_join,"  +
                 "   ignore_swap  = EXCLUDED.ignore_swap,"  +
                 "   ignore_leave = EXCLUDED.ignore_leave";
+        this.EXPORT_SQL =
+            "SELECT player_uuid, player_name, silent_state, ignore_join, ignore_swap, ignore_leave" +
+                " FROM " + tableName;
 
     }
 
@@ -146,5 +152,27 @@ public class SQLPlayerDataStore extends SQLHandler implements PlayerDataStore {
             logger.severe("[SQLPlayerDataStore] SQL failure resolving UUID for player name '" + playerName + "': " + e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public synchronized Map<UUID, PlayerDataSnapshot> exportAll() {
+        Map<UUID, PlayerDataSnapshot> result = new LinkedHashMap<>();
+        if (isConnectionInvalid()) return result;
+        try (Statement stmt = connection().createStatement();
+             ResultSet rs   = stmt.executeQuery(EXPORT_SQL)) {
+            while (rs.next()) {
+                UUID uuid = UUID.fromString(rs.getString("player_uuid"));
+                result.put(uuid, new PlayerDataSnapshot(
+                    rs.getString("player_name"),
+                    rs.getObject("silent_state", Boolean.class),
+                    rs.getObject("ignore_join",  Boolean.class),
+                    rs.getObject("ignore_swap",  Boolean.class),
+                    rs.getObject("ignore_leave", Boolean.class)
+                ));
+            }
+        } catch (SQLException e) {
+            logger.severe("[SQLPlayerDataStore] SQL failure during exportAll(): " + e.getMessage());
+        }
+        return result;
     }
 }
