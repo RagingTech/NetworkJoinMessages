@@ -326,7 +326,7 @@ public final class PluginConfig {
         YamlDocument defaults = Objects.requireNonNull(configManager.getPluginConfig().getDefaults());
 
         charts.add(new SimplePie("leave_cache_duration",         () -> String.valueOf(leaveCacheDuration)));
-        charts.add(new SimplePie("storage_type",                  () -> storageType));
+        charts.add(new SimplePie("storage_type",                 () -> storageType));
         charts.add(new SimplePie("swap_enabled",                 () -> String.valueOf(swapServerMessageEnabled)));
         charts.add(new SimplePie("first_join_enabled",           () -> String.valueOf(firstJoinNetworkMessageEnabled)));
         charts.add(new SimplePie("join_enabled",                 () -> String.valueOf(joinNetworkMessageEnabled)));
@@ -337,6 +337,9 @@ public final class PluginConfig {
         charts.add(new SimplePie("random_leave",                 () -> String.valueOf(leaveNetworkMessageEnabled && leaveNetworkMessage.isEmpty())));
         charts.add(new SimplePie("silent_join_default_state",    () -> String.valueOf(silentJoinDefaultState)));
         charts.add(new SimplePie("notify_admins_on_silent_move", () -> String.valueOf(notifyAdminsOnSilentMove)));
+        charts.add(new SimplePie("ignore_join_default",          () -> String.valueOf(ignoreJoinByDefault)));
+        charts.add(new SimplePie("ignore_swap_default",          () -> String.valueOf(ignoreSwapByDefault)));
+        charts.add(new SimplePie("ignore_leave_default",         () -> String.valueOf(ignoreLeaveByDefault)));
 
         charts.add(new SimplePie("swap_viewable_by", () -> {
             List<String> vals = new ArrayList<>();
