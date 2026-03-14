@@ -50,30 +50,27 @@ public class Core {
             plugin.getCoreLogger().info("Successfully hooked into SayanVanish!");
         }
 
-        PlayerDataStore playerDataStore = null;
-        String playerDataStorageType = config.getPlayerDataStorageType();
-        try {
-            if ("SQL".equalsIgnoreCase(playerDataStorageType)) {
-                playerDataStore = new SQLPlayerDataStore(
-                    plugin.getCoreLogger(),
-                    config.buildSqlConfig(),
-                    plugin.getDataFolder().toPath()
-                );
-                plugin.getCoreLogger().info("Using SQL storage for player data.");
-            } else {
-                playerDataStore = new H2PlayerDataStore(
-                    plugin.getCoreLogger(),
-                    plugin.getDataFolder().toPath().resolve("player_data").toAbsolutePath().toString()
-                );
-                plugin.getCoreLogger().info("Using H2 storage for player data.");
-            }
-        } catch (SQLDriverLoader.DriverLoadException ex) {
-            plugin.getCoreLogger().severe("Failed to download/load the SQL driver — player data is unavailable. " +
-                "Check your internet connection or place the driver JAR manually in the plugins/NetworkJoinMessages/drivers/ folder.");
-            plugin.getCoreLogger().debug("Exception: " + ex);
-        } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load player data handler! Persistent player data will be unavailable.");
-            plugin.getCoreLogger().debug("Exception: " + ex);
+        PlayerJoinTracker firstJoinTracker = null;
+        PlayerDataStore   playerDataStore  = null;
+
+        StorageType firstJoinType  = config.getFirstJoinStorageType();
+        StorageType playerDataType = config.getPlayerDataStorageType();
+
+        try (ActiveStorageBackends backends = StorageInitializer.initialize(
+            firstJoinType,
+            playerDataType,
+            config.buildSqlConfig(),
+            plugin.getDataFolder().toPath(),
+            plugin.getCoreLogger()))
+        {
+            firstJoinTracker = backends.joinTracker();
+            playerDataStore  = backends.playerDataStore();
+            plugin.getCoreLogger().info("Storage initialised — first-join: " + firstJoinType
+                + ", player-data: " + playerDataType + ".");
+        } catch (StorageInitializer.StorageInitializationException e) {
+            plugin.getCoreLogger().severe("Storage initialisation failed: " + e.getMessage()
+                + " — first-join tracking and persistent player data will be unavailable.");
+            plugin.getCoreLogger().debug("Exception: " + e);
         }
 
         // Core data / state
@@ -88,46 +85,13 @@ public class Core {
         MessageHandler   messageHandler    = new MessageHandler(plugin, config, stateStore, placeholderResolver, receiverResolver);
 
         // Player event helpers
-        SilenceChecker       silenceChecker  = new SilenceChecker(plugin, config, stateStore, sayanVanishHook, premiumVanish);
-        LeaveMessageCache    leaveMessageCache = new LeaveMessageCache(plugin, config, messageFormatter, placeholderResolver);
-        LeaveJoinBufferManager leaveJoinBuffer = new LeaveJoinBufferManager(plugin, config);
+        SilenceChecker         silenceChecker    = new SilenceChecker(plugin, config, stateStore, sayanVanishHook, premiumVanish);
+        LeaveMessageCache      leaveMessageCache = new LeaveMessageCache(plugin, config, messageFormatter, placeholderResolver);
+        LeaveJoinBufferManager leaveJoinBuffer   = new LeaveJoinBufferManager(plugin, config);
 
         // Discord integration
-        DiscordWebhookBuilder webhookBuilder = new DiscordWebhookBuilder(plugin, configManager.getDiscordConfig());
-        DiscordIntegration discordIntegration = new DiscordIntegration(plugin, placeholderResolver, messageFormatter, webhookBuilder, configManager.getDiscordConfig());
-
-        // First-join tracker — backend selected from config (nullable; callers guard against null)
-        PlayerJoinTracker firstJoinTracker = null;
-        String firstJoinStorageType = config.getFirstJoinStorageType();
-        try {
-            if ("TEXT".equalsIgnoreCase(firstJoinStorageType)) {
-                firstJoinTracker = new TextPlayerJoinTracker(
-                    plugin.getCoreLogger(),
-                    plugin.getDataFolder().toPath().resolve("joined.txt")
-                );
-                plugin.getCoreLogger().info("Using TEXT storage for first-join tracking (joined.txt).");
-            } else if ("SQL".equalsIgnoreCase(firstJoinStorageType)) {
-                firstJoinTracker = new SQLPlayerJoinTracker(
-                    plugin.getCoreLogger(),
-                    config.buildSqlConfig(),
-                    plugin.getDataFolder().toPath()
-                );
-                plugin.getCoreLogger().info("Using SQL storage for first-join tracking.");
-            } else {
-                firstJoinTracker = new H2PlayerJoinTracker(
-                    plugin.getCoreLogger(),
-                    plugin.getDataFolder().toPath().resolve("joined").toAbsolutePath().toString()
-                );
-                plugin.getCoreLogger().info("Using H2 storage for first-join tracking.");
-            }
-        } catch (SQLDriverLoader.DriverLoadException ex) {
-            plugin.getCoreLogger().severe("Failed to download/load the SQL driver — first-join tracking is disabled. " +
-                "Check your internet connection or place the driver JAR manually in the plugins/NetworkJoinMessages/drivers/ folder.");
-            plugin.getCoreLogger().debug("Exception: " + ex);
-        } catch (Exception ex) {
-            plugin.getCoreLogger().severe("Failed to load first-join tracker! First-join messages will be unavailable.");
-            plugin.getCoreLogger().debug("Exception: " + ex);
-        }
+        DiscordWebhookBuilder  webhookBuilder      = new DiscordWebhookBuilder(plugin, configManager.getDiscordConfig());
+        DiscordIntegration     discordIntegration  = new DiscordIntegration(plugin, placeholderResolver, messageFormatter, webhookBuilder, configManager.getDiscordConfig());
 
         // Spoof
         SpoofManager spoofManager = new SpoofManager(plugin, config, messageHandler, messageFormatter, placeholderResolver);
