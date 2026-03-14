@@ -133,7 +133,7 @@ Settings:
   # SQL  - External SQL server (MySQL, MariaDB, or PostgreSQL). Requires filling in the SQL section below.
   # H2   - Embedded SQL database (default). Best for most servers; no setup required.
   # TEXT - Plain text file (joined.txt). Easiest to inspect and edit by hand. (Player data will still use H2)
-  # Changing this option requires a restart. Data is NOT migrated automatically.
+  # Changing this option requires a restart. Data is migrated automatically except when migrating from SQL.
   FirstJoinStorageType: H2
 
   # Storage backend for player data
