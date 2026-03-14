@@ -192,9 +192,7 @@ public final class StorageInitializer {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // File archiving
-    // -------------------------------------------------------------------------
+    // --- File archiving ---
 
     private static void archiveJoinTrackerFiles(
         StorageType sourceType, Path dataFolder, CoreLogger logger) {
@@ -252,9 +250,7 @@ public final class StorageInitializer {
         return candidate;
     }
 
-    // -------------------------------------------------------------------------
-    // Backend factories
-    // -------------------------------------------------------------------------
+    // --- Backend factories ---
 
     private static PlayerJoinTracker buildJoinTracker(
         StorageType type,
@@ -320,10 +316,6 @@ public final class StorageInitializer {
         };
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     private static void closeSilently(AutoCloseable c, CoreLogger logger, String label) {
         if (c == null) return;
         try {
@@ -332,10 +324,6 @@ public final class StorageInitializer {
             logger.warn("[StorageInitializer] Error closing " + label + ": " + e.getMessage());
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Checked exception
-    // -------------------------------------------------------------------------
 
     /**
      * Thrown when a storage backend cannot be created during plugin startup.
