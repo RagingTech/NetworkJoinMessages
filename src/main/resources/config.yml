@@ -134,7 +134,11 @@ Settings:
   # H2   - Embedded SQL database (default). Best for most servers; no setup required.
   # TEXT - Plain text file (joined.txt). Easiest to inspect and edit by hand. (Player data will still use H2)
   # Changing this option requires a restart. Data is NOT migrated automatically.
-  StorageType: H2
+  FirstJoinStorageType: H2
+
+  # Storage backend for player data
+  # Same as above, except valid options are H2 and SQL only. TEXT is not available for this interface.
+  PlayerDataStorageType: H2
 
   # External SQL server settings — only used when StorageType is SQL.
   # Changes here require a restart.

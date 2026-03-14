@@ -56,8 +56,9 @@ public final class PluginConfig {
     @Getter private String consoleSilentJoin;
     @Getter private String consoleSilentLeave;
 
-    // Storage backend
-    @Getter private String storageType;
+    // Storage backends
+    @Getter private String firstJoinStorageType;
+    @Getter private String playerDataStorageType;
 
     // SQL backend config (only used when StorageType is SQL)
     @Getter private String sqlHost;
@@ -176,7 +177,8 @@ public final class PluginConfig {
         leaveCacheDuration      = config.getInt("Settings.LeaveNetworkMessageCacheDuration");
         leaveJoinBufferDuration = config.getInt("Settings.LeaveJoinBufferDuration");
         silentJoinDefaultState  = config.getBoolean("Settings.SilentJoinDefaultState");
-        storageType             = config.getString("Settings.StorageType").toUpperCase();
+        firstJoinStorageType = config.getString("Settings.FirstJoinStorageType").toUpperCase();
+        playerDataStorageType = config.getString("Settings.PlayerDataStorageType").toUpperCase();
 
         sqlHost                 = config.getString("Settings.SQL.Host");
         sqlPort                 = config.getInt("Settings.SQL.Port");
@@ -235,17 +237,27 @@ public final class PluginConfig {
 
     /** Validates fields with a constrained set of valid values and resets invalid ones. */
     private void validateConstrainedFields() {
-        switch (storageType) {
+        switch (firstJoinStorageType) {
             case "H2", "TEXT", "SQL" -> { /* valid */ }
             default -> {
                 plugin.getCoreLogger().info(
-                    "Setting error: Settings.StorageType only allows H2, TEXT, or SQL. " +
-                    "Got '" + storageType + "'. Defaulting to H2."
+                    "Setting error: Settings.FirstJoinStorageType only allows H2, TEXT, or SQL. " +
+                    "Got '" + firstJoinStorageType + "'. Defaulting to H2."
                 );
-                storageType = "H2";
+                firstJoinStorageType = "H2";
             }
         }
-        if ("SQL".equals(storageType)) {
+        switch (playerDataStorageType) {
+            case "H2", "SQL" -> { /* valid */ }
+            default -> {
+                plugin.getCoreLogger().info(
+                    "Setting error: Settings.PlayerDataStorageType only allows H2 or SQL. " +
+                        "Got '" + playerDataStorageType + "'. Defaulting to H2."
+                );
+                playerDataStorageType = "H2";
+            }
+        }
+        if ("SQL".equals(firstJoinStorageType)) {
             switch (sqlDriver) {
                 case "mysql", "mariadb", "postgresql" -> { /* valid */ }
                 default -> {
@@ -309,7 +321,8 @@ public final class PluginConfig {
 
     /**
      * Builds a {@link SQLConfig} from the values loaded during {@link #reload()}.
-     * Only meaningful when {@link #getStorageType()} is {@code "SQL"}.
+     * Only meaningful when {@link #getFirstJoinStorageType()} or {@link #getPlayerDataStorageType()} are
+     * either {@code "SQL"}.
      */
     public SQLConfig buildSqlConfig() {
         return new SQLConfig(
@@ -326,7 +339,8 @@ public final class PluginConfig {
         YamlDocument defaults = Objects.requireNonNull(configManager.getPluginConfig().getDefaults());
 
         charts.add(new SimplePie("leave_cache_duration",         () -> String.valueOf(leaveCacheDuration)));
-        charts.add(new SimplePie("storage_type",                  () -> storageType));
+        charts.add(new SimplePie("first_join_storage_type",      () -> firstJoinStorageType));
+        charts.add(new SimplePie("player_data_storage_type",     () -> firstJoinStorageType));
         charts.add(new SimplePie("swap_enabled",                 () -> String.valueOf(swapServerMessageEnabled)));
         charts.add(new SimplePie("first_join_enabled",           () -> String.valueOf(firstJoinNetworkMessageEnabled)));
         charts.add(new SimplePie("join_enabled",                 () -> String.valueOf(joinNetworkMessageEnabled)));
@@ -337,6 +351,9 @@ public final class PluginConfig {
         charts.add(new SimplePie("random_leave",                 () -> String.valueOf(leaveNetworkMessageEnabled && leaveNetworkMessage.isEmpty())));
         charts.add(new SimplePie("silent_join_default_state",    () -> String.valueOf(silentJoinDefaultState)));
         charts.add(new SimplePie("notify_admins_on_silent_move", () -> String.valueOf(notifyAdminsOnSilentMove)));
+        charts.add(new SimplePie("ignore_join_default",          () -> String.valueOf(ignoreJoinByDefault)));
+        charts.add(new SimplePie("ignore_swap_default",          () -> String.valueOf(ignoreSwapByDefault)));
+        charts.add(new SimplePie("ignore_leave_default",         () -> String.valueOf(ignoreLeaveByDefault)));
 
         charts.add(new SimplePie("swap_viewable_by", () -> {
             List<String> vals = new ArrayList<>();
