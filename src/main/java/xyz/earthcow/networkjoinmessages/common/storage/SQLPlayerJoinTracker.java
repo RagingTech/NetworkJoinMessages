@@ -61,6 +61,7 @@ public class SQLPlayerJoinTracker extends SQLHandler implements PlayerJoinTracke
         this.EXPORT_SQL =
             "SELECT player_uuid, player_name FROM " + tableName;
 
+        setUpConnection();
     }
 
     @Override

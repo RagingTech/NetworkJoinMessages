@@ -90,6 +90,7 @@ public class SQLPlayerDataStore extends SQLHandler implements PlayerDataStore {
             "SELECT player_uuid, player_name, silent_state, ignore_join, ignore_swap, ignore_leave" +
                 " FROM " + tableName;
 
+        setUpConnection();
     }
 
     @Override

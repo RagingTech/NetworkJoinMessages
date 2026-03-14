@@ -17,13 +17,12 @@ abstract class SQLHandler implements AutoCloseable {
     private Connection connection;
 
     protected SQLHandler(CoreLogger logger, SQLConfig sqlConfig, Path dataFolder)
-        throws SQLException, SQLDriverLoader.DriverLoadException {
+        throws SQLDriverLoader.DriverLoadException {
         this.logger = logger;
         this.sqlConfig = sqlConfig;
         this.isPostgres = "postgresql".equals(sqlConfig.driver());
         this.logPrefix = "[" + getClass().getSimpleName() + "] ";
         new SQLDriverLoader(logger, dataFolder).ensureLoaded(sqlConfig.driver());
-        setUpConnection();
     }
 
     protected abstract String createTableSql();
@@ -52,7 +51,7 @@ abstract class SQLHandler implements AutoCloseable {
     /**
      * Opens a new connection and ensures the table exists.
      */
-    private void setUpConnection() throws SQLException {
+    protected void setUpConnection() throws SQLException {
         String url = buildJdbcUrl();
         this.connection = DriverManager.getConnection(url, sqlConfig.username(), sqlConfig.password());
         try (Statement stmt = connection.createStatement()) {

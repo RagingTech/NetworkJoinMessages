@@ -56,13 +56,13 @@ public class Core {
         StorageType firstJoinType  = config.getFirstJoinStorageType();
         StorageType playerDataType = config.getPlayerDataStorageType();
 
-        try (ActiveStorageBackends backends = StorageInitializer.initialize(
-            firstJoinType,
-            playerDataType,
-            config.buildSqlConfig(),
-            plugin.getDataFolder().toPath(),
-            plugin.getCoreLogger()))
-        {
+        try {
+            ActiveStorageBackends backends = StorageInitializer.initialize(
+                firstJoinType,
+                playerDataType,
+                config.buildSqlConfig(),
+                plugin.getDataFolder().toPath(),
+                plugin.getCoreLogger());
             firstJoinTracker = backends.joinTracker();
             playerDataStore  = backends.playerDataStore();
             plugin.getCoreLogger().info("Storage initialized — first-join: " + firstJoinType
