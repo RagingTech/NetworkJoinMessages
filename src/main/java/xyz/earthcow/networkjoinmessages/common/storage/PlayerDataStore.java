@@ -3,6 +3,7 @@ package xyz.earthcow.networkjoinmessages.common.storage;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.util.PlayerDataSnapshot;
 
+import java.util.Map;
 import java.util.UUID;
 
 public interface PlayerDataStore extends AutoCloseable {
@@ -28,6 +29,8 @@ public interface PlayerDataStore extends AutoCloseable {
      */
     @Nullable
     UUID resolveUuid(String playerName);
+
+    Map<UUID, PlayerDataSnapshot> exportAll();
 
     /** No-op default so callers don't need to handle checked exceptions for backends that don't need closing. */
     @Override

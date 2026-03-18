@@ -5,6 +5,8 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.util.PlayerDataSnapshot;
 
 import java.sql.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -35,6 +37,9 @@ public class H2PlayerDataStore extends H2Handler implements PlayerDataStore {
 
     private static final String RESOLVE_SQL =
         "SELECT player_uuid FROM players WHERE LOWER(player_name) = LOWER(?)";
+
+    private static final String EXPORT_SQL =
+        "SELECT * FROM players";
 
     // MERGE upserts the identity columns on first insert, then UPDATE sets all
     // preference columns so an existing row is fully overwritten on save.
@@ -106,5 +111,27 @@ public class H2PlayerDataStore extends H2Handler implements PlayerDataStore {
             logger.severe("SQL failure: Could not resolve UUID for player name '" + playerName + "': " + e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public synchronized Map<UUID, PlayerDataSnapshot> exportAll() {
+        Map<UUID, PlayerDataSnapshot> result = new LinkedHashMap<>();
+        if (isConnectionInvalid()) return result;
+        try (Statement stmt = connection().createStatement();
+             ResultSet rs   = stmt.executeQuery(EXPORT_SQL)) {
+            while (rs.next()) {
+                UUID uuid = UUID.fromString(rs.getString("player_uuid"));
+                result.put(uuid, new PlayerDataSnapshot(
+                    rs.getString("player_name"),
+                    rs.getObject("silent_state", Boolean.class),
+                    rs.getObject("ignore_join",  Boolean.class),
+                    rs.getObject("ignore_swap",  Boolean.class),
+                    rs.getObject("ignore_leave", Boolean.class)
+                ));
+            }
+        } catch (SQLException e) {
+            logger.severe("[H2PlayerDataStore] SQL failure during exportAll(): " + e.getMessage());
+        }
+        return result;
     }
 }

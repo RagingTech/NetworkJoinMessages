@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Tracks which players have ever joined the network using a plain text file.
@@ -32,8 +30,11 @@ public class TextPlayerJoinTracker implements PlayerJoinTracker {
     private final CoreLogger logger;
     private final Path filePath;
 
-    /** In-memory set of every UUID that has ever joined. */
-    private final Set<UUID> joinedUuids = new LinkedHashSet<>();
+    /**
+     * In-memory map of every UUID that has ever joined, keyed by UUID and
+     * valued by the player name last seen on that line (or {@code ""}
+     */
+    private final Map<UUID, String> joinedPlayers = new LinkedHashMap<>();
 
     public TextPlayerJoinTracker(CoreLogger logger, Path filePath) throws IOException {
         this.logger = logger;
@@ -43,12 +44,12 @@ public class TextPlayerJoinTracker implements PlayerJoinTracker {
 
     @Override
     public synchronized boolean hasJoined(UUID playerUuid) {
-        return joinedUuids.contains(playerUuid);
+        return joinedPlayers.containsKey(playerUuid);
     }
 
     @Override
     public synchronized void markAsJoined(UUID playerUuid, String playerName) {
-        if (joinedUuids.add(playerUuid)) {
+        if (joinedPlayers.putIfAbsent(playerUuid, playerName) == null) {
             appendLine(playerUuid, playerName);
         }
     }
@@ -77,20 +78,31 @@ public class TextPlayerJoinTracker implements PlayerJoinTracker {
             String line = rawLine.trim();
             if (line.isEmpty() || line.startsWith("#")) continue;
 
-            // If line contains ":" then there must be a player name
-            // otherwise, the line is simply the UUID
+            String uuidPart;
+            String namePart;
+
             if (line.contains(":")) {
-                line = line.split(":")[0].trim();
+                // Splits on first colon
+                int colon = line.indexOf(':');
+                uuidPart = line.substring(0, colon).trim();
+                namePart = line.substring(colon + 1).trim();
+            } else {
+                uuidPart = line;
+                namePart = "";
             }
 
             try {
-                joinedUuids.add(UUID.fromString(line));
+                UUID uuid = UUID.fromString(uuidPart);
+                // putIfAbsent preserves the first occurrence when the same UUID
+                // appears more than once in the file (shouldn't happen, but safe)
+                joinedPlayers.putIfAbsent(uuid, namePart);
             } catch (IllegalArgumentException ignored) {
-                logger.info("[TextPlayerJoinTracker] Skipping unrecognised line in joined.txt: " + rawLine.trim());
+                logger.info("[TextPlayerJoinTracker] Skipping unrecognised line in "
+                    + filePath.getFileName() + ": " + rawLine.trim());
             }
         }
 
-        logger.debug("[TextPlayerJoinTracker] Loaded " + joinedUuids.size() + " joined-player UUIDs from " + filePath.getFileName());
+        logger.debug("[TextPlayerJoinTracker] Loaded " + joinedPlayers.size() + " joined-player UUIDs from " + filePath.getFileName());
     }
 
     /**
@@ -104,5 +116,10 @@ public class TextPlayerJoinTracker implements PlayerJoinTracker {
         } catch (IOException e) {
             logger.severe("[TextPlayerJoinTracker] Failed to persist UUID " + uuid + " (" + playerName + "): " + e.getMessage());
         }
+    }
+
+    @Override
+    public synchronized Map<UUID, String> exportAll() {
+        return Collections.unmodifiableMap(new LinkedHashMap<>(joinedPlayers));
     }
 }

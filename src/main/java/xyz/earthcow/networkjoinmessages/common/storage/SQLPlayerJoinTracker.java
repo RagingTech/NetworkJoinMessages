@@ -5,6 +5,8 @@ import xyz.earthcow.networkjoinmessages.common.util.SQLDriverLoader;
 
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -28,6 +30,7 @@ public class SQLPlayerJoinTracker extends SQLHandler implements PlayerJoinTracke
     private final String SELECT_SQL;
     private final String UPSERT_MYSQL;
     private final String UPSERT_POSTGRES;
+    private final String EXPORT_SQL;
 
     public SQLPlayerJoinTracker(CoreLogger logger, SQLConfig sqlConfig, Path dataFolder)
         throws SQLException, SQLDriverLoader.DriverLoadException {
@@ -55,7 +58,10 @@ public class SQLPlayerJoinTracker extends SQLHandler implements PlayerJoinTracke
         this.UPSERT_POSTGRES =
             "INSERT INTO " + tableName + " (player_uuid, player_name) VALUES (?, ?) " +
                 "ON CONFLICT (player_uuid) DO UPDATE SET player_name = EXCLUDED.player_name";
+        this.EXPORT_SQL =
+            "SELECT player_uuid, player_name FROM " + tableName;
 
+        setUpConnection();
     }
 
     @Override
@@ -88,5 +94,23 @@ public class SQLPlayerJoinTracker extends SQLHandler implements PlayerJoinTracke
         } catch (SQLException e) {
             logger.severe("[SQLPlayerJoinTracker] SQL failure marking player '" + playerName + "' (" + playerUuid + ") as joined: " + e.getMessage());
         }
+    }
+
+    @Override
+    public synchronized Map<UUID, String> exportAll() {
+        Map<UUID, String> result = new LinkedHashMap<>();
+        if (isConnectionInvalid()) return result;
+        try (Statement stmt = connection().createStatement();
+             ResultSet rs   = stmt.executeQuery(EXPORT_SQL)) {
+            while (rs.next()) {
+                result.put(
+                    UUID.fromString(rs.getString("player_uuid")),
+                    rs.getString("player_name")
+                );
+            }
+        } catch (SQLException e) {
+            logger.severe("[SQLPlayerJoinTracker] SQL failure during exportAll(): " + e.getMessage());
+        }
+        return result;
     }
 }
