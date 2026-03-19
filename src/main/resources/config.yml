@@ -102,7 +102,9 @@ Messages:
         <gray>Valid arguments are: <green>on <gray>/ <red>off <gray>or <green>true <gray>/ <red>false<white>.
       Confirmation: |-
         <gray>Receive messages for <white>%mode%<gray> has been set to <white>%state%
-        <gray>This will last until the network reboots.
+      TargetNotFound: <red>Could not find a player with name %player%
+      MustSpecifyPlayer: <red>You must specify the target player when running from console
+      ConfirmationOther: <gray>Set receive messages for <white>%mode%<gray> on <white>%player%<gray> to <white>%state%
     Reload:
       ConfigReloaded: "Config Reloaded!"
   Misc:
@@ -126,6 +128,43 @@ Settings:
   # Should players with the networkjoinmessages.silent permission be silenced by default?
   # It will be set to this for all players after a reboot. They can toggle it for themselves with the /njoinspoof toggle command
   SilentJoinDefaultState: true
+
+  # Storage backend
+  # SQL  - External SQL server (MySQL, MariaDB, or PostgreSQL). Requires filling in the SQL section below.
+  # H2   - Embedded SQL database (default). Best for most servers; no setup required.
+  # TEXT - Plain text file (joined.txt). Easiest to inspect and edit by hand. (Player data will still use H2)
+  # Changing this option requires a restart. Data is migrated automatically except when migrating from SQL.
+  FirstJoinStorageType: H2
+
+  # Storage backend for player data
+  # Same as above, except valid options are H2 and SQL only. TEXT is not available for this interface.
+  PlayerDataStorageType: H2
+
+  # External SQL server settings — only used when StorageType is SQL.
+  # Changes here require a restart.
+  SQL:
+    # Hostname or IP address of the SQL server.
+    Host: localhost
+    # Port — MySQL/MariaDB default is 3306, PostgreSQL default is 5432.
+    Port: 3306
+    # Name of the database to use. Must already exist.
+    Database: database
+    TablePrefix: njm_
+    Username: njm_user
+    Password: ""
+    # SQL driver to use. Accepted values: mysql, mariadb, postgresql
+    Driver: mysql
+    # Whether to require SSL/TLS for the connection (MySQL/MariaDB only).
+    UseSSL: false
+    # Seconds to wait when checking if the connection is still alive.
+    ConnectionTimeout: 5
+
+  # Should players ignore messages by default? Re-enable with /njointoggle.
+  # Changes require a restart to affect players who joined the proxy
+  IgnoreJoinByDefault: false
+  IgnoreSwapByDefault: false
+  IgnoreLeaveByDefault: false
+
   # Should the following messages be enabled?
   SwapServerMessageEnabled: true
   FirstJoinNetworkMessageEnabled: true
@@ -228,4 +267,4 @@ OtherPlugins:
 
 debug: false
 # Do not touch this
-config-version: 12
+config-version: 13

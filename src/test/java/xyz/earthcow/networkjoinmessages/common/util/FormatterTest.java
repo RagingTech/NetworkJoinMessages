@@ -16,13 +16,14 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import xyz.earthcow.networkjoinmessages.common.Storage;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
+import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,174 +32,188 @@ import static org.mockito.Mockito.*;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class FormatterTest {
 
-    // Unable to mock PlaceholderAPI.class so it is exempt from tests
+    // PlaceholderAPI cannot be mocked, so PAPI-dependent paths are excluded from tests.
 
-    @Mock
-    private CorePlugin mockPlugin;
-    @Mock
-    private Storage mockStorage;
-    @Mock
-    private CoreLogger mockLogger;
-    @Mock
-    private CorePlayer mockPlayer;
-    @Mock
-    private CoreBackendServer mockServer;
-    @Mock
-    private LuckPerms mockLuckPerms;
-    @Mock
-    private UserManager mockUserManager;
-    @Mock
-    private User mockUser;
-    @Mock
-    private CachedDataManager mockCachedUserData;
-    @Mock
-    private CachedMetaData mockMetaData;
+    @Mock private CorePlugin mockPlugin;
+    @Mock private PluginConfig mockConfig;
+    @Mock private CoreLogger mockLogger;
+    @Mock private CorePlayer mockPlayer;
+    @Mock private CoreBackendServer mockServer;
+    @Mock private LuckPerms mockLuckPerms;
+    @Mock private UserManager mockUserManager;
+    @Mock private User mockUser;
+    @Mock private CachedDataManager mockCachedUserData;
+    @Mock private CachedMetaData mockMetaData;
 
     private final UUID testUUID = UUID.randomUUID();
 
-    // Helper function for test clarity and duplicate code reduction
-    void setupMockPlayer() {
+    private void setupMockPlayer() {
         when(mockPlayer.getName()).thenReturn("TestPlayer");
         when(mockPlayer.getUniqueId()).thenReturn(testUUID);
         when(mockPlayer.getCurrentServer()).thenReturn(mockServer);
         when(mockServer.getName()).thenReturn("TestServer");
-        when(mockStorage.getServerDisplayName("TestServer")).thenReturn("Test Server Display");
+        when(mockConfig.getServerDisplayName("TestServer")).thenReturn("Test Server Display");
     }
 
+    private PlaceholderResolver buildResolver() {
+        when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
+        return new PlaceholderResolver(mockPlugin, mockConfig);
+    }
+
+    // --- PlaceholderResolver construction ---
+
     @Test
-    void testFormatterConstructor_WithLuckPerms() {
+    void testResolver_WithLuckPerms() {
         try (MockedStatic<LuckPermsProvider> mockedProvider = mockStatic(LuckPermsProvider.class)) {
             mockedProvider.when(LuckPermsProvider::get).thenReturn(mockLuckPerms);
             when(mockPlugin.isPluginLoaded("LuckPerms")).thenReturn(true);
             when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
 
-            new Formatter(mockPlugin, mockStorage);
+            new PlaceholderResolver(mockPlugin, mockConfig);
 
             verify(mockLogger).info("Successfully hooked into LuckPerms!");
         }
     }
 
     @Test
-    void testFormatterConstructor_WithoutLuckPermsThrow() {
+    void testResolver_LuckPermsThrows() {
         try (MockedStatic<LuckPermsProvider> mockedProvider = mockStatic(LuckPermsProvider.class)) {
             when(mockPlugin.isPluginLoaded("LuckPerms")).thenReturn(true);
-            mockedProvider.when(LuckPermsProvider::get).thenThrow(new IllegalStateException("LuckPerms not found"));
+            mockedProvider.when(LuckPermsProvider::get).thenThrow(new IllegalStateException("not loaded"));
             when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
 
-            new Formatter(mockPlugin, mockStorage);
+            new PlaceholderResolver(mockPlugin, mockConfig);
 
             verify(mockLogger).warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
     }
 
     @Test
-    void testFormatterConstructor_WithoutLuckPermsNoThrow() {
+    void testResolver_LuckPermsNotPresent() {
         try (MockedStatic<LuckPermsProvider> mockedProvider = mockStatic(LuckPermsProvider.class)) {
             when(mockPlugin.isPluginLoaded("LuckPerms")).thenReturn(false);
             mockedProvider.when(LuckPermsProvider::get).thenReturn(mockLuckPerms);
             when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
 
-            new Formatter(mockPlugin, mockStorage);
+            new PlaceholderResolver(mockPlugin, mockConfig);
 
             verify(mockLogger).warn("Could not find LuckPerms. Corresponding placeholders will be unavailable.");
         }
     }
 
     @Test
-    void testFormatterConstructor_WithMiniPlaceholders() {
+    void testResolver_MiniPlaceholders() {
         when(mockPlugin.isPluginLoaded("MiniPlaceholders")).thenReturn(true);
         when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
 
-        new Formatter(mockPlugin, mockStorage);
+        new PlaceholderResolver(mockPlugin, mockConfig);
 
         verify(mockLogger).info("Successfully hooked into MiniPlaceholders!");
     }
 
+    // --- Formatter (static) ---
+
     @Test
     void testDeserialize_SimpleString() {
-        String input = "Hello World";
-        Component result = Formatter.deserialize(input);
-
+        Component result = Formatter.deserialize("Hello World");
         assertNotNull(result);
-        String plainText = PlainTextComponentSerializer.plainText().serialize(result);
-        assertEquals("Hello World", plainText);
+        assertEquals("Hello World", PlainTextComponentSerializer.plainText().serialize(result));
     }
 
     @Test
     void testDeserialize_WithLegacyColorCodes() {
-        String input = "&cRed Text &aGreen Text";
-        Component result = Formatter.deserialize(input);
-
-        assertNotNull(result);
-        String plainText = PlainTextComponentSerializer.plainText().serialize(result);
-        assertEquals("Red Text Green Text", plainText);
+        Component result = Formatter.deserialize("&cRed Text &aGreen Text");
+        assertEquals("Red Text Green Text", PlainTextComponentSerializer.plainText().serialize(result));
     }
 
     @Test
     void testDeserialize_WithHexColors() {
-        String input = "&#FF0000Red Text";
-        Component result = Formatter.deserialize(input);
-
-        assertNotNull(result);
-        String plainText = PlainTextComponentSerializer.plainText().serialize(result);
-        assertEquals("Red Text", plainText);
+        Component result = Formatter.deserialize("&#FF0000Red Text");
+        assertEquals("Red Text", PlainTextComponentSerializer.plainText().serialize(result));
     }
 
     @Test
-    void testDeserialize_WithEssentialsColorCodes() {
-        String input = "§x§f§b§6§3§f§5Hello!";
-        Component result = Formatter.deserialize(input);
+    void testDeserialize_WithEssentialsHex() {
+        Component result = Formatter.deserialize("§x§f§b§6§3§f§5Hello!");
+        assertEquals("Hello!", PlainTextComponentSerializer.plainText().serialize(result));
+    }
 
+    @Test
+    void testDeserialize_EmptyString() {
+        Component result = Formatter.deserialize("");
         assertNotNull(result);
-        String plainText = PlainTextComponentSerializer.plainText().serialize(result);
-        assertEquals("Hello!", plainText);
+        assertEquals("", PlainTextComponentSerializer.plainText().serialize(result));
     }
 
     @Test
     void testSerialize() {
         Component component = Component.text("Hello World").color(NamedTextColor.RED);
         String result = Formatter.serialize(component);
-
         assertNotNull(result);
-        assertNotEquals("Hello World", result);
         assertTrue(result.contains("Hello World"));
+        assertNotEquals("Hello World", result); // should have formatting tags
     }
 
     @Test
     void testSanitize_String() {
-        String input = "<red>Hello World</red>";
-        String result = Formatter.sanitize(input);
-
-        assertEquals("Hello World", result);
+        assertEquals("Hello World", Formatter.sanitize("<red>Hello World</red>"));
     }
 
     @Test
     void testSanitize_Component() {
-        Component component = Component.text("Hello World").color(NamedTextColor.RED);
-        String result = Formatter.sanitize(component);
+        assertEquals("Hello World", Formatter.sanitize(Component.text("Hello World").color(NamedTextColor.RED)));
+    }
 
-        assertEquals("Hello World", result);
+    // --- LegacyColorTranslator ---
+
+    @Test
+    void testLegacyTranslator_EssentialsPattern() {
+        String input = "§x§f§b§6§3§f§5Hello!";
+        assertTrue(LegacyColorTranslator.ESSENTIALS_HEX_PATTERN.matcher(input).find());
+        assertFalse(LegacyColorTranslator.ESSENTIALS_HEX_PATTERN.matcher("Regular text").find());
     }
 
     @Test
-    void testParsePlaceholdersAndThen_BasicPlaceholders() {
+    void testLegacyTranslator_AllCodeTypesDeserializeCleanly() {
+        // All these should round-trip through deserialize without throwing
+        assertDoesNotThrow(() -> Formatter.deserialize("&cRed &aGreen &bAqua &#FF0000Hex §x§f§f§0§0§0§0EssHex"));
+    }
+
+    // --- PlaceholderResolver.resolve ---
+
+    @Test
+    void testResolve_BuiltinPlaceholders() {
         setupMockPlayer();
+        PlaceholderResolver resolver = buildResolver();
 
-        String message = "Hello %player% on %server_name%!";
+        AtomicReference<String> result = new AtomicReference<>();
+        resolver.resolve("Hello %player% on %server_name%!", mockPlayer, result::set);
 
-        when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
-        (new Formatter(mockPlugin, mockStorage)).parsePlaceholdersAndThen(message, mockPlayer, result -> {
-            assertEquals("Hello TestPlayer on Test Server Display!", result);
-        });
+        assertEquals("Hello TestPlayer on Test Server Display!", result.get());
     }
 
     @Test
-    void testParsePlaceholdersAndThen_WithLuckPerms() {
-        // Setup LuckPerms mocks
+    void testResolve_AllBuiltins() {
+        setupMockPlayer();
+        PlaceholderResolver resolver = buildResolver();
+
+        AtomicReference<String> result = new AtomicReference<>();
+        resolver.resolve(
+            "Player: %player%, Display: %displayname%, Server: %server_name%, Clean: %server_name_clean%",
+            mockPlayer, result::set
+        );
+
+        assertEquals(
+            "Player: TestPlayer, Display: TestPlayer, Server: Test Server Display, Clean: TestServer",
+            result.get()
+        );
+    }
+
+    @Test
+    void testResolve_WithLuckPerms() {
         try (MockedStatic<LuckPermsProvider> mockedProvider = mockStatic(LuckPermsProvider.class)) {
             when(mockPlugin.isPluginLoaded("LuckPerms")).thenReturn(true);
             mockedProvider.when(LuckPermsProvider::get).thenReturn(mockLuckPerms);
-
             when(mockLuckPerms.getUserManager()).thenReturn(mockUserManager);
             when(mockUserManager.getUser(testUUID)).thenReturn(mockUser);
             when(mockUser.getCachedData()).thenReturn(mockCachedUserData);
@@ -207,47 +222,38 @@ class FormatterTest {
             when(mockMetaData.getSuffix()).thenReturn("[Donor]");
 
             setupMockPlayer();
+            PlaceholderResolver resolver = buildResolver();
 
-            when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
+            AtomicReference<String> result = new AtomicReference<>();
+            resolver.resolve("%player_prefix% %player% %player_suffix%", mockPlayer, result::set);
 
-            Formatter testFormatter = new Formatter(mockPlugin, mockStorage);
-            String message = "%player_prefix% %player% %player_suffix%";
-
-            testFormatter.parsePlaceholdersAndThen(message, mockPlayer, result -> {
-                assertEquals("[VIP] TestPlayer [Donor]", result);
-            });
+            assertEquals("[VIP] TestPlayer [Donor]", result.get());
         }
     }
 
     @Test
-    void testParsePlaceholdersAndThen_WithLuckPermsNullUser() {
+    void testResolve_LuckPermsNullUser() {
         try (MockedStatic<LuckPermsProvider> mockedProvider = mockStatic(LuckPermsProvider.class)) {
             when(mockPlugin.isPluginLoaded("LuckPerms")).thenReturn(true);
             mockedProvider.when(LuckPermsProvider::get).thenReturn(mockLuckPerms);
-
             when(mockLuckPerms.getUserManager()).thenReturn(mockUserManager);
             when(mockUserManager.getUser(testUUID)).thenReturn(null);
 
-            when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
-
             setupMockPlayer();
+            PlaceholderResolver resolver = buildResolver();
 
-            Formatter testFormatter = new Formatter(mockPlugin, mockStorage);
-            String message = "%player_prefix% %player% %player_suffix%";
+            AtomicReference<String> result = new AtomicReference<>();
+            resolver.resolve("%player_prefix% %player% %player_suffix%", mockPlayer, result::set);
 
-            testFormatter.parsePlaceholdersAndThen(message, mockPlayer, result -> {
-                // Should replace with empty strings when user is null
-                assertEquals(" TestPlayer ", result);
-            });
+            assertEquals(" TestPlayer ", result.get());
         }
     }
 
     @Test
-    void testParsePlaceholdersAndThen_WithLuckPermsNullPrefixSuffix() {
+    void testResolve_LuckPermsNullPrefixSuffix() {
         try (MockedStatic<LuckPermsProvider> mockedProvider = mockStatic(LuckPermsProvider.class)) {
             when(mockPlugin.isPluginLoaded("LuckPerms")).thenReturn(true);
             mockedProvider.when(LuckPermsProvider::get).thenReturn(mockLuckPerms);
-
             when(mockLuckPerms.getUserManager()).thenReturn(mockUserManager);
             when(mockUserManager.getUser(testUUID)).thenReturn(mockUser);
             when(mockUser.getCachedData()).thenReturn(mockCachedUserData);
@@ -255,57 +261,19 @@ class FormatterTest {
             when(mockMetaData.getPrefix()).thenReturn(null);
             when(mockMetaData.getSuffix()).thenReturn(null);
 
-            when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
-
             setupMockPlayer();
+            PlaceholderResolver resolver = buildResolver();
 
-            Formatter testFormatter = new Formatter(mockPlugin, mockStorage);
-            String message = "%player_prefix% %player% %player_suffix%";
+            AtomicReference<String> result = new AtomicReference<>();
+            resolver.resolve("%player_prefix% %player% %player_suffix%", mockPlayer, result::set);
 
-            testFormatter.parsePlaceholdersAndThen(message, mockPlayer, result -> {
-                // Should replace with empty strings when prefix/suffix are null
-                assertEquals(" TestPlayer ", result);
-            });
+            assertEquals(" TestPlayer ", result.get());
         }
     }
 
     @Test
-    void testParsePlaceholdersAndThen_AllPlaceholders() {
-        setupMockPlayer();
-
-        String message = "Player: %player%, Display: %displayname%, Server: %server_name%, Clean: %server_name_clean%";
-
+    void testResolver_ConstructorDoesNotThrow() {
         when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
-
-        (new Formatter(mockPlugin, mockStorage)).parsePlaceholdersAndThen(message, mockPlayer, result -> {
-            assertEquals("Player: TestPlayer, Display: TestPlayer, Server: Test Server Display, Clean: TestServer", result);
-        });
-    }
-
-    @Test
-    void testEssentialsPattern() {
-        String input = "§x§f§b§6§3§f§5Hello!";
-        assertTrue(Formatter.essentialsPattern.matcher(input).find());
-
-        String nonMatch = "Regular text";
-        assertFalse(Formatter.essentialsPattern.matcher(nonMatch).find());
-    }
-
-    @Test
-    void testDeserialize_EmptyString() {
-        Component result = Formatter.deserialize("");
-        assertNotNull(result);
-        String plainText = PlainTextComponentSerializer.plainText().serialize(result);
-        assertEquals("", plainText);
-    }
-
-    @Test
-    void testFormatterConstructor_HandlesExceptions() {
-        // Test that constructor handles various exceptions gracefully
-        when(mockPlugin.getCoreLogger()).thenReturn(mockLogger);
-
-        assertDoesNotThrow(() -> {
-            new Formatter(mockPlugin, mockStorage);
-        });
+        assertDoesNotThrow(() -> new PlaceholderResolver(mockPlugin, mockConfig));
     }
 }
