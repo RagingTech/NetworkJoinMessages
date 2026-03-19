@@ -65,6 +65,7 @@ Buit-in placeholders are described below. As mentioned before, PlaceholderAPI pl
 |networkjoinmessages.spoof|Allows the use of the `/njoinspoof` command. The command will display a fake join/leave/swap message, based on the arguments given.|
 |networkjoinmessages.reload|Allows you to reload the configuration file with the `/njoinreload` command.|
 |networkjoinmessages.toggle|Allows the usage of the `/njointoggle` command, that lets users choose not to receive certain messages just for them.|
+|networkjoinmessages.toggle.others|Allows using the `/njointoggle` command against other players.|
 |networkjoinmessages.import|Allows importing users from backend servers' usercache.json files with the `/njoinimport` command.|
 
 ## Commands
@@ -75,7 +76,7 @@ Required arguments are enclosed with angle brackets (i.e. <this\>) and optional 
 |---|---|
 |/njoinspoof <join \| leave \| swap \| toggle\> [<from\> <to\>\]|Displays a fake message using the issuer as the trigger player.|
 |/njoinreload|Reloads the configuration.|
-|/njointoggle <all \| join \| leave \| swap\> <on \| off\>|Toggles the issuers receiving of specific messages.|
+|/njointoggle <all \| join \| leave \| swap\> <on \| off\> [player\]|Toggles the issuer's or target player's receiving of specific messages. The `[player]` argument is required when running from console.|
 |/njoinimport <pathtousercache.json\> [pathtousercache.json...\]|Imports user's from backend servers' usercache.json files into the joined database so that they will not trigger first join messages. Useful for adding this plugin and using first join messages on an already running network.|
 
 ## Contributing
