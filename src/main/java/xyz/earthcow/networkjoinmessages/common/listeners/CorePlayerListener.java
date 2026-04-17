@@ -135,7 +135,7 @@ public class CorePlayerListener {
             ? messageFormatter.formatFirstJoinMessage(player)
             : messageFormatter.formatJoinMessage(player);
 
-        boolean silent = silenceChecker.isSilent(player);
+        boolean silent = silenceChecker.isSilent(player, true, true);
 
         if (silent && player.hasPermission("networkjoinmessages.spoof")) {
             messageHandler.sendMessage(player, config.getSpoofJoinNotification());
