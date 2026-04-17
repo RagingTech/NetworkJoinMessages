@@ -112,6 +112,6 @@ public class Core {
         this.coreToggleJoinCommand = new CoreToggleJoinCommand(config, stateStore, messageHandler, plugin, silenceChecker, playerDataStore);
 
         this.corePremiumVanishListener = premiumVanish == null ? null
-            : new CorePremiumVanishListener(plugin.getCoreLogger(), config, spoofManager);
+            : new CorePremiumVanishListener(plugin.getCoreLogger(), config, spoofManager, stateStore);
     }
 }
