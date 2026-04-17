@@ -39,7 +39,7 @@ public final class SilenceChecker {
     }
 
     public boolean isSilent(@NotNull CorePlayer player) {
-        return isSilent(player, true);
+        return isSilent(player, true, false);
     }
 
     /**
@@ -53,10 +53,10 @@ public final class SilenceChecker {
      *       or has the {@code pv.joinvanished} permission with TreatVanishedOnJoin enabled</li>
      * </ul>
      */
-    public boolean isSilent(@NotNull CorePlayer player, boolean logDebug) {
+    public boolean isSilent(@NotNull CorePlayer player, boolean logDebug, boolean joining) {
         if (logDebug) logDebugState(player);
 
-        if (config.isPVTreatVanishedOnJoin() && player.hasPermission(PV_JOIN_VANISHED_PERM)) {
+        if (joining && config.isPVTreatVanishedOnJoin() && player.hasPermission(PV_JOIN_VANISHED_PERM)) {
             player.setPremiumVanishHidden(true);
         }
 
