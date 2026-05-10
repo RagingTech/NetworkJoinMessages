@@ -20,6 +20,8 @@ public class VelocityPlayer implements CorePlayer {
     private String cachedLeaveMessage;
     private boolean disconnecting = false;
     private boolean premiumVanishHidden = false;
+    private int pvUseLevel = 0;
+    private int pvSeeLevel = 0;
 
     public VelocityPlayer(Player velocityPlayer) {
         this.velocityPlayer = velocityPlayer;
@@ -115,5 +117,23 @@ public class VelocityPlayer implements CorePlayer {
     @Override
     public void setPremiumVanishHidden(boolean premiumVanishHidden) {
         this.premiumVanishHidden = premiumVanishHidden;
+    }
+
+    @Override
+    public int getPremiumVanishUseLevel() {
+        return pvUseLevel;
+    }
+    @Override
+    public void setPremiumVanishUseLevel(int pvUseLevel) {
+        this.pvUseLevel = pvUseLevel;
+    }
+
+    @Override
+    public int getPremiumVanishSeeLevel() {
+        return pvSeeLevel;
+    }
+    @Override
+    public void setPremiumVanishSeeLevel(int pvSeeLevel) {
+        this.pvSeeLevel = pvSeeLevel;
     }
 }
