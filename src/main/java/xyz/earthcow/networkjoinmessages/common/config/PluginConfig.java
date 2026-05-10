@@ -119,11 +119,13 @@ public final class PluginConfig {
     // Third-party plugin integration flags
     @Getter private boolean SVTreatVanishedPlayersAsSilent;
     @Getter private boolean SVRemoveVanishedPlayersFromPlayerCount;
+    @Getter private boolean SVNotifyVanishEnabledPlayersOnSilentMove;
     @Getter private boolean PVTreatVanishedPlayersAsSilent;
     @Getter private boolean PVRemoveVanishedPlayersFromPlayerCount;
     @Getter private boolean PVSpoofJoinMessageOnShow;
     @Getter private boolean PVSpoofLeaveMessageOnHide;
     @Getter private boolean PVTreatVanishedOnJoin;
+    @Getter private boolean PVNotifyVanishEnabledPlayersOnSilentMove;
     @Getter private boolean shouldSuppressLimboSwap;
     @Getter private boolean shouldSuppressLimboJoin;
     @Getter private boolean shouldSuppressLimboLeave;
@@ -219,17 +221,19 @@ public final class PluginConfig {
         serverJoinMessageDisabled      = config.getStringList("Settings.IgnoreJoinMessagesList");
         serverLeaveMessageDisabled     = config.getStringList("Settings.IgnoreLeaveMessagesList");
 
-        PPBRequestTimeout                      = config.getLong("OtherPlugins.PAPIProxyBridge.RequestTimeout");
-        SVTreatVanishedPlayersAsSilent         = config.getBoolean("OtherPlugins.SayanVanish.TreatVanishedPlayersAsSilent");
-        SVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.SayanVanish.RemoveVanishedPlayersFromPlayerCount");
-        PVTreatVanishedPlayersAsSilent         = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
-        PVRemoveVanishedPlayersFromPlayerCount = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
-        PVSpoofJoinMessageOnShow               = config.getBoolean("OtherPlugins.PremiumVanish.SpoofJoinMessageOnShow");
-        PVSpoofLeaveMessageOnHide              = config.getBoolean("OtherPlugins.PremiumVanish.SpoofLeaveMessageOnHide");
-        PVTreatVanishedOnJoin                  = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedOnJoin");
-        shouldSuppressLimboSwap                = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
-        shouldSuppressLimboJoin                = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
-        shouldSuppressLimboLeave               = config.getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
+        PPBRequestTimeout                        = config.getLong("OtherPlugins.PAPIProxyBridge.RequestTimeout");
+        SVTreatVanishedPlayersAsSilent           = config.getBoolean("OtherPlugins.SayanVanish.TreatVanishedPlayersAsSilent");
+        SVRemoveVanishedPlayersFromPlayerCount   = config.getBoolean("OtherPlugins.SayanVanish.RemoveVanishedPlayersFromPlayerCount");
+        SVNotifyVanishEnabledPlayersOnSilentMove = config.getBoolean("OtherPlugins.SayanVanish.NotifyVanishEnabledPlayersOnSilentMove");
+        PVTreatVanishedPlayersAsSilent           = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedPlayersAsSilent");
+        PVRemoveVanishedPlayersFromPlayerCount   = config.getBoolean("OtherPlugins.PremiumVanish.RemoveVanishedPlayersFromPlayerCount");
+        PVSpoofJoinMessageOnShow                 = config.getBoolean("OtherPlugins.PremiumVanish.SpoofJoinMessageOnShow");
+        PVSpoofLeaveMessageOnHide                = config.getBoolean("OtherPlugins.PremiumVanish.SpoofLeaveMessageOnHide");
+        PVTreatVanishedOnJoin                    = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedOnJoin");
+        PVNotifyVanishEnabledPlayersOnSilentMove = config.getBoolean("OtherPlugins.PremiumVanish.NotifyVanishEnabledPlayersOnSilentMove");
+        shouldSuppressLimboSwap                  = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
+        shouldSuppressLimboJoin                  = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
+        shouldSuppressLimboLeave                 = config.getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
 
         plugin.getCoreLogger().setDebug(config.getBoolean("debug"));
 

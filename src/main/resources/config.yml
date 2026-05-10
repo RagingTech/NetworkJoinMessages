@@ -244,6 +244,8 @@ OtherPlugins:
     TreatVanishedPlayersAsSilent: true
     # Vanished players will not be counted in the player count placeholders
     RemoveVanishedPlayersFromPlayerCount: true
+    # Send silenced messages to players with the permission sayanvanish.vanish.use (permission must be set on the proxy)
+    NotifyVanishEnabledPlayersOnSilentMove: false
   PremiumVanish:
     # Vanished players will not trigger messages aside from
     # silent messages sent to players with networkjoinmessages.silent permission
@@ -257,6 +259,9 @@ OtherPlugins:
     # Treats a player with the permission pv.joinvanished as vanished on join (permission must be set on the proxy)
     # This is to be used in conjunction with the PremiumVanish 'AutoVanishOnJoin' option
     TreatVanishedOnJoin: false
+    # Send silenced messages to players with the permission pv.see[.levelX] (permission must be set on the proxy)
+    # Requires players to rejoin upon changes to their level or setting this setting to true
+    NotifyVanishEnabledPlayersOnSilentMove: false
   LimboAPI:
     # No swap messages for players swapping to or from limbo servers
     SuppressSwapMessages: true
