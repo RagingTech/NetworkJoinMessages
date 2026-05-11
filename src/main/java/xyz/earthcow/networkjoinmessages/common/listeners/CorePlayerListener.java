@@ -16,6 +16,7 @@ import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.storage.PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
+import xyz.earthcow.networkjoinmessages.common.util.PremiumVanishLevelUtil;
 
 /**
  * Routes platform-level player events (join, swap, disconnect) to the appropriate handlers.
@@ -119,8 +120,13 @@ public class CorePlayerListener {
         player.setLastKnownConnectedServer(server);
 
         PremiumVanish pv = plugin.getVanishAPI();
-        if (pv != null && pv.isVanished(player.getUniqueId())) {
-            player.setPremiumVanishHidden(true);
+        if (pv != null) {
+            if (config.isPVNotifyVanishEnabledPlayersOnSilentMove()) {
+                PremiumVanishLevelUtil.updateVanishLevels(player);
+            }
+            if (pv.isVanished(player.getUniqueId())) {
+                player.setPremiumVanishHidden(true);
+            }
         }
 
         leaveMessageCache.refresh(player);
