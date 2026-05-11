@@ -173,7 +173,7 @@ public class CorePlayerListener {
         String serverName = player.getCurrentServer().getName();
 
         // Pass null as parseTarget — player is gone, placeholders already resolved in cache
-        messageHandler.broadcastMessage(message, MessageType.LEAVE, serverName, "", null, silent);
+        messageHandler.broadcastSilentMessage(message, MessageType.LEAVE, serverName, "", player, false);
         fireLeaveEvent(player, serverName, message, silent);
     }
 

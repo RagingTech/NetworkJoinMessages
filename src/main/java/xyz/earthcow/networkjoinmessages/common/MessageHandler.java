@@ -98,11 +98,11 @@ public final class MessageHandler {
     public void broadcastMessage(
             String text, MessageType type,
             String from, String to,
-            @Nullable CorePlayer parseTarget,
+            @NotNull CorePlayer parseTarget,
             boolean silent
     ) {
         if (silent) {
-            broadcastSilentMessage(text, type, from, to, parseTarget);
+            broadcastSilentMessage(text, type, from, to, parseTarget, true);
             return;
         }
 
@@ -126,15 +126,16 @@ public final class MessageHandler {
         }
     }
 
-    private void broadcastSilentMessage(
+    public void broadcastSilentMessage(
             @NotNull String text, @NotNull MessageType type,
             @NotNull String from, @NotNull String to,
-            @Nullable CorePlayer parseTarget
+            @NotNull CorePlayer triggerPlayer,
+            boolean isParseTarget
     ) {
-        sendSilentConsoleMessage(type, from, to, parseTarget);
+        sendSilentConsoleMessage(type, from, to, triggerPlayer);
 
-        for (CorePlayer player : receiverResolver.getSilentReceivers(parseTarget)) {
-            sendMessage(player, config.getSilentPrefix() + text, parseTarget);
+        for (CorePlayer player : receiverResolver.getSilentReceivers(triggerPlayer)) {
+            sendMessage(player, config.getSilentPrefix() + text, isParseTarget ? triggerPlayer : null);
         }
     }
 
