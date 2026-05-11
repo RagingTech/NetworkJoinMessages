@@ -9,7 +9,6 @@ import xyz.earthcow.networkjoinmessages.common.broadcast.ReceiverResolver;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.player.PlayerStateStore;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
-import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 import java.util.*;
@@ -134,12 +133,8 @@ public final class MessageHandler {
     ) {
         sendSilentConsoleMessage(type, from, to, parseTarget);
 
-        if (!config.isNotifyAdminsOnSilentMove()) return;
-
-        for (CorePlayer player : plugin.getAllPlayers()) {
-            if (player.hasPermission("networkjoinmessages.silent")) {
-                sendMessage(player, config.getSilentPrefix() + text, parseTarget);
-            }
+        for (CorePlayer player : receiverResolver.getSilentReceivers(parseTarget)) {
+            sendMessage(player, config.getSilentPrefix() + text, parseTarget);
         }
     }
 
