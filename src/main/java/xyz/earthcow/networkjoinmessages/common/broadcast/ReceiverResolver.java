@@ -84,7 +84,7 @@ public final class ReceiverResolver {
     }
 
     /**
-     * Collects and returns all the {@link CorePlayer}s who should receive silent messages.<br>
+     * Determines if a player should receive a silent message.<br>
      * A player will receive a silent message if any one of the following is true:
      * <ol>
      *     <li>If {@code NotifyAdminsOnSilentMove} is enabled and the player holds the
@@ -94,28 +94,18 @@ public final class ReceiverResolver {
      *     <li>If PremiumVanish is present, {@code PVNotifyVanishEnabledPlayersOnSilentMove} is true, and the player's
      *     {@code pv.see} level is the same as or greater than the trigger player's {@code pv.use} level</li>
      * </ol>
+     * @param player        The player to determine whether they are a silent receiver or not
      * @param triggerPlayer The player who triggered a message
-     * @return The list of players who should receive the silent message
+     * @return              Whether the player is a silent receiver (true) or not (false)
      */
-    public List<CorePlayer> getSilentReceivers(@NotNull CorePlayer triggerPlayer) {
-        List<CorePlayer> silentReceivers = new ArrayList<>();
-
-        for (CorePlayer player : plugin.getAllPlayers()) {
-            if (config.isNotifyAdminsOnSilentMove() && player.hasPermission("networkjoinmessages.silent")) {
-                silentReceivers.add(player);
-                continue;
-            }
-            if (hasSayanVanish && config.isSVNotifyVanishEnabledPlayersOnSilentMove()
-                && player.hasPermission("sayanvanish.vanish.use")) {
-                silentReceivers.add(player);
-                continue;
-            }
-            if (hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()
-                && (player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel())) {
-                silentReceivers.add(player);
-            }
-        }
-        return silentReceivers;
+    public boolean isSilentReceiver(@NotNull CorePlayer player, @NotNull CorePlayer triggerPlayer) {
+        if (config.isNotifyAdminsOnSilentMove() && player.hasPermission("networkjoinmessages.silent"))
+            return true;
+        if (hasSayanVanish && config.isSVNotifyVanishEnabledPlayersOnSilentMove()
+            && player.hasPermission("sayanvanish.vanish.use"))
+            return true;
+        return hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()
+            && player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel();
     }
 
     // --- Blacklist / whitelist checks ---

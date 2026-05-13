@@ -127,15 +127,18 @@ public final class MessageHandler {
     }
 
     public void broadcastSilentMessage(
-            @NotNull String text, @NotNull MessageType type,
-            @NotNull String from, @NotNull String to,
-            @NotNull CorePlayer triggerPlayer,
-            boolean isParseTarget
+        @NotNull String text, @NotNull MessageType type,
+        @NotNull String from, @NotNull String to,
+        @NotNull CorePlayer triggerPlayer,
+        boolean isParseTarget
     ) {
         sendSilentConsoleMessage(type, from, to, triggerPlayer);
 
-        for (CorePlayer player : receiverResolver.getSilentReceivers(triggerPlayer)) {
-            sendMessage(player, config.getSilentPrefix() + text, isParseTarget ? triggerPlayer : null);
+        CorePlayer parseTarget = isParseTarget ? triggerPlayer : null;
+
+        for (CorePlayer player : plugin.getAllPlayers()) {
+            if (!receiverResolver.isSilentReceiver(player, triggerPlayer)) continue;
+            sendMessage(player, config.getSilentPrefix() + text, parseTarget);
         }
     }
 
