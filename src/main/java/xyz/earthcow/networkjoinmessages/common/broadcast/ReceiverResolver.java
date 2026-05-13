@@ -91,8 +91,14 @@ public final class ReceiverResolver {
      *     {@code networkjoinmessages.silent} permission</li>
      *     <li>If SayanVanish is present, {@code SVNotifyVanishEnabledPlayersOnSilentMove} is true, and the player holds
      *     the {@code sayanvanish.vanish.use} permission</li>
-     *     <li>If PremiumVanish is present, {@code PVNotifyVanishEnabledPlayersOnSilentMove} is true, and the player's
-     *     {@code pv.see} level is the same as or greater than the trigger player's {@code pv.use} level</li>
+     *     <li>If PremiumVanish is present, {@code PVNotifyVanishEnabledPlayersOnSilentMove} is true, then if
+     *     {@code PVNotifyRespectVanishLevels}:
+     *     <ul>
+     *         <li><b>Is true</b> and the player's {@code pv.see} level is the same as or greater than the trigger player's
+     *         {@code pv.use} level</li>
+     *         <li><b>Is false</b> and the player holds either {@code pv.use} or {@code pv.see}</li>
+     *     </ul>
+     *     </li>
      * </ol>
      * @param player        The player to determine whether they are a silent receiver or not
      * @param triggerPlayer The player who triggered a message
@@ -104,8 +110,14 @@ public final class ReceiverResolver {
         if (hasSayanVanish && config.isSVNotifyVanishEnabledPlayersOnSilentMove()
             && player.hasPermission("sayanvanish.vanish.use"))
             return true;
-        return hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()
-            && player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel();
+        if (hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()) {
+            if (config.isPVNotifyRespectVanishLevels()) {
+                if (player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel())
+                    return true;
+            }
+            return (player.hasPermission("pv.use") || player.hasPermission("pv.see"));
+        }
+        return false;
     }
 
     // --- Blacklist / whitelist checks ---

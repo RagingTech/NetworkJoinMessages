@@ -121,7 +121,7 @@ public class CorePlayerListener {
 
         PremiumVanish pv = plugin.getVanishAPI();
         if (pv != null) {
-            if (config.isPVNotifyVanishEnabledPlayersOnSilentMove()) {
+            if (config.isPVNotifyVanishEnabledPlayersOnSilentMove() && config.isPVNotifyRespectVanishLevels()) {
                 PremiumVanishLevelUtil.updateVanishLevels(player);
             }
             if (pv.isVanished(player.getUniqueId())) {
