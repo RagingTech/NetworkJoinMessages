@@ -126,6 +126,7 @@ public final class PluginConfig {
     @Getter private boolean PVSpoofLeaveMessageOnHide;
     @Getter private boolean PVTreatVanishedOnJoin;
     @Getter private boolean PVNotifyVanishEnabledPlayersOnSilentMove;
+    @Getter private boolean PVNotifyRespectVanishLevels;
     @Getter private boolean shouldSuppressLimboSwap;
     @Getter private boolean shouldSuppressLimboJoin;
     @Getter private boolean shouldSuppressLimboLeave;
@@ -231,6 +232,7 @@ public final class PluginConfig {
         PVSpoofLeaveMessageOnHide                = config.getBoolean("OtherPlugins.PremiumVanish.SpoofLeaveMessageOnHide");
         PVTreatVanishedOnJoin                    = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedOnJoin");
         PVNotifyVanishEnabledPlayersOnSilentMove = config.getBoolean("OtherPlugins.PremiumVanish.NotifyVanishEnabledPlayersOnSilentMove");
+        PVNotifyRespectVanishLevels              = config.getBoolean("OtherPlugins.PremiumVanish.NotifyRespectVanishLevels");
         shouldSuppressLimboSwap                  = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         shouldSuppressLimboJoin                  = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
         shouldSuppressLimboLeave                 = config.getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
