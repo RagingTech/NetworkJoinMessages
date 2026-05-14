@@ -1,40 +1,34 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public interface CorePlayer extends CoreCommandSender {
+@Getter @Setter
+public abstract class CorePlayer implements CoreCommandSender {
+    // Fields
+    private CoreBackendServer lastKnownConnectedServer;
+    private boolean disconnecting = false;
+    private String cachedLeaveMessage;
+    private boolean premiumVanishHidden = false;
+    private int premiumVanishUseLevel = 0;
+    private int premiumVanishSeeLevel = 0;
+
+    public CorePlayer(CoreBackendServer lastKnownConnectedServer) {
+        this.lastKnownConnectedServer = lastKnownConnectedServer;
+    }
+
+    // Abstract
     @NotNull
-    UUID getUniqueId();
-
-    int getConnectionIdentity();
-
+    public abstract UUID getUniqueId();
+    public abstract int getConnectionIdentity();
     @Nullable
-    CoreBackendServer getCurrentServer();
-
-    @Nullable
-    CoreBackendServer getLastKnownConnectedServer();
-
-    void setLastKnownConnectedServer(CoreBackendServer server);
-
+    public abstract CoreBackendServer getCurrentServer();
     @NotNull
-    Audience getAudience();
-
-    boolean isInLimbo();
-
-    String getCachedLeaveMessage();
-    void setCachedLeaveMessage(String cachedLeaveMessage);
-
-    boolean isDisconnecting();
-    void setDisconnecting();
-
-    boolean getPremiumVanishHidden();
-    void setPremiumVanishHidden(boolean premiumVanishHidden);
-    int getPremiumVanishUseLevel();
-    void setPremiumVanishUseLevel(int level);
-    int getPremiumVanishSeeLevel();
-    void setPremiumVanishSeeLevel(int level);
+    public abstract Audience getAudience();
+    public abstract boolean isInLimbo();
 }
