@@ -33,4 +33,8 @@ public interface CorePlayer extends CoreCommandSender {
 
     boolean getPremiumVanishHidden();
     void setPremiumVanishHidden(boolean premiumVanishHidden);
+    int getPremiumVanishUseLevel();
+    void setPremiumVanishUseLevel(int level);
+    int getPremiumVanishSeeLevel();
+    void setPremiumVanishSeeLevel(int level);
 }

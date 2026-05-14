@@ -81,7 +81,7 @@ public class Core {
 
         // Message building
         MessageFormatter messageFormatter = new MessageFormatter(plugin, config, sayanVanishHook);
-        ReceiverResolver receiverResolver  = new ReceiverResolver(plugin, config);
+        ReceiverResolver receiverResolver  = new ReceiverResolver(plugin, config, sayanVanishHook != null, premiumVanish != null);
         MessageHandler   messageHandler    = new MessageHandler(plugin, config, stateStore, placeholderResolver, receiverResolver);
 
         // Player event helpers
