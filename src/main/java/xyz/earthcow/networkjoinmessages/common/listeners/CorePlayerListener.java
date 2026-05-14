@@ -101,7 +101,7 @@ public class CorePlayerListener {
             plugin.getCoreLogger().debug("Duplicate disconnect ignored for " + player.getName());
             return;
         }
-        player.setDisconnecting();
+        player.setDisconnecting(true);
 
         if (shouldSkipLeave(player)) {
             cleanup(player);

@@ -13,21 +13,15 @@ import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
 
 import java.util.UUID;
 
-public class VelocityPlayer implements CorePlayer {
+public class VelocityPlayer extends CorePlayer {
     private final Player velocityPlayer;
-    private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
-    private String cachedLeaveMessage;
-    private boolean disconnecting = false;
-    private boolean premiumVanishHidden = false;
-    private int pvUseLevel = 0;
-    private int pvSeeLevel = 0;
 
     public VelocityPlayer(Player velocityPlayer) {
+        super(velocityPlayer.getCurrentServer().isPresent() ?
+            new VelocityServer(velocityPlayer.getCurrentServer().get().getServer())
+            : null);
         this.velocityPlayer = velocityPlayer;
-        if (velocityPlayer.getCurrentServer().isPresent()) {
-            this.lastKnownConnectedServer = new VelocityServer(velocityPlayer.getCurrentServer().get().getServer());
-        }
         this.audience = Audience.audience(velocityPlayer);
     }
 
@@ -61,19 +55,9 @@ public class VelocityPlayer implements CorePlayer {
     public @Nullable CoreBackendServer getCurrentServer() {
         ServerConnection serverConnection = velocityPlayer.getCurrentServer().orElse(null);
         if (serverConnection == null) {
-            return lastKnownConnectedServer;
+            return getLastKnownConnectedServer();
         }
         return new VelocityServer(serverConnection.getServer());
-    }
-
-    @Override
-    public @Nullable CoreBackendServer getLastKnownConnectedServer() {
-        return lastKnownConnectedServer;
-    }
-
-    @Override
-    public void setLastKnownConnectedServer(CoreBackendServer server) {
-        lastKnownConnectedServer = server;
     }
 
     @Override
@@ -88,52 +72,5 @@ public class VelocityPlayer implements CorePlayer {
         }
         //noinspection ConstantValue
         return ((ConnectedPlayer) velocityPlayer).getConnection().getState().name() == null;
-    }
-
-    @Override
-    public String getCachedLeaveMessage() {
-        return cachedLeaveMessage;
-    }
-    @Override
-    public void setCachedLeaveMessage(String cachedLeaveMessage) {
-        this.cachedLeaveMessage = cachedLeaveMessage;
-    }
-
-    @Override
-    public boolean isDisconnecting() {
-        return disconnecting;
-    }
-
-    @Override
-    public void setDisconnecting() {
-        this.disconnecting = true;
-    }
-
-    @Override
-    public boolean getPremiumVanishHidden() {
-        return premiumVanishHidden;
-    }
-
-    @Override
-    public void setPremiumVanishHidden(boolean premiumVanishHidden) {
-        this.premiumVanishHidden = premiumVanishHidden;
-    }
-
-    @Override
-    public int getPremiumVanishUseLevel() {
-        return pvUseLevel;
-    }
-    @Override
-    public void setPremiumVanishUseLevel(int pvUseLevel) {
-        this.pvUseLevel = pvUseLevel;
-    }
-
-    @Override
-    public int getPremiumVanishSeeLevel() {
-        return pvSeeLevel;
-    }
-    @Override
-    public void setPremiumVanishSeeLevel(int pvSeeLevel) {
-        this.pvSeeLevel = pvSeeLevel;
     }
 }

@@ -12,19 +12,13 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 
 import java.util.UUID;
 
-public class BungeePlayer implements CorePlayer {
+public class BungeePlayer extends CorePlayer {
     private final ProxiedPlayer bungeePlayer;
-    private CoreBackendServer lastKnownConnectedServer;
     private final Audience audience;
-    private String cachedLeaveMessage;
-    private boolean disconnecting = false;
-    private boolean premiumVanishHidden = false;
-    private int pvUseLevel = 0;
-    private int pvSeeLevel = 0;
 
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
+        super(new BungeeServer(bungeePlayer.getServer().getInfo()));
         this.bungeePlayer = bungeePlayer;
-        this.lastKnownConnectedServer = new BungeeServer(bungeePlayer.getServer().getInfo());
         this.audience = BungeeMain.getInstance().getAudiences().player(bungeePlayer);
     }
 
@@ -58,19 +52,9 @@ public class BungeePlayer implements CorePlayer {
     public @Nullable CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {
-            return lastKnownConnectedServer;
+            return getLastKnownConnectedServer();
         }
         return new BungeeServer(server.getInfo());
-    }
-
-    @Override
-    public @Nullable CoreBackendServer getLastKnownConnectedServer() {
-        return lastKnownConnectedServer;
-    }
-
-    @Override
-    public void setLastKnownConnectedServer(CoreBackendServer server) {
-        lastKnownConnectedServer = server;
     }
 
     @Override
@@ -81,50 +65,5 @@ public class BungeePlayer implements CorePlayer {
     @Override
     public boolean isInLimbo() {
         return false;
-    }
-
-    @Override
-    public String getCachedLeaveMessage() {
-        return cachedLeaveMessage;
-    }
-    @Override
-    public void setCachedLeaveMessage(String cachedLeaveMessage) {
-        this.cachedLeaveMessage = cachedLeaveMessage;
-    }
-
-    @Override
-    public boolean isDisconnecting() {
-        return disconnecting;
-    }
-    @Override
-    public void setDisconnecting() {
-        this.disconnecting = true;
-    }
-
-    @Override
-    public boolean getPremiumVanishHidden() {
-        return premiumVanishHidden;
-    }
-    @Override
-    public void setPremiumVanishHidden(boolean premiumVanishHidden) {
-        this.premiumVanishHidden = premiumVanishHidden;
-    }
-
-    @Override
-    public int getPremiumVanishUseLevel() {
-        return pvUseLevel;
-    }
-    @Override
-    public void setPremiumVanishUseLevel(int pvUseLevel) {
-        this.pvUseLevel = pvUseLevel;
-    }
-
-    @Override
-    public int getPremiumVanishSeeLevel() {
-        return pvSeeLevel;
-    }
-    @Override
-    public void setPremiumVanishSeeLevel(int pvSeeLevel) {
-        this.pvSeeLevel = pvSeeLevel;
     }
 }
