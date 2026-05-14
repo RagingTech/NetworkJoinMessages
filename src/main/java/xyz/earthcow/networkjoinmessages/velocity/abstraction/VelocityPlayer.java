@@ -15,14 +15,15 @@ import java.util.UUID;
 
 public class VelocityPlayer extends CorePlayer {
     private final Player velocityPlayer;
-    private final Audience audience;
 
     public VelocityPlayer(Player velocityPlayer) {
-        super(velocityPlayer.getCurrentServer().isPresent() ?
-            new VelocityServer(velocityPlayer.getCurrentServer().get().getServer())
-            : null);
+        super(
+            velocityPlayer.getCurrentServer().isPresent() ?
+                new VelocityServer(velocityPlayer.getCurrentServer().get().getServer())
+                : null
+            , Audience.audience(velocityPlayer)
+        );
         this.velocityPlayer = velocityPlayer;
-        this.audience = Audience.audience(velocityPlayer);
     }
 
     @Override
@@ -58,11 +59,6 @@ public class VelocityPlayer extends CorePlayer {
             return getLastKnownConnectedServer();
         }
         return new VelocityServer(serverConnection.getServer());
-    }
-
-    @Override
-    public @NotNull Audience getAudience() {
-        return audience;
     }
 
     @Override

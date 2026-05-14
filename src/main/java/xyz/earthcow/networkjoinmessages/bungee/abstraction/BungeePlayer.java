@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -14,12 +13,13 @@ import java.util.UUID;
 
 public class BungeePlayer extends CorePlayer {
     private final ProxiedPlayer bungeePlayer;
-    private final Audience audience;
 
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
-        super(new BungeeServer(bungeePlayer.getServer().getInfo()));
+        super(
+            new BungeeServer(bungeePlayer.getServer().getInfo()),
+            BungeeMain.getInstance().getAudiences().player(bungeePlayer)
+        );
         this.bungeePlayer = bungeePlayer;
-        this.audience = BungeeMain.getInstance().getAudiences().player(bungeePlayer);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class BungeePlayer extends CorePlayer {
 
     @Override
     public void sendMessage(Component component) {
-        audience.sendMessage(component);
+        getAudience().sendMessage(component);
     }
 
     @Override
@@ -55,11 +55,6 @@ public class BungeePlayer extends CorePlayer {
             return getLastKnownConnectedServer();
         }
         return new BungeeServer(server.getInfo());
-    }
-
-    @Override
-    public @NotNull Audience getAudience() {
-        return audience;
     }
 
     @Override

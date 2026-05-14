@@ -14,12 +14,14 @@ public abstract class CorePlayer implements CoreCommandSender {
     private CoreBackendServer lastKnownConnectedServer;
     private boolean disconnecting = false;
     private String cachedLeaveMessage;
+    private Audience audience;
     private boolean premiumVanishHidden = false;
     private int premiumVanishUseLevel = 0;
     private int premiumVanishSeeLevel = 0;
 
-    public CorePlayer(CoreBackendServer lastKnownConnectedServer) {
+    public CorePlayer(CoreBackendServer lastKnownConnectedServer, Audience audience) {
         this.lastKnownConnectedServer = lastKnownConnectedServer;
+        this.audience = audience;
     }
 
     // Abstract
@@ -28,7 +30,5 @@ public abstract class CorePlayer implements CoreCommandSender {
     public abstract int getConnectionIdentity();
     @Nullable
     public abstract CoreBackendServer getCurrentServer();
-    @NotNull
-    public abstract Audience getAudience();
     public abstract boolean isInLimbo();
 }
