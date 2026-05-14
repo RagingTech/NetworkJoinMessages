@@ -112,8 +112,7 @@ public final class ReceiverResolver {
             return true;
         if (hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()) {
             if (config.isPVNotifyRespectVanishLevels()) {
-                if (player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel())
-                    return true;
+                return player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel();
             }
             return (player.hasPermission("pv.use") || player.hasPermission("pv.see"));
         }
