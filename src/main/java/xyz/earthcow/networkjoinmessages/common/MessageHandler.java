@@ -132,9 +132,9 @@ public final class MessageHandler {
         @NotNull CorePlayer triggerPlayer,
         boolean isParseTarget
     ) {
-        sendSilentConsoleMessage(type, from, to, triggerPlayer);
-
         CorePlayer parseTarget = isParseTarget ? triggerPlayer : null;
+
+        sendSilentConsoleMessage(type, from, to, parseTarget);
 
         for (CorePlayer player : plugin.getAllPlayers()) {
             if (!receiverResolver.isSilentReceiver(player, triggerPlayer)) continue;
