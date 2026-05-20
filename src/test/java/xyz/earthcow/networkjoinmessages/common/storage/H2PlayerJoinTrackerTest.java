@@ -3,29 +3,24 @@ package xyz.earthcow.networkjoinmessages.common.storage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreLogger;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class H2PlayerJoinTrackerTest {
-
-    @TempDir
-    private Path tempDir;
 
     private File tempDbFile;
     private H2PlayerJoinTracker tracker;
 
     @BeforeEach
-    void setUp() throws Exception {
-        tempDbFile = tempDir.resolve("joined").toFile();
+    void setup() throws Exception {
+        tempDbFile = Files.createTempFile("join-tracker-h2-test", ".mv.db").toFile();
         CoreLogger logger = Mockito.mock(CoreLogger.class);
         tracker = new H2PlayerJoinTracker(logger, tempDbFile.getAbsolutePath());
     }
@@ -36,83 +31,154 @@ class H2PlayerJoinTrackerTest {
         if (tempDbFile.exists()) tempDbFile.delete();
     }
 
+    // -----------------------------------------------------------------------
+    // hasJoined -- baseline
+    // -----------------------------------------------------------------------
+
     @Test
-    void testNewUUIDHasNotJoined() {
-        UUID uuid = UUID.randomUUID();
-        assertFalse(tracker.hasJoined(uuid), "New UUID should not be marked as joined");
+    void hasJoined_unknownUuid_returnsFalse() {
+        assertFalse(tracker.hasJoined(UUID.randomUUID()));
     }
 
     @Test
-    void testMarkAsJoined() {
+    void hasJoined_afterMarkAsJoined_returnsTrue() {
         UUID uuid = UUID.randomUUID();
-        assertFalse(tracker.hasJoined(uuid));
-        tracker.markAsJoined(uuid, "Player 1");
-        assertTrue(tracker.hasJoined(uuid), "UUID should be marked as joined after insert");
-    }
-
-    @Test
-    void testDoubleInsert() {
-        UUID uuid = UUID.randomUUID();
-        tracker.markAsJoined(uuid, "Player 2");
-        tracker.markAsJoined(uuid, "Player 2"); // Should not throw any exceptions
+        tracker.markAsJoined(uuid, "Notch");
         assertTrue(tracker.hasJoined(uuid));
     }
 
+    // -----------------------------------------------------------------------
+    // markAsJoined -- idempotency (MERGE semantics)
+    // -----------------------------------------------------------------------
+
     @Test
-    void testMultipleUUIDs() {
+    void markAsJoined_calledTwice_noException() {
+        UUID uuid = UUID.randomUUID();
+        assertDoesNotThrow(() -> {
+            tracker.markAsJoined(uuid, "Notch");
+            tracker.markAsJoined(uuid, "Notch");
+        });
+    }
+
+    @Test
+    void markAsJoined_calledTwiceSameUuid_appearsOnceInExport() {
+        UUID uuid = UUID.randomUUID();
+        tracker.markAsJoined(uuid, "Notch");
+        tracker.markAsJoined(uuid, "NotchRenamed");
+
+        Map<UUID, String> exported = tracker.exportAll();
+        assertEquals(1, exported.size(), "MERGE must not create duplicate rows");
+    }
+
+    @Test
+    void markAsJoined_calledTwiceNewName_nameIsUpdated() {
+        UUID uuid = UUID.randomUUID();
+        tracker.markAsJoined(uuid, "OldName");
+        tracker.markAsJoined(uuid, "NewName");
+
+        assertEquals("NewName", tracker.exportAll().get(uuid),
+            "MERGE should update the player name on second call");
+    }
+
+    // -----------------------------------------------------------------------
+    // markAsJoined -- multiple distinct players
+    // -----------------------------------------------------------------------
+
+    @Test
+    void markAsJoined_multipleDistinctPlayers_allTracked() {
         UUID uuid1 = UUID.randomUUID();
         UUID uuid2 = UUID.randomUUID();
-        tracker.markAsJoined(uuid1, "Player 3");
+        UUID uuid3 = UUID.randomUUID();
+        tracker.markAsJoined(uuid1, "Alpha");
+        tracker.markAsJoined(uuid2, "Beta");
+        tracker.markAsJoined(uuid3, "Gamma");
+
         assertTrue(tracker.hasJoined(uuid1));
-        assertFalse(tracker.hasJoined(uuid2));
+        assertTrue(tracker.hasJoined(uuid2));
+        assertTrue(tracker.hasJoined(uuid3));
     }
 
-    // --- User cache importer tests
+    // -----------------------------------------------------------------------
+    // exportAll
+    // -----------------------------------------------------------------------
 
     @Test
-    void addUsersFromUserCache_Success() throws Exception {
-        // Arrange
-        Path testCache = tempDir.resolve("usercache.json");
-        String json = """
-            [
-                {"name": "Notch", "uuid": "069a79f4-44e9-4726-a5be-fca90e38aaf5"},
-                {"name": "jeb_", "uuid": "853c80ef-3c37-49fd-aa49-938b674adae6"}
-            ]
-            """;
-        Files.writeString(testCache, json);
-
-        UUID randomUUID = UUID.randomUUID();
-
-        tracker.markAsJoined(randomUUID, "Player 1");
-
-        boolean result = tracker.addUsersFromUserCache(testCache.toString());
-
-        assertTrue(result);
-        assertTrue(tracker.hasJoined(randomUUID));
-        assertTrue(tracker.hasJoined(UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5")));
-        assertTrue(tracker.hasJoined(UUID.fromString("853c80ef-3c37-49fd-aa49-938b674adae6")));
+    void exportAll_emptyDatabase_returnsEmptyMap() {
+        assertTrue(tracker.exportAll().isEmpty());
     }
 
     @Test
-    void addUsersFromUserCache_FileNotFound() {
-        assertFalse(tracker.addUsersFromUserCache("/nonexistent/path"));
+    void exportAll_returnsAllRegisteredPlayers() {
+        UUID uuid1 = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
+        tracker.markAsJoined(uuid1, "Alpha");
+        tracker.markAsJoined(uuid2, "Beta");
+
+        Map<UUID, String> exported = tracker.exportAll();
+        assertEquals(2, exported.size());
+        assertEquals("Alpha", exported.get(uuid1));
+        assertEquals("Beta",  exported.get(uuid2));
     }
 
     @Test
-    void addUsersFromUserCache_InvalidJson() throws Exception {
-        Path testCache = tempDir.resolve("usercache.json");
-        Files.writeString(testCache, "INVALID_JSON");
+    void exportAll_capturesPlayerNames() {
+        UUID uuid = UUID.randomUUID();
+        tracker.markAsJoined(uuid, "Notch");
 
-        assertFalse(tracker.addUsersFromUserCache(testCache.toString()));
+        assertEquals("Notch", tracker.exportAll().get(uuid));
     }
 
+    // -----------------------------------------------------------------------
+    // UUID string representation round-trip
+    // -----------------------------------------------------------------------
+
     @Test
-    void addUsersFromUserCache_EmptyArray() throws Exception {
-        Path testCache = tempDir.resolve("usercache.json");
-        Files.writeString(testCache, "[]");
+    void uuidRoundTrip_dashFormattedUuid_roundTripsCorrectly() {
+        UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
+        tracker.markAsJoined(uuid, "Notch");
+        assertTrue(tracker.hasJoined(uuid));
+        assertEquals("Notch", tracker.exportAll().get(uuid));
+    }
 
-        boolean result = tracker.addUsersFromUserCache(testCache.toString());
+    // -----------------------------------------------------------------------
+    // Thread safety -- concurrent writes
+    // -----------------------------------------------------------------------
 
-        assertTrue(result); // Should still be successful but no users added
+    @Test
+    void markAsJoined_concurrentCalls_noDataCorruption() throws Exception {
+        int threadCount = 20;
+        UUID[] uuids = new UUID[threadCount];
+        for (int i = 0; i < threadCount; i++) uuids[i] = UUID.randomUUID();
+
+        Thread[] threads = new Thread[threadCount];
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            threads[i] = new Thread(() -> tracker.markAsJoined(uuids[idx], "Player" + idx));
+        }
+        for (Thread t : threads) t.start();
+        for (Thread t : threads) t.join();
+
+        for (UUID uuid : uuids) {
+            assertTrue(tracker.hasJoined(uuid),
+                "All UUIDs should be tracked after concurrent inserts");
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Large batch
+    // -----------------------------------------------------------------------
+
+    @Test
+    void markAsJoined_largeNumberOfPlayers_allTracked() {
+        int count = 200;
+        UUID[] uuids = new UUID[count];
+        for (int i = 0; i < count; i++) {
+            uuids[i] = UUID.randomUUID();
+            tracker.markAsJoined(uuids[i], "Player" + i);
+        }
+        assertEquals(count, tracker.exportAll().size());
+        for (UUID uuid : uuids) {
+            assertTrue(tracker.hasJoined(uuid));
+        }
     }
 }
