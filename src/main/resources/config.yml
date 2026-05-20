@@ -266,6 +266,9 @@ OtherPlugins:
     # Simply put, this setting respects the layered use/see permissions set with PremiumVanish.
     # Requires players to rejoin upon changes to their level or setting this setting to true
     NotifyRespectVanishLevels: false
+    # What should be the highest level for both PremiumVanish permissions?
+    # Lower amounts might improve performance with more players since they reduce the amount of permission checks
+    MaxLevel: 100
   LimboAPI:
     # No swap messages for players swapping to or from limbo servers
     SuppressSwapMessages: true
