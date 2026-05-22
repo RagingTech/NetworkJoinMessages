@@ -112,6 +112,8 @@ public final class ReceiverResolver {
             return true;
         if (hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()) {
             if (config.isPVNotifyRespectVanishLevels()) {
+                // If the trigger player has level 0 they must have networkjoinmessages.silent and no pv permissions
+                if (triggerPlayer.getPremiumVanishUseLevel() == 0) return false;
                 return player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel();
             }
             return (player.hasPermission("pv.use") || player.hasPermission("pv.see"));
