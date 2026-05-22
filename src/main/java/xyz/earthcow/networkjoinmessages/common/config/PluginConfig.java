@@ -76,6 +76,7 @@ public final class PluginConfig {
     @Getter private int leaveCacheDuration;
     @Getter private int leaveJoinBufferDuration;
     @Getter private long PPBRequestTimeout;
+    @Getter private int PVMaxLevel;
 
     /**
      * Default silent state for players with the {@code networkjoinmessages.silent} permission.
@@ -233,6 +234,7 @@ public final class PluginConfig {
         PVTreatVanishedOnJoin                    = config.getBoolean("OtherPlugins.PremiumVanish.TreatVanishedOnJoin");
         PVNotifyVanishEnabledPlayersOnSilentMove = config.getBoolean("OtherPlugins.PremiumVanish.NotifyVanishEnabledPlayersOnSilentMove");
         PVNotifyRespectVanishLevels              = config.getBoolean("OtherPlugins.PremiumVanish.NotifyRespectVanishLevels");
+        PVMaxLevel                               = config.getInt("OtherPlugins.PremiumVanish.MaxLevel");
         shouldSuppressLimboSwap                  = config.getBoolean("OtherPlugins.LimboAPI.SuppressSwapMessages");
         shouldSuppressLimboJoin                  = config.getBoolean("OtherPlugins.LimboAPI.SuppressJoinMessages");
         shouldSuppressLimboLeave                 = config.getBoolean("OtherPlugins.LimboAPI.SuppressLeaveMessages");
