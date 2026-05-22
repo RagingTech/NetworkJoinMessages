@@ -445,6 +445,19 @@ class ReceiverResolverTest {
     }
 
     @Test
+    void isSilentReceiver_pvEnabled_respectLevels_triggerPlayerUseLevel0_returnsFalse() {
+        when(config.isNotifyAdminsOnSilentMove()).thenReturn(false);
+        when(config.isPVNotifyVanishEnabledPlayersOnSilentMove()).thenReturn(true);
+        when(config.isPVNotifyRespectVanishLevels()).thenReturn(true);
+        // trigger player has no PV permissions, use level defaults to 0
+        when(lobbyPlayer.getPremiumVanishSeeLevel()).thenReturn(0);
+        when(survivalPlayer.getPremiumVanishUseLevel()).thenReturn(0);
+
+        ReceiverResolver resolver = new ReceiverResolver(plugin, config, false, true);
+        assertFalse(resolver.isSilentReceiver(lobbyPlayer, survivalPlayer));
+    }
+
+    @Test
     void isSilentReceiver_noConditionsMet_returnsFalse() {
         when(config.isNotifyAdminsOnSilentMove()).thenReturn(false);
         when(config.isSVNotifyVanishEnabledPlayersOnSilentMove()).thenReturn(false);
