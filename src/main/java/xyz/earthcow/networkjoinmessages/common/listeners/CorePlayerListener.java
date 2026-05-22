@@ -36,6 +36,7 @@ public class CorePlayerListener {
     private final LeaveJoinBufferManager leaveJoinBuffer;
     private final PlaceholderResolver placeholderResolver;
     private final PlayerJoinTracker firstJoinTracker;
+    private final PremiumVanishLevelUtil premiumVanishLevelUtil;
 
     public CorePlayerListener(
             CorePlugin plugin,
@@ -61,6 +62,8 @@ public class CorePlayerListener {
         this.leaveJoinBuffer = leaveJoinBuffer;
         this.placeholderResolver = placeholderResolver;
         this.firstJoinTracker = firstJoinTracker;
+
+        this.premiumVanishLevelUtil = new PremiumVanishLevelUtil(config.getPVMaxLevel());
     }
 
     // --- Public event entry points ---
@@ -122,7 +125,7 @@ public class CorePlayerListener {
         PremiumVanish pv = plugin.getVanishAPI();
         if (pv != null) {
             if (config.isPVNotifyVanishEnabledPlayersOnSilentMove() && config.isPVNotifyRespectVanishLevels()) {
-                PremiumVanishLevelUtil.updateVanishLevels(player);
+                premiumVanishLevelUtil.updateVanishLevels(player);
             }
             if (pv.isVanished(player.getUniqueId())) {
                 player.setPremiumVanishHidden(true);
