@@ -16,6 +16,7 @@ import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.storage.PlayerJoinTracker;
 import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
+import xyz.earthcow.networkjoinmessages.common.util.PremiumVanishLevelUtil;
 
 /**
  * Routes platform-level player events (join, swap, disconnect) to the appropriate handlers.
@@ -35,6 +36,7 @@ public class CorePlayerListener {
     private final LeaveJoinBufferManager leaveJoinBuffer;
     private final PlaceholderResolver placeholderResolver;
     private final PlayerJoinTracker firstJoinTracker;
+    private final PremiumVanishLevelUtil premiumVanishLevelUtil;
 
     public CorePlayerListener(
             CorePlugin plugin,
@@ -60,6 +62,8 @@ public class CorePlayerListener {
         this.leaveJoinBuffer = leaveJoinBuffer;
         this.placeholderResolver = placeholderResolver;
         this.firstJoinTracker = firstJoinTracker;
+
+        this.premiumVanishLevelUtil = new PremiumVanishLevelUtil(config.getPVMaxLevel());
     }
 
     // --- Public event entry points ---
@@ -100,7 +104,7 @@ public class CorePlayerListener {
             plugin.getCoreLogger().debug("Duplicate disconnect ignored for " + player.getName());
             return;
         }
-        player.setDisconnecting();
+        player.setDisconnecting(true);
 
         if (shouldSkipLeave(player)) {
             cleanup(player);
@@ -119,8 +123,13 @@ public class CorePlayerListener {
         player.setLastKnownConnectedServer(server);
 
         PremiumVanish pv = plugin.getVanishAPI();
-        if (pv != null && pv.isVanished(player.getUniqueId())) {
-            player.setPremiumVanishHidden(true);
+        if (pv != null) {
+            if (config.isPVNotifyVanishEnabledPlayersOnSilentMove() && config.isPVNotifyRespectVanishLevels()) {
+                premiumVanishLevelUtil.updateVanishLevels(player);
+            }
+            if (pv.isVanished(player.getUniqueId())) {
+                player.setPremiumVanishHidden(true);
+            }
         }
 
         leaveMessageCache.refresh(player);
@@ -166,8 +175,8 @@ public class CorePlayerListener {
         boolean silent = silenceChecker.isSilent(player);
         String serverName = player.getCurrentServer().getName();
 
-        // Pass null as parseTarget — player is gone, placeholders already resolved in cache
-        messageHandler.broadcastMessage(message, MessageType.LEAVE, serverName, "", null, silent);
+        // Pass player as triggerPlayer but false for isParseTarget as the placeholders are already resolved in cache
+        messageHandler.broadcastSilentMessage(message, MessageType.LEAVE, serverName, "", player, false);
         fireLeaveEvent(player, serverName, message, silent);
     }
 

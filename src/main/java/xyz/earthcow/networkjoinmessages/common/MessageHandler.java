@@ -9,7 +9,6 @@ import xyz.earthcow.networkjoinmessages.common.broadcast.ReceiverResolver;
 import xyz.earthcow.networkjoinmessages.common.config.PluginConfig;
 import xyz.earthcow.networkjoinmessages.common.player.PlayerStateStore;
 import xyz.earthcow.networkjoinmessages.common.util.Formatter;
-import xyz.earthcow.networkjoinmessages.common.MessageType;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 import java.util.*;
@@ -99,11 +98,11 @@ public final class MessageHandler {
     public void broadcastMessage(
             String text, MessageType type,
             String from, String to,
-            @Nullable CorePlayer parseTarget,
+            @NotNull CorePlayer parseTarget,
             boolean silent
     ) {
         if (silent) {
-            broadcastSilentMessage(text, type, from, to, parseTarget);
+            broadcastSilentMessage(text, type, from, to, parseTarget, true);
             return;
         }
 
@@ -127,19 +126,19 @@ public final class MessageHandler {
         }
     }
 
-    private void broadcastSilentMessage(
-            @NotNull String text, @NotNull MessageType type,
-            @NotNull String from, @NotNull String to,
-            @Nullable CorePlayer parseTarget
+    public void broadcastSilentMessage(
+        @NotNull String text, @NotNull MessageType type,
+        @NotNull String from, @NotNull String to,
+        @NotNull CorePlayer triggerPlayer,
+        boolean isParseTarget
     ) {
+        CorePlayer parseTarget = isParseTarget ? triggerPlayer : null;
+
         sendSilentConsoleMessage(type, from, to, parseTarget);
 
-        if (!config.isNotifyAdminsOnSilentMove()) return;
-
         for (CorePlayer player : plugin.getAllPlayers()) {
-            if (player.hasPermission("networkjoinmessages.silent")) {
-                sendMessage(player, config.getSilentPrefix() + text, parseTarget);
-            }
+            if (!receiverResolver.isSilentReceiver(player, triggerPlayer)) continue;
+            sendMessage(player, config.getSilentPrefix() + text, parseTarget);
         }
     }
 

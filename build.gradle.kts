@@ -100,6 +100,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.19.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
 
+    testImplementation("org.sayandev:sayanvanish-api:1.7.0-SNAPSHOT")
     testImplementation("net.luckperms:api:5.4")
     testImplementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
     testImplementation("io.github.miniplaceholders:miniplaceholders-api:3.0.1")

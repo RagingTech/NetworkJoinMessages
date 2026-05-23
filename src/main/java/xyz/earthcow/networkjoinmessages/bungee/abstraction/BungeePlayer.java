@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.bungee.abstraction;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -12,18 +11,15 @@ import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 
 import java.util.UUID;
 
-public class BungeePlayer implements CorePlayer {
+public class BungeePlayer extends CorePlayer {
     private final ProxiedPlayer bungeePlayer;
-    private CoreBackendServer lastKnownConnectedServer;
-    private final Audience audience;
-    private String cachedLeaveMessage;
-    private boolean disconnecting = false;
-    private boolean premiumVanishHidden = false;
 
     public BungeePlayer(ProxiedPlayer bungeePlayer) {
+        super(
+            new BungeeServer(bungeePlayer.getServer().getInfo()),
+            BungeeMain.getInstance().getAudiences().player(bungeePlayer)
+        );
         this.bungeePlayer = bungeePlayer;
-        this.lastKnownConnectedServer = new BungeeServer(bungeePlayer.getServer().getInfo());
-        this.audience = BungeeMain.getInstance().getAudiences().player(bungeePlayer);
     }
 
     @Override
@@ -33,7 +29,7 @@ public class BungeePlayer implements CorePlayer {
 
     @Override
     public void sendMessage(Component component) {
-        audience.sendMessage(component);
+        getAudience().sendMessage(component);
     }
 
     @Override
@@ -56,56 +52,13 @@ public class BungeePlayer implements CorePlayer {
     public @Nullable CoreBackendServer getCurrentServer() {
         Server server = bungeePlayer.getServer();
         if (server == null) {
-            return lastKnownConnectedServer;
+            return getLastKnownConnectedServer();
         }
         return new BungeeServer(server.getInfo());
     }
 
     @Override
-    public @Nullable CoreBackendServer getLastKnownConnectedServer() {
-        return lastKnownConnectedServer;
-    }
-
-    @Override
-    public void setLastKnownConnectedServer(CoreBackendServer server) {
-        lastKnownConnectedServer = server;
-    }
-
-    @Override
-    public @NotNull Audience getAudience() {
-        return audience;
-    }
-
-    @Override
     public boolean isInLimbo() {
         return false;
-    }
-
-    @Override
-    public String getCachedLeaveMessage() {
-        return cachedLeaveMessage;
-    }
-    @Override
-    public void setCachedLeaveMessage(String cachedLeaveMessage) {
-        this.cachedLeaveMessage = cachedLeaveMessage;
-    }
-
-    @Override
-    public boolean isDisconnecting() {
-        return disconnecting;
-    }
-    @Override
-    public void setDisconnecting() {
-        this.disconnecting = true;
-    }
-
-    @Override
-    public boolean getPremiumVanishHidden() {
-        return premiumVanishHidden;
-    }
-
-    @Override
-    public void setPremiumVanishHidden(boolean premiumVanishHidden) {
-        this.premiumVanishHidden = premiumVanishHidden;
     }
 }

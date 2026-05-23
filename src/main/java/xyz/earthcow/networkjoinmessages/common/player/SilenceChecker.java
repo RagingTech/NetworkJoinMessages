@@ -74,7 +74,7 @@ public final class SilenceChecker {
     private boolean isPremiumVanishSilent(CorePlayer player) {
         return premiumVanish != null
             && config.isPVTreatVanishedPlayersAsSilent()
-            && (premiumVanish.isVanished(player.getUniqueId()) || player.getPremiumVanishHidden());
+            && (premiumVanish.isVanished(player.getUniqueId()) || player.isPremiumVanishHidden());
     }
 
     private void logDebugState(CorePlayer player) {
@@ -88,7 +88,7 @@ public final class SilenceChecker {
             premiumVanish != null,
             config.isPVTreatVanishedPlayersAsSilent(),
             premiumVanish != null ? premiumVanish.isVanished(player.getUniqueId()) : "N/A",
-            player.getPremiumVanishHidden(),
+            player.isPremiumVanishHidden(),
             config.isPVTreatVanishedOnJoin(),
             player.hasPermission(PV_JOIN_VANISHED_PERM)
         ));

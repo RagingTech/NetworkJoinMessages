@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.broadcast;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CoreBackendServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -18,10 +19,15 @@ public final class ReceiverResolver {
 
     private final CorePlugin plugin;
     private final PluginConfig config;
+    private final boolean hasSayanVanish;
+    private final boolean hasPremiumVanish;
 
-    public ReceiverResolver(CorePlugin plugin, PluginConfig config) {
+
+    public ReceiverResolver(CorePlugin plugin, PluginConfig config, boolean hasSayanVanish, boolean hasPremiumVanish) {
         this.plugin = plugin;
         this.config = config;
+        this.hasSayanVanish = hasSayanVanish;
+        this.hasPremiumVanish = hasPremiumVanish;
     }
 
     // --- Audience resolution ---
@@ -75,6 +81,44 @@ public final class ReceiverResolver {
         if (viewableByJoined && toServer != null)   receivers.addAll(getServerPlayers(toServer));
         if (viewableByLeft   && fromServer != null) receivers.addAll(getServerPlayers(fromServer));
         return receivers;
+    }
+
+    /**
+     * Determines if a player should receive a silent message.<br>
+     * A player will receive a silent message if any one of the following is true:
+     * <ol>
+     *     <li>If {@code NotifyAdminsOnSilentMove} is enabled and the player holds the
+     *     {@code networkjoinmessages.silent} permission</li>
+     *     <li>If SayanVanish is present, {@code SVNotifyVanishEnabledPlayersOnSilentMove} is true, and the player holds
+     *     the {@code sayanvanish.vanish.use} permission</li>
+     *     <li>If PremiumVanish is present, {@code PVNotifyVanishEnabledPlayersOnSilentMove} is true, then if
+     *     {@code PVNotifyRespectVanishLevels}:
+     *     <ul>
+     *         <li><b>Is true</b> and the player's {@code pv.see} level is the same as or greater than the trigger player's
+     *         {@code pv.use} level</li>
+     *         <li><b>Is false</b> and the player holds either {@code pv.use} or {@code pv.see}</li>
+     *     </ul>
+     *     </li>
+     * </ol>
+     * @param player        The player to determine whether they are a silent receiver or not
+     * @param triggerPlayer The player who triggered a message
+     * @return              Whether the player is a silent receiver (true) or not (false)
+     */
+    public boolean isSilentReceiver(@NotNull CorePlayer player, @NotNull CorePlayer triggerPlayer) {
+        if (config.isNotifyAdminsOnSilentMove() && player.hasPermission("networkjoinmessages.silent"))
+            return true;
+        if (hasSayanVanish && config.isSVNotifyVanishEnabledPlayersOnSilentMove()
+            && player.hasPermission("sayanvanish.vanish.use"))
+            return true;
+        if (hasPremiumVanish && config.isPVNotifyVanishEnabledPlayersOnSilentMove()) {
+            if (config.isPVNotifyRespectVanishLevels()) {
+                // If the trigger player has level 0 they must have networkjoinmessages.silent and no pv permissions
+                if (triggerPlayer.getPremiumVanishUseLevel() == 0) return false;
+                return player.getPremiumVanishSeeLevel() >= triggerPlayer.getPremiumVanishUseLevel();
+            }
+            return (player.hasPermission("pv.use") || player.hasPermission("pv.see"));
+        }
+        return false;
     }
 
     // --- Blacklist / whitelist checks ---
