@@ -267,11 +267,6 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
-    public Core getCore() {
-        return core;
-    }
-
-    @Override
     public CoreCommandSender getConsole() {
         return console;
     }
