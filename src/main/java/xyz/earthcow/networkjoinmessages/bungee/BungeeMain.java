@@ -210,4 +210,9 @@ public class BungeeMain extends Plugin implements CorePlugin {
     public boolean isPluginLoaded(String pluginName) {
         return getProxy().getPluginManager().getPlugin(pluginName) != null;
     }
+
+    @Override
+    public boolean hasLimbo() {
+        return false;
+    }
 }
