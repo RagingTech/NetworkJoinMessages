@@ -90,7 +90,7 @@ public class CorePlayerListener {
             if (!stateStore.isConnected(player)) {
                 handleJoin(player, server);
             } else {
-                boolean fromLimbo = plugin.getServerType() == ServerType.VELOCITY && previousServer == null;
+                boolean fromLimbo = plugin.hasLimbo() && previousServer == null;
                 handleSwap(player, server, fromLimbo);
             }
         });

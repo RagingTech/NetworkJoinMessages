@@ -225,6 +225,11 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
+    public boolean hasLimbo() {
+        return isLimboAPIAvailable;
+    }
+
+    @Override
     public CorePlayer createPlayer(UUID uuid) {
         Optional<Player> player = proxy.getPlayer(uuid);
         return player.map(VelocityPlayer::new).orElse(null);
