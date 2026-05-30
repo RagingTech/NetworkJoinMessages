@@ -106,7 +106,7 @@ public class VelocityMain implements CorePlugin {
             velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
 
-        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
+        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener(), velocityLogger));
 
         registerCommands();
 
