@@ -9,7 +9,6 @@ import java.util.UUID;
 public interface CorePlugin {
     void disable();
 
-    ServerType getServerType();
     File getDataFolder();
     CoreLogger getCoreLogger();
 

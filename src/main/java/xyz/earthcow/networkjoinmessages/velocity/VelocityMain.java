@@ -262,11 +262,6 @@ public class VelocityMain implements CorePlugin {
     }
 
     @Override
-    public ServerType getServerType() {
-        return ServerType.VELOCITY;
-    }
-
-    @Override
     public CoreCommandSender getConsole() {
         return console;
     }

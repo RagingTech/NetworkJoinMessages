@@ -125,11 +125,6 @@ public class BungeeMain extends Plugin implements CorePlugin {
     }
 
     @Override
-    public ServerType getServerType() {
-        return ServerType.BUNGEE;
-    }
-
-    @Override
     public CoreLogger getCoreLogger() {
         return bungeeLogger;
     }
