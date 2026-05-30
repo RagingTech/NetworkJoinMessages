@@ -150,7 +150,11 @@ public class CorePlayerListener {
             messageHandler.sendMessage(player, config.getSpoofJoinNotification());
         }
 
-        messageHandler.broadcastMessage(message, msgType, player, silent);
+        if (silent) {
+            messageHandler.broadcastSilentMessage(message, msgType, player.getCurrentServer().getName(), "", player, true);
+        } else {
+            messageHandler.broadcastMessage(message, msgType, player);
+        }
         fireJoinEvent(player, server, message, silent, firstJoin);
     }
 
@@ -166,7 +170,11 @@ public class CorePlayerListener {
         String message = messageFormatter.formatSwapMessage(player, from, to);
         boolean silent = silenceChecker.isSilent(player);
 
-        messageHandler.broadcastMessage(message, MessageType.SWAP, from, to, player, silent);
+        if (silent) {
+            messageHandler.broadcastSilentMessage(message, MessageType.SWAP, from, to, player, true);
+        } else {
+            messageHandler.broadcastMessage(message, MessageType.SWAP, from, to, player);
+        }
         fireSwapEvent(player, from, to, message, silent);
     }
 
@@ -175,8 +183,12 @@ public class CorePlayerListener {
         boolean silent = silenceChecker.isSilent(player);
         String serverName = player.getCurrentServer().getName();
 
-        // Pass player as triggerPlayer but false for isParseTarget as the placeholders are already resolved in cache
-        messageHandler.broadcastSilentMessage(message, MessageType.LEAVE, serverName, "", player, false);
+        if (silent) {
+            // Pass player as triggerPlayer but false for isParseTarget as the placeholders are already resolved in cache
+            messageHandler.broadcastSilentMessage(message, MessageType.LEAVE, serverName, "", player, false);
+        } else {
+            messageHandler.broadcastMessage(message, MessageType.LEAVE, serverName, "", null);
+        }
         fireLeaveEvent(player, serverName, message, silent);
     }
 

@@ -67,45 +67,25 @@ public final class MessageHandler {
 
     // --- Broadcast ---
 
-    /** Broadcasts a non-silent message using the player's current server as context. */
-    public void broadcastMessage(String text, MessageType type, CorePlayer parseTarget) {
-        broadcastMessage(text, type, parseTarget, false);
-    }
-
     /** Broadcasts a message using the player's current server as both from and to context. */
-    public void broadcastMessage(String text, MessageType type, CorePlayer parseTarget, boolean silent) {
-        broadcastMessage(text, type, parseTarget.getCurrentServer().getName(), "", parseTarget, silent);
-    }
-
-    /** Broadcasts a non-silent message with explicit server context. */
-    public void broadcastMessage(String text, MessageType type, String from, String to, CorePlayer parseTarget) {
-        broadcastMessage(text, type, from, to, parseTarget, false);
+    public void broadcastMessage(String text, MessageType type, CorePlayer parseTarget) {
+        broadcastMessage(text, type, parseTarget.getCurrentServer().getName(), "", parseTarget);
     }
 
     /**
      * Broadcasts a message to all appropriate recipients.
-     *
-     * <p>If {@code silent} is true, only the console and permission-holding admins receive it.
-     * Otherwise, all players who pass receiver, blacklist, and suppression checks are notified.
      *
      * @param text        the formatted message template
      * @param type        the message type (determines receiver list)
      * @param from        the origin server name
      * @param to          the destination server name
      * @param parseTarget the player to resolve placeholders against (may be null for leave messages)
-     * @param silent      whether this is a vanished/silent event
      */
     public void broadcastMessage(
             String text, MessageType type,
             String from, String to,
-            @NotNull CorePlayer parseTarget,
-            boolean silent
+            @Nullable CorePlayer parseTarget
     ) {
-        if (silent) {
-            broadcastSilentMessage(text, type, from, to, parseTarget, true);
-            return;
-        }
-
         List<CorePlayer> receivers = switch (type) {
             case SWAP       -> receiverResolver.getSwapReceivers(to, from);
             case FIRST_JOIN -> receiverResolver.getFirstJoinReceivers(from);
