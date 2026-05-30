@@ -32,6 +32,7 @@ public interface CorePlugin {
     int runTaskAsyncLater(Runnable task, int timeInMillisecondsLater);
 
     boolean isPluginLoaded(String pluginName);
+    boolean hasLimbo();
 
     CoreCommandSender getConsole();
 
