@@ -75,7 +75,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
         getProxy()
             .getPluginManager()
-            .registerListener(this, new PlayerListener(core.getCorePlayerListener()));
+            .registerListener(this, new PlayerListener(core.getCorePlayerListener(), bungeeLogger));
 
         getProxy()
             .getPluginManager()
