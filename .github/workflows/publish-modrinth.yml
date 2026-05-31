@@ -27,7 +27,7 @@ jobs:
         uses: cloudnode-pro/modrinth-publish@v2
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
-          project: ${{ secrets.MODRINTH_PROJECT_ID }}
+          project: ${{ vars.MODRINTH_PROJECT_ID }}
           version: ${{ github.event.release.tag_name }}
           changelog: ${{ github.event.release.body }}
           loaders: |-
