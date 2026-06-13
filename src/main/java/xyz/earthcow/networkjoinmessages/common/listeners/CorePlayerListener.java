@@ -100,11 +100,10 @@ public class CorePlayerListener {
      * Called when a player disconnects from the network.
      */
     public void onDisconnect(@NotNull CorePlayer player) {
-        if (player.isDisconnecting()) {
+        if (!player.markDisconnecting()) {
             plugin.getCoreLogger().debug("Duplicate disconnect ignored for " + player.getName());
             return;
         }
-        player.setDisconnecting(true);
 
         if (shouldSkipLeave(player)) {
             cleanup(player);
