@@ -11,6 +11,7 @@ import java.util.UUID;
 @Getter @Setter
 public abstract class CorePlayer implements CoreCommandSender {
     // Fields
+    private boolean connected = false;
     private CoreBackendServer lastKnownConnectedServer;
     private boolean disconnecting = false;
     private String cachedLeaveMessage;
