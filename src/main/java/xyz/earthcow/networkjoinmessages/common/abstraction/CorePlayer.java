@@ -13,7 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Getter @Setter
 public abstract class CorePlayer implements CoreCommandSender {
     // Fields
-    private volatile boolean connected = false;
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+    private AtomicBoolean connected = new AtomicBoolean(false);
     private CoreBackendServer lastKnownConnectedServer;
     @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
     private AtomicBoolean disconnecting = new AtomicBoolean(false);
@@ -26,6 +27,14 @@ public abstract class CorePlayer implements CoreCommandSender {
     public CorePlayer(CoreBackendServer lastKnownConnectedServer, Audience audience) {
         this.lastKnownConnectedServer = lastKnownConnectedServer;
         this.audience = audience;
+    }
+
+    public boolean isConnected() {
+        return connected.get();
+    }
+
+    public void setConnected(boolean value) {
+        connected.set(value);
     }
 
     public boolean markDisconnecting() {

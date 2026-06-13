@@ -87,11 +87,11 @@ public class CorePlayerListener {
     public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server,
                                    @Nullable CoreBackendServer previousServer) {
         plugin.runTaskAsync(() -> {
-            if (!player.isConnected()) {
-                handleJoin(player, server);
-            } else {
+            if (player.isConnected()) {
                 boolean fromLimbo = plugin.hasLimbo() && previousServer == null;
                 handleSwap(player, server, fromLimbo);
+            } else {
+                handleJoin(player, server);
             }
         });
     }
