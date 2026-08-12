@@ -37,4 +37,4 @@ jobs:
             velocity
             bungeecord
           game-versions: ">=1.8"
-          files: build/libs/*.jar
+          files: build/libs/NetworkJoinMessages-${{ github.event.release.tag_name }}.jar
