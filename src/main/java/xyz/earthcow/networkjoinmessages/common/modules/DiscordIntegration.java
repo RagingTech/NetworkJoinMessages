@@ -8,6 +8,7 @@ import xyz.earthcow.networkjoinmessages.common.broadcast.MessageFormatter;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 import java.io.FileNotFoundException;
@@ -71,7 +72,7 @@ public class DiscordIntegration {
         DiscordWebhook webhook = webhookBuilder.buildSwapWebhook(webhookUrl);
         if (webhook == null) return;
 
-        String avatarUrl = resolveAvatarUrl(player);
+        String avatarUrl = webhookBuilder.resolveAvatarUrl(player);
         String preparedJson = messageFormatter.prepareDiscordSwapTemplate(
             webhook.getJsonString(), player, event.serverFrom(), event.serverTo(), avatarUrl);
         executeWebhook(webhook, preparedJson, player);
@@ -84,7 +85,7 @@ public class DiscordIntegration {
         DiscordWebhook webhook = webhookBuilder.buildJoinWebhook(webhookUrl, key);
         if (webhook == null) return;
 
-        String avatarUrl = resolveAvatarUrl(player);
+        String avatarUrl = webhookBuilder.resolveAvatarUrl(player);
         String preparedJson = messageFormatter.prepareDiscordJoinLeaveTemplate(
             webhook.getJsonString(), player, false, avatarUrl);
         executeWebhook(webhook, preparedJson, player);
@@ -96,10 +97,13 @@ public class DiscordIntegration {
         DiscordWebhook webhook = webhookBuilder.buildLeaveWebhook(webhookUrl);
         if (webhook == null) return;
 
-        String avatarUrl = resolveAvatarUrl(player);
-        String preparedJson = messageFormatter.prepareDiscordJoinLeaveTemplate(
-            webhook.getJsonString(), player, true, avatarUrl);
-        executeWebhook(webhook, preparedJson, player);
+        String cachedPayload = player.getCachedDiscordLeavePayload();
+        if (cachedPayload == null) {
+            plugin.getCoreLogger().warn(
+                "No cached Discord leave payload for " + player.getName() + ", skipping webhook.");
+            return;
+        }
+        sendWebhook(webhook, cachedPayload);
     }
 
     // --- Webhook execution ---
@@ -109,27 +113,21 @@ public class DiscordIntegration {
      * string, then executes the webhook asynchronously.
      */
     private void executeWebhook(DiscordWebhook webhook, String preparedJson, CorePlayer parseTarget) {
-        placeholderResolver.resolve(preparedJson, parseTarget, fullyResolved ->
-            plugin.runTaskAsync(() -> {
-                try {
-                    webhook.execute(fullyResolved);
-                } catch (IOException e) {
-                    plugin.getCoreLogger().severe("[DiscordIntegration] " + describeHttpError(e));
-                    plugin.getCoreLogger().debug("Exception: " + e);
-                    plugin.getCoreLogger().debug("Webhook payload: " + preparedJson);
-                }
-            })
-        );
+        placeholderResolver.resolve(preparedJson, parseTarget, fullyResolved -> sendWebhook(webhook, fullyResolved));
     }
 
-    /**
-     * Resolves the avatar URL template from config, substituting {@code %uuid%} and
-     * {@code %player%} for the given player.
-     */
-    private String resolveAvatarUrl(CorePlayer player) {
-        return discordConfig.getString("EmbedAvatarUrl")
-            .replace("%uuid%", player.getUniqueId().toString())
-            .replace("%player%", player.getName());
+    /** Sends an already fully-resolved JSON payload to Discord asynchronously. */
+    private void sendWebhook(DiscordWebhook webhook, String fullyResolved) {
+        plugin.runTaskAsync(() -> {
+            String cleanFullyResolved = Formatter.sanitize(fullyResolved);
+            try {
+                webhook.execute(cleanFullyResolved);
+            } catch (IOException e) {
+                plugin.getCoreLogger().severe("[DiscordIntegration] " + describeHttpError(e));
+                plugin.getCoreLogger().debug("Exception: " + e);
+                plugin.getCoreLogger().debug("Webhook payload: " + cleanFullyResolved);
+            }
+        });
     }
 
     /** Produces a human-readable error description for a failed webhook HTTP request. */
