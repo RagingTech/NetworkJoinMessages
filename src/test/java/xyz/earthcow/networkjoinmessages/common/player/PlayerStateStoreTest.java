@@ -291,31 +291,6 @@ class PlayerStateStoreTest {
     }
 
     // -----------------------------------------------------------------------
-    // isConnected / setConnected
-    // -----------------------------------------------------------------------
-
-    @Test
-    void setConnected_true_marksPlayerOnline() {
-        PlayerStateStore stateStore = new PlayerStateStore(plugin, config, store);
-        stateStore.setConnected(player, true);
-        assertTrue(stateStore.isConnected(player));
-    }
-
-    @Test
-    void setConnected_false_marksPlayerOffline() {
-        PlayerStateStore stateStore = new PlayerStateStore(plugin, config, store);
-        stateStore.setConnected(player, true);
-        stateStore.setConnected(player, false);
-        assertFalse(stateStore.isConnected(player));
-    }
-
-    @Test
-    void isConnected_unknownPlayer_returnsFalse() {
-        PlayerStateStore stateStore = new PlayerStateStore(plugin, config, store);
-        assertFalse(stateStore.isConnected(player));
-    }
-
-    // -----------------------------------------------------------------------
     // getFrom / setFrom
     // -----------------------------------------------------------------------
 

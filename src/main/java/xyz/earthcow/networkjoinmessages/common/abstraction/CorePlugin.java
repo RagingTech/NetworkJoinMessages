@@ -1,6 +1,5 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
-import xyz.earthcow.networkjoinmessages.common.Core;
 import xyz.earthcow.networkjoinmessages.common.modules.DiscordIntegration;
 
 import java.io.File;
@@ -8,11 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CorePlugin {
-    Core getCore();
-
     void disable();
 
-    ServerType getServerType();
     File getDataFolder();
     CoreLogger getCoreLogger();
 

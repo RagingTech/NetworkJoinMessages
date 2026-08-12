@@ -106,7 +106,7 @@ public class VelocityMain implements CorePlugin {
             velocityLogger.info("Successfully hooked into PremiumVanish!");
         }
 
-        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener()));
+        proxy.getEventManager().register(this, new PlayerListener(core.getCorePlayerListener(), velocityLogger));
 
         registerCommands();
 
@@ -259,16 +259,6 @@ public class VelocityMain implements CorePlugin {
     @Override
     public PremiumVanish getVanishAPI() {
         return premiumVanish;
-    }
-
-    @Override
-    public ServerType getServerType() {
-        return ServerType.VELOCITY;
-    }
-
-    @Override
-    public Core getCore() {
-        return core;
     }
 
     @Override

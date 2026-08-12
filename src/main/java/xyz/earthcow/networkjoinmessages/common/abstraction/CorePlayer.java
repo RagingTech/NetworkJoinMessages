@@ -1,5 +1,6 @@
 package xyz.earthcow.networkjoinmessages.common.abstraction;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.audience.Audience;
@@ -7,13 +8,18 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Getter @Setter
 public abstract class CorePlayer implements CoreCommandSender {
     // Fields
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+    private AtomicBoolean connected = new AtomicBoolean(false);
     private CoreBackendServer lastKnownConnectedServer;
-    private boolean disconnecting = false;
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+    private AtomicBoolean disconnecting = new AtomicBoolean(false);
     private String cachedLeaveMessage;
+    private String cachedDiscordLeavePayload;
     private Audience audience;
     private boolean premiumVanishHidden = false;
     private int premiumVanishUseLevel = 0;
@@ -22,6 +28,18 @@ public abstract class CorePlayer implements CoreCommandSender {
     public CorePlayer(CoreBackendServer lastKnownConnectedServer, Audience audience) {
         this.lastKnownConnectedServer = lastKnownConnectedServer;
         this.audience = audience;
+    }
+
+    public boolean isConnected() {
+        return connected.get();
+    }
+
+    public void setConnected(boolean value) {
+        connected.set(value);
+    }
+
+    public boolean markDisconnecting() {
+        return disconnecting.compareAndSet(false, true);
     }
 
     // Abstract

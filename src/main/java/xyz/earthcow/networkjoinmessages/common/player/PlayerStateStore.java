@@ -26,7 +26,6 @@ public final class PlayerStateStore {
 
     private final Map<UUID, String>  previousServer = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> silentState    = new ConcurrentHashMap<>();
-    private final Set<UUID> onlinePlayers  = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noJoinMessage  = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noLeaveMessage = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noSwapMessage  = ConcurrentHashMap.newKeySet();
@@ -99,17 +98,6 @@ public final class PlayerStateStore {
             return false;
         }
         return null;
-    }
-
-    // --- Online tracking ---
-
-    public boolean isConnected(CorePlayer player) {
-        return onlinePlayers.contains(player.getUniqueId());
-    }
-
-    public void setConnected(CorePlayer player, boolean connected) {
-        if (connected) onlinePlayers.add(player.getUniqueId());
-        else           onlinePlayers.remove(player.getUniqueId());
     }
 
     // --- Previous server ---

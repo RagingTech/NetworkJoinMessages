@@ -75,7 +75,7 @@ public class BungeeMain extends Plugin implements CorePlugin {
 
         getProxy()
             .getPluginManager()
-            .registerListener(this, new PlayerListener(core.getCorePlayerListener()));
+            .registerListener(this, new PlayerListener(core.getCorePlayerListener(), bungeeLogger));
 
         getProxy()
             .getPluginManager()
@@ -122,16 +122,6 @@ public class BungeeMain extends Plugin implements CorePlugin {
     @Override
     public CoreCommandSender getConsole() {
         return console;
-    }
-
-    @Override
-    public Core getCore() {
-        return core;
-    }
-
-    @Override
-    public ServerType getServerType() {
-        return ServerType.BUNGEE;
     }
 
     @Override

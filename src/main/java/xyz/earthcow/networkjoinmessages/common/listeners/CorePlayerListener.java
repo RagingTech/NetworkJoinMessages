@@ -87,11 +87,11 @@ public class CorePlayerListener {
     public void onServerConnected(@NotNull CorePlayer player, @NotNull CoreBackendServer server,
                                    @Nullable CoreBackendServer previousServer) {
         plugin.runTaskAsync(() -> {
-            if (!stateStore.isConnected(player)) {
-                handleJoin(player, server);
-            } else {
+            if (player.isConnected()) {
                 boolean fromLimbo = plugin.hasLimbo() && previousServer == null;
                 handleSwap(player, server, fromLimbo);
+            } else {
+                handleJoin(player, server);
             }
         });
     }
@@ -100,11 +100,10 @@ public class CorePlayerListener {
      * Called when a player disconnects from the network.
      */
     public void onDisconnect(@NotNull CorePlayer player) {
-        if (player.isDisconnecting()) {
+        if (!player.markDisconnecting()) {
             plugin.getCoreLogger().debug("Duplicate disconnect ignored for " + player.getName());
             return;
         }
-        player.setDisconnecting(true);
 
         if (shouldSkipLeave(player)) {
             cleanup(player);
@@ -119,7 +118,7 @@ public class CorePlayerListener {
 
     private void handleJoin(@NotNull CorePlayer player, @NotNull CoreBackendServer server) {
         stateStore.loadData(player.getUniqueId(), player.getName());
-        stateStore.setConnected(player, true);
+        player.setConnected(true);
         player.setLastKnownConnectedServer(server);
 
         PremiumVanish pv = plugin.getVanishAPI();
@@ -243,7 +242,7 @@ public class CorePlayerListener {
 
     private boolean shouldSkipLeave(CorePlayer player) {
         if (player.getCurrentServer() == null) return true;
-        if (!stateStore.isConnected(player)) {
+        if (!player.isConnected()) {
             plugin.getCoreLogger().debug("Skipping leave for " + player.getName() + " — not marked as connected");
             return true;
         }
@@ -306,7 +305,6 @@ public class CorePlayerListener {
 
     private void cleanup(CorePlayer player) {
         plugin.getPlayerManager().removePlayer(player.getUniqueId());
-        stateStore.setConnected(player, false);
         leaveMessageCache.stopFor(player);
     }
 }

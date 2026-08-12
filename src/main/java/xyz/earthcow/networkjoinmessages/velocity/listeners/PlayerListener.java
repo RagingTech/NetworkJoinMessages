@@ -7,15 +7,18 @@ import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 import xyz.earthcow.networkjoinmessages.velocity.VelocityMain;
+import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityLogger;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityPlayer;
 import xyz.earthcow.networkjoinmessages.velocity.abstraction.VelocityServer;
 
 public class PlayerListener {
 
     private final CorePlayerListener corePlayerListener;
+    private final VelocityLogger logger;
 
-    public PlayerListener(CorePlayerListener corePlayerListener) {
+    public PlayerListener(CorePlayerListener corePlayerListener, VelocityLogger logger) {
         this.corePlayerListener = corePlayerListener;
+        this.logger = logger;
     }
 
     @Subscribe
@@ -36,11 +39,12 @@ public class PlayerListener {
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         // Check that the player disconnected is not a duplicate user session (the same account tries to join the server while already joined)
-        CorePlayer corePlayer = VelocityMain.getInstance().getOrPutPlayer(new VelocityPlayer(event.getPlayer()));
-        if (corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
+        CorePlayer corePlayer = VelocityMain.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        if (corePlayer == null || corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
+            logger.debug("Ignoring disconnect event for " + (corePlayer == null ? "null" : corePlayer.getName())
+                + " (" + event.getPlayer().getUsername() + ") - null or duplicate player identity");
             return;
         }
-
         corePlayerListener.onDisconnect(corePlayer);
     }
 }

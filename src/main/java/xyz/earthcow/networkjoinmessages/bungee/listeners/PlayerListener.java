@@ -8,6 +8,7 @@ import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import xyz.earthcow.networkjoinmessages.bungee.BungeeMain;
+import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeLogger;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeePlayer;
 import xyz.earthcow.networkjoinmessages.bungee.abstraction.BungeeServer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
@@ -16,9 +17,11 @@ import xyz.earthcow.networkjoinmessages.common.listeners.CorePlayerListener;
 public class PlayerListener implements Listener {
 
     private final CorePlayerListener corePlayerListener;
+    private final BungeeLogger logger;
 
-    public PlayerListener(CorePlayerListener corePlayerListener) {
+    public PlayerListener(CorePlayerListener corePlayerListener, BungeeLogger logger) {
         this.corePlayerListener = corePlayerListener;
+        this.logger = logger;
     }
 
     @EventHandler
@@ -42,8 +45,10 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onDisconnect(PlayerDisconnectEvent event) {
         // Check that the player disconnected is not a duplicate user session (the same account tries to join the server while already joined)
-        CorePlayer corePlayer = BungeeMain.getInstance().getOrPutPlayer(new BungeePlayer(event.getPlayer()));
-        if (corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
+        CorePlayer corePlayer = BungeeMain.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        if (corePlayer == null || corePlayer.getConnectionIdentity() != System.identityHashCode(event.getPlayer())) {
+            logger.debug("Ignoring disconnect event for " + (corePlayer == null ? "null" : corePlayer.getName())
+                + " (" + event.getPlayer().getName() + ") - null or duplicate player identity");
             return;
         }
 
