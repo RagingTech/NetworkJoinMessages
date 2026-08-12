@@ -8,6 +8,7 @@ import xyz.earthcow.networkjoinmessages.common.broadcast.MessageFormatter;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkJoinEvent;
 import xyz.earthcow.networkjoinmessages.common.events.NetworkLeaveEvent;
 import xyz.earthcow.networkjoinmessages.common.events.SwapServerEvent;
+import xyz.earthcow.networkjoinmessages.common.util.Formatter;
 import xyz.earthcow.networkjoinmessages.common.util.PlaceholderResolver;
 
 import java.io.FileNotFoundException;
@@ -118,12 +119,13 @@ public class DiscordIntegration {
     /** Sends an already fully-resolved JSON payload to Discord asynchronously. */
     private void sendWebhook(DiscordWebhook webhook, String fullyResolved) {
         plugin.runTaskAsync(() -> {
+            String cleanFullyResolved = Formatter.sanitize(fullyResolved);
             try {
-                webhook.execute(fullyResolved);
+                webhook.execute(cleanFullyResolved);
             } catch (IOException e) {
                 plugin.getCoreLogger().severe("[DiscordIntegration] " + describeHttpError(e));
                 plugin.getCoreLogger().debug("Exception: " + e);
-                plugin.getCoreLogger().debug("Webhook payload: " + fullyResolved);
+                plugin.getCoreLogger().debug("Webhook payload: " + cleanFullyResolved);
             }
         });
     }
