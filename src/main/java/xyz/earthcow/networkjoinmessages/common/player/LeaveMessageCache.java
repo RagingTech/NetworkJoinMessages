@@ -79,7 +79,6 @@ public final class LeaveMessageCache {
 
     /** Forces an immediate refresh of the cached leave message for the given player. */
     public void refresh(CorePlayer player) {
-        plugin.getCoreLogger().debug("Refreshing cached leave message for " + player.getName());
         String template = messageFormatter.formatLeaveMessage(player);
         placeholderResolver.resolve(template, player, player::setCachedLeaveMessage);
         refreshDiscordPayload(player);
