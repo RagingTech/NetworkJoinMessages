@@ -19,6 +19,7 @@ public abstract class CorePlayer implements CoreCommandSender {
     @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
     private AtomicBoolean disconnecting = new AtomicBoolean(false);
     private String cachedLeaveMessage;
+    private String cachedDiscordLeavePayload;
     private Audience audience;
     private boolean premiumVanishHidden = false;
     private int premiumVanishUseLevel = 0;

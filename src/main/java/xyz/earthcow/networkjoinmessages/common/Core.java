@@ -84,14 +84,18 @@ public class Core {
         ReceiverResolver receiverResolver  = new ReceiverResolver(plugin, config, sayanVanishHook != null, premiumVanish != null);
         MessageHandler   messageHandler    = new MessageHandler(plugin, config, stateStore, placeholderResolver, receiverResolver);
 
+        // Discord webhook builder, early for leave message cache usage
+        DiscordWebhookBuilder webhookBuilder = new DiscordWebhookBuilder(plugin, configManager.getDiscordConfig());
+
         // Player event helpers
         SilenceChecker         silenceChecker    = new SilenceChecker(plugin, config, stateStore, sayanVanishHook, premiumVanish);
-        LeaveMessageCache      leaveMessageCache = new LeaveMessageCache(plugin, config, messageFormatter, placeholderResolver);
+        LeaveMessageCache      leaveMessageCache = new LeaveMessageCache(
+            plugin, config, messageFormatter, placeholderResolver, webhookBuilder, configManager.getDiscordConfig());
         LeaveJoinBufferManager leaveJoinBuffer   = new LeaveJoinBufferManager(plugin, config);
 
         // Discord integration
-        DiscordWebhookBuilder  webhookBuilder      = new DiscordWebhookBuilder(plugin, configManager.getDiscordConfig());
-        DiscordIntegration     discordIntegration  = new DiscordIntegration(plugin, placeholderResolver, messageFormatter, webhookBuilder, configManager.getDiscordConfig());
+        DiscordIntegration discordIntegration = new DiscordIntegration(
+            plugin, placeholderResolver, messageFormatter, webhookBuilder, configManager.getDiscordConfig());
 
         // Spoof
         SpoofManager spoofManager = new SpoofManager(plugin, config, messageHandler, messageFormatter, placeholderResolver);

@@ -3,6 +3,7 @@ package xyz.earthcow.networkjoinmessages.common.modules;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import org.jetbrains.annotations.Nullable;
 import xyz.earthcow.discordwebhook.DiscordWebhook;
+import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlayer;
 import xyz.earthcow.networkjoinmessages.common.abstraction.CorePlugin;
 
 import java.awt.*;
@@ -52,6 +53,16 @@ public final class DiscordWebhookBuilder {
     @Nullable
     public DiscordWebhook buildLeaveWebhook(String webhookUrl) {
         return buildWebhook(webhookUrl, "Messages.LeaveNetwork");
+    }
+
+    /**
+     * Resolves the avatar URL template from config, substituting {@code %uuid%} and
+     * {@code %player%} for the given player.
+     */
+    public String resolveAvatarUrl(CorePlayer player) {
+        return discordConfig.getString("EmbedAvatarUrl")
+            .replace("%uuid%", player.getUniqueId().toString())
+            .replace("%player%", player.getName());
     }
 
     // --- Internal builder ---
